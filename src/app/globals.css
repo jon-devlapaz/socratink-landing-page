@@ -1,26 +1,288 @@
 @import "tailwindcss";
 
+/*
+  Flexoki dark, mirroring the Socratink app's `[data-theme="dark"]` tokens
+  so the landing page and the product read as one surface.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #100f0f;
+  --paper-2: #1c1b1a;
+  --ui: #282726;
+  --ui-2: #343331;
+  --ui-3: #403e3c;
+  --tx: #cecdc3;
+  --tx-2: #878580;
+  --tx-3: #575653;
+  --accent: #3aa99f;
+  --accent-deep: #24837b;
+  --error: #d14d41;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ui: var(--ui);
+  --color-ui-2: var(--ui-2);
+  --color-ui-3: var(--ui-3);
+  --color-tx: var(--tx);
+  --color-tx-2: var(--tx-2);
+  --color-tx-3: var(--tx-3);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-error: var(--error);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --ease-press: cubic-bezier(0.2, 0, 0, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--tx);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+  overflow-x: clip;
+}
+
+/* Paper grain, lifted from the app. Sits above everything but ignores input. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background-image: var(--grain);
+  background-size: 180px 140px;
+  mix-blend-mode: overlay;
+  opacity: 0.35;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--tx);
+}
+
+@layer components {
+  .eyebrow {
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--tx-3);
+  }
+
+  /* lazy.so's two-voice headline: a plain sans line followed by a metallic serif line. */
+  .h-sans {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    color: var(--tx);
+  }
+
+  .h-serif {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--tx) 92%, white) 0%,
+      var(--tx-2) 60%,
+      var(--tx-3) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .card {
+    background: color-mix(in srgb, var(--paper-2) 80%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tx) 8%, transparent);
+    border-radius: 1.25rem;
+    box-shadow:
+      0 1px 0 0 color-mix(in srgb, white 3%, transparent) inset,
+      0 20px 60px -30px rgba(0, 0, 0, 0.7);
+  }
+
+  .tile {
+    background: color-mix(in srgb, var(--ui) 55%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tx) 7%, transparent);
+    border-radius: 0.875rem;
+  }
+
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.35rem;
+    border-radius: 0.3rem;
+    font-size: 0.6875rem;
+    font-family: var(--font-sans);
+    color: var(--tx-2);
+    background: color-mix(in srgb, var(--ui-2) 90%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.6rem;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--tx);
+    background: color-mix(in srgb, var(--ui) 85%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tx) 12%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in srgb, white 5%, transparent) inset,
+      0 6px 20px -10px rgba(0, 0, 0, 0.8);
+    transition:
+      background-color 180ms var(--ease-press),
+      border-color 180ms var(--ease-press),
+      transform 180ms var(--ease-press);
+  }
+  .btn-primary:hover {
+    background: color-mix(in srgb, var(--ui-2) 90%, transparent);
+    border-color: color-mix(in srgb, var(--tx) 20%, transparent);
+  }
+  .btn-primary:active {
+    transform: translateY(1px);
+  }
+
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.6rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--paper);
+    background: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 70%, white);
+    box-shadow: 0 0 36px -6px color-mix(in srgb, var(--accent) 45%, transparent);
+    transition:
+      filter 180ms var(--ease-press),
+      transform 180ms var(--ease-press);
+  }
+  .btn-accent:hover {
+    filter: brightness(1.08);
+  }
+  .btn-accent:active {
+    transform: translateY(1px);
+  }
+
+  .btn-ghost {
+    font-size: 0.8125rem;
+    color: var(--tx-2);
+    transition: color 160ms var(--ease-press);
+  }
+  .btn-ghost:hover {
+    color: var(--tx);
+  }
+
+  .window {
+    background: var(--paper-2);
+    border: 1px solid color-mix(in srgb, var(--tx) 9%, transparent);
+    border-radius: 0.9rem;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.5),
+      0 40px 80px -40px rgba(0, 0, 0, 0.9);
+  }
+}
+
+/*
+  The ink sphere (WebGL, ported from the app). The canvas is transparent; the
+  soft halo below sells the "ink on paper" depth on a dark ground.
+*/
+.sphere {
+  position: relative;
+  flex: none;
+  filter: drop-shadow(0 0 28px rgba(210, 198, 178, 0.14)) drop-shadow(0 24px 48px rgba(0, 0, 0, 0.6));
+}
+.sphere-fallback {
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #1c1b1a 0%, #0c0c0e 70%);
+  box-shadow: inset 0 0 0 1px rgba(210, 198, 178, 0.35);
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.caret {
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes orbit-counter {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+.orbit-ring {
+  animation: orbit-spin var(--orbit-duration, 60s) linear infinite;
+}
+.orbit-item {
+  animation: orbit-counter var(--orbit-duration, 60s) linear infinite;
+}
+
+@keyframes tab-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+.tab-progress {
+  animation: tab-fill var(--tab-duration, 7s) linear forwards;
+}
+.tab-progress[data-paused="true"] {
+  animation-play-state: paused;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.star {
+  animation: twinkle var(--twinkle, 4s) ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-ring,
+  .orbit-item,
+  .star {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }
