@@ -14,11 +14,11 @@ export function Hero() {
   const { phase, skipped } = useIntro();
   const [demoLevel, setDemoLevel] = useState(0);
 
-  // Reveals start when the sphere begins to settle; skipped intro means straight away.
+  // Reveals start when the visitor enters; a skipped gate means straight away.
   const ready = phase !== "drop";
-  const base = skipped ? 0 : (INTRO.revealAt - INTRO.settleAt) / 1000;
+  const base = skipped ? 0 : INTRO.revealDelay;
 
-  const sphereLevel = phase === "drop" ? 0.65 : phase === "settle" ? 0.2 : demoLevel;
+  const sphereLevel = phase === "settle" ? 0.2 : demoLevel;
 
   return (
     <section className="relative isolate overflow-x-clip pt-32 pb-28 sm:pt-40 sm:pb-36">
@@ -106,14 +106,19 @@ function Rise({
   );
 }
 
+/** Idle ripple while the gate waits; a little livelier under the pointer. */
+const GATE_LEVEL = { idle: 0.3, hover: 0.55 } as const;
+
 /**
- * The sphere lives in an in-flow slot. During the intro it is translated to the
- * viewport centre and enlarged; on "settle" it animates back to the slot.
+ * The sphere lives in an in-flow slot. During the gate it is translated to the
+ * viewport centre and enlarged, and is itself a click target; on "settle" it
+ * animates back to the slot.
  */
 function HeroSphere({ level }: { level: number }) {
-  const { phase, skipped } = useIntro();
+  const { phase, skipped, enter } = useIntro();
   const slotRef = useRef<HTMLDivElement>(null);
   const [drop, setDrop] = useState<{ x: number; y: number } | null>(null);
+  const [hovered, setHovered] = useState(false);
 
   useLayoutEffect(() => {
     const slot = slotRef.current;
@@ -127,6 +132,7 @@ function HeroSphere({ level }: { level: number }) {
 
   const dropped = phase === "drop";
   const canRender = skipped || drop !== null;
+  const gateLevel = hovered ? GATE_LEVEL.hover : GATE_LEVEL.idle;
 
   return (
     <div
@@ -136,7 +142,10 @@ function HeroSphere({ level }: { level: number }) {
     >
       {canRender ? (
         <motion.div
-          className="absolute inset-0"
+          className={`absolute inset-0 rounded-full ${dropped ? "cursor-pointer" : ""}`}
+          onClick={dropped ? enter : undefined}
+          onPointerEnter={() => setHovered(true)}
+          onPointerLeave={() => setHovered(false)}
           initial={
             skipped
               ? false
@@ -153,7 +162,11 @@ function HeroSphere({ level }: { level: number }) {
               : { duration: 1.0, ease: INTRO.ease }
           }
         >
-          <OrganicSphere size={SPHERE_SIZE} level={level} oversample={INTRO.dropScale} />
+          <OrganicSphere
+            size={SPHERE_SIZE}
+            level={dropped ? gateLevel : level}
+            oversample={INTRO.dropScale}
+          />
         </motion.div>
       ) : null}
     </div>

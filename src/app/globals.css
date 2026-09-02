@@ -211,6 +211,10 @@ body::after {
   flex: none;
   filter: drop-shadow(0 0 28px rgba(210, 198, 178, 0.14)) drop-shadow(0 24px 48px rgba(0, 0, 0, 0.6));
 }
+/* The app's wordmark asset is ink on transparent; invert it for dark paper, as the app does. */
+.wordmark-img {
+  filter: invert(1) brightness(0.86);
+}
 .sphere-fallback {
   border-radius: 50%;
   background: radial-gradient(circle at 40% 35%, #1c1b1a 0%, #0c0c0e 70%);
