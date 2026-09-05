@@ -37,10 +37,6 @@ export const metadata: Metadata = {
     title: `${site.name} • ${site.tagline}`,
     description: site.description,
   },
-  icons: {
-    icon: "/brand/socratink_favicon_dark.png",
-    apple: "/brand/socratink_favicon_dark.png",
-  },
 };
 
 export const viewport: Viewport = {
