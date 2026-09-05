@@ -12,12 +12,19 @@ export function Orbit() {
   const inner = orbit.nodes.slice(6);
 
   return (
-    <section className="relative isolate overflow-hidden py-28 sm:py-36">
+    <section className="relative isolate overflow-hidden py-12 sm:py-16">
       <Starfield count={70} />
       <SectionHeading eyebrow={orbit.eyebrow} sans={orbit.titleSans} serif={orbit.titleSerif} />
 
       <Reveal delay={0.15} className="mx-auto mt-12 flex justify-center px-5">
-        <div className="relative h-[17rem] w-[17rem] sm:h-[28rem] sm:w-[28rem]">
+        <ul className="flex flex-wrap justify-center gap-2 sm:hidden">
+          {orbit.nodes.map((label) => (
+            <li key={label} className="tile px-3 py-1.5 text-[0.75rem] text-tx-2">
+              {label}
+            </li>
+          ))}
+        </ul>
+        <div className="relative hidden h-[28rem] w-[28rem] sm:block">
           <Ring nodes={outer} radiusPct={50} duration={80} />
           <Ring nodes={inner} radiusPct={30} duration={55} reverse />
 

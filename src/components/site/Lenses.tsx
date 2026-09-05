@@ -1,52 +1,36 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Transcript } from "@/components/ui/Transcript";
 import { lenses, lensesSection, type Lens } from "@/lib/content";
 
-const AUTO_ADVANCE_MS = 7000;
-
-/**
- * lazy.so's tabbed showcase (Articles / Twitter / YouTube): a large card with a
- * product mock on the left, copy plus a 2x2 tile grid on the right, and a row of
- * tabs beneath whose underline fills as a progress bar before auto-advancing.
- * The CSS fill animation is the clock: when it ends, the next tab is selected,
- * so pausing the bar on hover also pauses the advance.
- */
 export function Lenses() {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const reduce = useReducedMotion();
   const lens = lenses[index];
-  const advance = () => setIndex((i) => (i + 1) % lenses.length);
 
   return (
-    <section id="moves" className="scroll-mt-24 py-28 sm:py-36">
+    <section id="moves" className="scroll-mt-24 py-12 sm:py-16">
       <SectionHeading
         eyebrow={lensesSection.eyebrow}
         sans={lensesSection.titleSans}
         serif={lensesSection.titleSerif}
+        align="left"
+        className="mx-auto max-w-6xl px-5 sm:px-8"
       />
 
-      <Reveal
-        delay={0.15}
-        y={30}
-        className="mx-auto mt-14 max-w-6xl px-5 sm:px-8"
-      >
-        <div
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
-          className="card grid gap-8 p-5 sm:p-7 lg:grid-cols-[1.35fr_1fr] lg:gap-10 lg:p-9"
-        >
+      <Reveal delay={0.15} y={30} className="mx-auto mt-10 max-w-6xl px-5 sm:px-8">
+        <div className="card grid gap-8 p-5 sm:p-7 lg:grid-cols-[1.35fr_1fr] lg:gap-10 lg:p-9">
           <div className="window relative min-h-[22rem] p-5 sm:p-6">
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={lens.id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={reduce ? false : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
+                exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
                 transition={{ duration: 0.35, ease: [0.2, 0, 0, 1] }}
               >
                 <Transcript turns={lens.transcript} />
@@ -56,7 +40,7 @@ export function Lenses() {
 
           <div className="flex flex-col justify-between gap-8">
             <div>
-              <span className="text-accent">✦</span>
+              <span className="text-tx-2">✦</span>
               <h3 className="mt-3 text-[1.25rem] leading-snug">
                 <span className="text-tx">{lens.label}. </span>
                 <span className="text-tx-2">{lens.tagline}</span>
@@ -66,7 +50,7 @@ export function Lenses() {
             <ul className="grid grid-cols-2 gap-2.5">
               {lens.tiles.map((tile) => (
                 <li key={tile.label} className="tile flex flex-col gap-4 p-3.5 text-[0.8125rem] text-tx-2">
-                  <span className="text-tx-3">{tile.icon}</span>
+                  <span className="text-tx-2">{tile.icon}</span>
                   <span>{tile.label}</span>
                 </li>
               ))}
@@ -74,58 +58,36 @@ export function Lenses() {
           </div>
         </div>
 
-        <Tabs active={index} paused={paused} onSelect={setIndex} onComplete={advance} />
+        <Moves active={index} onSelect={setIndex} />
       </Reveal>
     </section>
   );
 }
 
-function Tabs({
-  active,
-  paused,
-  onSelect,
-  onComplete,
-}: {
-  active: number;
-  paused: boolean;
-  onSelect: (i: number) => void;
-  onComplete: () => void;
-}) {
+function Moves({ active, onSelect }: { active: number; onSelect: (i: number) => void }) {
   return (
-    <div role="tablist" aria-label="Moves" className="mt-8 grid gap-6 sm:grid-cols-3">
+    <div className="mt-8 grid gap-2.5 sm:grid-cols-3 sm:gap-3">
       {lenses.map((lens: Lens, i) => {
         const isActive = i === active;
         return (
           <button
             key={lens.id}
-            role="tab"
             type="button"
-            aria-selected={isActive}
+            aria-current={isActive ? "true" : undefined}
             onClick={() => onSelect(i)}
-            className="group text-left"
+            className={`tile min-h-11 w-full p-4 text-left transition-[border-color,background-color,scale] duration-[180ms] ease-[var(--ease-press)] active:scale-[0.96] ${
+              isActive
+                ? "border-tx/20 bg-ui/70"
+                : "hover:border-tx/16"
+            }`}
           >
-            <div className="flex items-center justify-between">
-              <span className={`text-[1rem] ${isActive ? "text-tx" : "text-tx-2 group-hover:text-tx"}`}>
-                {lens.label}
-              </span>
-            </div>
-            <div className="relative mt-2.5 h-px w-full bg-tx/10">
-              {isActive ? (
-                <div
-                  key={lens.id}
-                  data-paused={paused}
-                  onAnimationEnd={onComplete}
-                  className="tab-progress absolute inset-y-0 left-0 bg-tx"
-                  style={{
-                    ["--tab-duration" as string]: `${AUTO_ADVANCE_MS}ms`,
-                    boxShadow: "0 0 12px rgba(206,205,195,0.6)",
-                  }}
-                />
-              ) : null}
-            </div>
-            <p className={`mt-3 text-[0.8125rem] leading-relaxed ${isActive ? "text-tx" : "text-tx-2"}`}>
-              {lens.tagline}
-            </p>
+            <span className="block text-[0.75rem] tabular-nums tracking-[0.14em] text-tx-2">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className={`mt-2 block text-[1rem] leading-snug ${isActive ? "text-tx" : "text-tx-2"}`}>
+              {lens.label}
+            </span>
+            <span className="mt-1.5 block text-[0.8125rem] leading-relaxed text-tx-2">{lens.tagline}</span>
           </button>
         );
       })}

@@ -1,14 +1,11 @@
 "use client";
 
-import { motion } from "motion/react";
 import Link from "next/link";
 import { useEffect } from "react";
-import { INTRO, useIntro } from "@/components/site/Intro";
 import { Wordmark } from "@/components/ui/Wordmark";
 import { nav } from "@/lib/content";
 
 export function Nav() {
-  const { phase } = useIntro();
   // lazy.so's "Get Lazy [L]" shortcut; here a bare "S" jumps to the app.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -25,12 +22,7 @@ export function Nav() {
   }, []);
 
   return (
-    <motion.header
-      className="fixed inset-x-0 top-0 z-50"
-      initial={{ opacity: 0, y: -8 }}
-      animate={phase === "drop" ? { opacity: 0, y: -8 } : { opacity: 1, y: 0 }}
-      transition={{ duration: 0.9, ease: INTRO.ease }}
-    >
+    <header className="fixed inset-x-0 top-0 z-50">
       <div className="border-b border-tx/6 bg-paper/70 backdrop-blur-xl">
         <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 sm:px-8">
           <Wordmark />
@@ -56,6 +48,6 @@ export function Nav() {
           </div>
         </nav>
       </div>
-    </motion.header>
+    </header>
   );
 }

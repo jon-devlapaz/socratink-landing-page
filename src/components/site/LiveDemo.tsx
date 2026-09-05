@@ -1,5 +1,6 @@
 "use client";
 
+import { useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Transcript } from "@/components/ui/Transcript";
 import { lenses, type DemoTurn, type Lens } from "@/lib/content";
@@ -14,13 +15,14 @@ const CHAR_MS = 18;
 const TURN_PAUSE_MS = 650;
 
 /**
- * Hero demo: the Socratink composer, idle until a lens is chosen, then a scripted
+ * Hero demo: an example conversation, idle until a lens is chosen, then a scripted
  * exchange types itself out. No network; the point is to show the shape of the
  * interaction, not to run the model.
  */
 export function LiveDemo({ onActivity }: { onActivity?: (level: number) => void }) {
   const [play, setPlay] = useState<Playback | null>(null);
   const timers = useRef<number[]>([]);
+  const reduce = useReducedMotion();
 
   // Let the sphere stir while Socratink "speaks", as the app's orb does while working.
   useEffect(() => {
@@ -40,6 +42,11 @@ export function LiveDemo({ onActivity }: { onActivity?: (level: number) => void 
     clearTimers();
     const lens = lenses.find((l) => l.id === id);
     if (!lens) return;
+    if (reduce) {
+      setPlay({ lens: id, done: lens.transcript.length, typing: null });
+      return;
+    }
+
     setPlay({ lens: id, done: 0, typing: null });
 
     let t = 300;
@@ -65,17 +72,16 @@ export function LiveDemo({ onActivity }: { onActivity?: (level: number) => void 
   const active = play ? lenses.find((l) => l.id === play.lens) : null;
 
   return (
-    <div className="card relative w-full overflow-hidden p-2.5 sm:p-3">
-      <div className="rounded-[0.9rem] border border-tx/8 bg-paper/70 p-4 sm:p-5">
+    <div className="card relative w-full overflow-hidden p-2.5">
+      <div className="rounded-[0.625rem] border border-tx/8 bg-paper/70 p-4 sm:p-5">
         {active && play ? (
           <div className="min-h-[9.5rem]">
             <Transcript turns={active.transcript} visible={play.done} typing={play.typing} dense />
           </div>
         ) : (
-          <div className="flex min-h-[9.5rem] flex-col justify-between">
-            <p className="text-[0.9rem] text-tx-3">
-              Message Socratink… or pick a lens{" "}
-              <span className="kbd align-middle">/</span>
+          <div className="flex min-h-[9.5rem] flex-col justify-between gap-5">
+            <p className="text-[0.9rem] text-tx-2">
+              Choose a move to play an example.
             </p>
             <div className="flex flex-wrap gap-2">
               {lenses.map((l) => (
@@ -83,7 +89,7 @@ export function LiveDemo({ onActivity }: { onActivity?: (level: number) => void 
                   key={l.id}
                   type="button"
                   onClick={() => start(l.id)}
-                  className="tile flex items-center gap-2 px-3 py-1.5 text-left text-[0.8125rem] text-tx-2 transition-colors hover:border-accent/40 hover:text-tx"
+                  className="tile flex min-h-11 items-center gap-2 px-3 py-1.5 text-left text-[0.8125rem] text-tx-2 transition-[border-color,color,scale] duration-150 ease-out hover:border-accent/40 hover:text-tx active:scale-[0.96]"
                 >
                   <span className="text-accent">✦</span>
                   {l.label}
@@ -94,39 +100,20 @@ export function LiveDemo({ onActivity }: { onActivity?: (level: number) => void 
         )}
       </div>
 
-      <div className="flex items-center justify-between px-2 pt-2.5 pb-0.5 text-[0.75rem] text-tx-2">
-        <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="text-tx-3">◌</span> Default
-          </span>
-          {active ? (
-            <button
-              type="button"
-              onClick={() => {
-                clearTimers();
-                setPlay(null);
-              }}
-              className="text-tx-3 transition-colors hover:text-tx"
-            >
-              Start over
-            </button>
-          ) : null}
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="hidden items-center gap-1 sm:inline-flex">
-            <span className="kbd">⌘</span>
-            <span className="text-tx-3">/</span>
-            <span className="kbd">Ctrl</span>
-            <span className="text-tx-3">+</span>
-            <span className="kbd">Enter</span>
-          </span>
-          <span
-            aria-hidden
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-accent text-paper shadow-[0_0_24px_-4px_rgba(58,169,159,0.7)]"
+      <div className="flex flex-wrap items-center justify-between gap-2 px-2 pt-2.5 pb-0.5 text-[0.75rem] text-tx-2">
+        <span>Scripted example</span>
+        {active ? (
+          <button
+            type="button"
+            onClick={() => {
+              clearTimers();
+              setPlay(null);
+            }}
+            className="btn-ghost min-h-11"
           >
-            ↑
-          </span>
-        </div>
+            Start over
+          </button>
+        ) : null}
       </div>
     </div>
   );

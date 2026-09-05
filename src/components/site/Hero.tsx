@@ -1,9 +1,7 @@
 "use client";
 
-import { motion } from "motion/react";
 import Link from "next/link";
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { INTRO, IntroOverlay, useIntro } from "@/components/site/Intro";
+import { useState } from "react";
 import { LiveDemo } from "@/components/site/LiveDemo";
 import { OrganicSphere } from "@/components/ui/OrganicSphere";
 import { hero } from "@/lib/content";
@@ -11,165 +9,59 @@ import { hero } from "@/lib/content";
 const SPHERE_SIZE = 128;
 
 export function Hero() {
-  const { phase, skipped } = useIntro();
   const [demoLevel, setDemoLevel] = useState(0);
 
-  // Reveals start when the visitor enters; a skipped gate means straight away.
-  const ready = phase !== "drop";
-  const base = skipped ? 0 : INTRO.revealDelay;
-
-  const sphereLevel = phase === "settle" ? 0.2 : demoLevel;
-
   return (
-    <section className="relative isolate overflow-x-clip pt-32 pb-28 sm:pt-40 sm:pb-36">
+    <section className="relative isolate overflow-x-clip pt-24 pb-12 sm:pt-32 sm:pb-16">
       <Eclipse />
-      <IntroOverlay />
 
-      <div className="relative mx-auto flex max-w-4xl flex-col items-center px-5 text-center">
-        <Rise ready={ready} delay={base}>
-          <p className="flex items-center gap-3 text-[0.75rem] text-tx-2">
-            <span className="h-px w-8 bg-gradient-to-r from-transparent to-tx-3" />
-            <span className="text-tx">{hero.eyebrowA}</span>
-            <span className="h-3 w-px bg-tx-3" />
-            <span>{hero.eyebrowB}</span>
-            <span className="h-px w-8 bg-gradient-to-l from-transparent to-tx-3" />
-          </p>
-        </Rise>
+      <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-5 sm:px-8 lg:flex-row lg:items-center lg:gap-12">
+        <div className="flex w-full max-w-xl flex-col items-center gap-5 text-center lg:items-start lg:text-left">
+          <div className="flex flex-col items-center gap-3 lg:items-start">
+            <div>
+              <p className="eyebrow">{hero.eyebrowB}</p>
+            </div>
 
-        <Rise ready={ready} delay={base + 0.08}>
-          <h1 className="mt-6 text-[2.6rem] leading-[1.02] sm:text-[3.6rem] lg:text-[4.25rem]">
-            <span className="h-sans">{hero.titleSans} </span>
-            <span className="h-serif">{hero.titleSerif}</span>
-          </h1>
-        </Rise>
+            <div>
+              <h1 className="flex flex-col text-[2.6rem] leading-[1.05] text-balance sm:text-[3.4rem] lg:text-[3.75rem]">
+                <span className="h-sans">{hero.titleSans}</span>
+                <span className="h-serif">{hero.titleSerif}</span>
+              </h1>
+            </div>
+          </div>
 
-        <Rise ready={ready} delay={base + 0.16}>
-          <p className="mx-auto mt-6 max-w-xl text-[1.05rem] leading-relaxed text-tx-2">
-            {hero.subtitle}
-          </p>
-        </Rise>
+          <div>
+            <p className="max-w-lg text-[1.05rem] leading-[1.55] text-pretty text-tx-2">{hero.subtitle}</p>
+          </div>
 
-        <Rise ready={ready} delay={base + 0.24} className="mt-8 flex items-center gap-4">
-          <Link href={hero.primary.href} className="btn-accent">
-            {hero.primary.label}
-          </Link>
-          <Link href={hero.secondary.href} className="btn-ghost">
-            {hero.secondary.label} →
-          </Link>
-        </Rise>
-      </div>
+          <div className="flex items-center gap-6">
+            <Link href={hero.primary.href} className="btn-accent min-h-11">
+              {hero.primary.label}
+            </Link>
+            <Link href={hero.secondary.href} className="btn-ghost inline-flex min-h-11 items-center">
+              {hero.secondary.label} →
+            </Link>
+          </div>
+        </div>
 
-      <div className="relative mx-auto mt-14 w-full max-w-2xl px-5">
-        <Rise ready={ready} delay={base + 0.34} y={28}>
-          <LightStreak />
-        </Rise>
-        <div className="relative flex flex-col items-center">
-          <HeroSphere level={sphereLevel} />
-          <Rise ready={ready} delay={base + 0.34} y={28} className="mt-8 w-full">
-            <LiveDemo onActivity={setDemoLevel} />
-          </Rise>
+        <div className="relative flex w-full max-w-2xl flex-col items-center gap-5 lg:max-w-none lg:flex-1">
+          <div>
+            <p className="max-w-sm text-center text-[0.8125rem] leading-relaxed text-pretty text-tx-2">
+              <span className="text-tx">{hero.demoHint.strong}.</span> {hero.demoHint.rest}
+            </p>
+          </div>
+          <div className="relative flex w-full flex-col items-center gap-5">
+            <div className="pointer-events-none absolute inset-0">
+              <LightStreak />
+            </div>
+            <OrganicSphere size={SPHERE_SIZE} level={demoLevel} />
+            <div className="w-full">
+              <LiveDemo onActivity={setDemoLevel} />
+            </div>
+          </div>
         </div>
       </div>
-
-      <Rise ready={ready} delay={base + 0.5}>
-        <p className="mx-auto mt-12 max-w-sm px-5 text-center text-[0.8125rem] leading-relaxed text-tx-2">
-          <span className="text-tx">{hero.demoHint.strong}.</span> {hero.demoHint.rest}
-        </p>
-      </Rise>
     </section>
-  );
-}
-
-/** Fade-and-rise gated on the intro instead of viewport visibility. */
-function Rise({
-  ready,
-  delay,
-  y = 18,
-  className,
-  children,
-}: {
-  ready: boolean;
-  delay: number;
-  y?: number;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y }}
-      animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y }}
-      transition={{ duration: 0.8, ease: INTRO.ease, delay: ready ? delay : 0 }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/** Idle ripple while the gate waits; a little livelier under the pointer. */
-const GATE_LEVEL = { idle: 0.3, hover: 0.55 } as const;
-
-/**
- * The sphere lives in an in-flow slot. During the gate it is translated to the
- * viewport centre and enlarged, and is itself a click target; on "settle" it
- * animates back to the slot.
- */
-function HeroSphere({ level }: { level: number }) {
-  const { phase, skipped, enter } = useIntro();
-  const slotRef = useRef<HTMLDivElement>(null);
-  const [drop, setDrop] = useState<{ x: number; y: number } | null>(null);
-  const [hovered, setHovered] = useState(false);
-
-  useLayoutEffect(() => {
-    const slot = slotRef.current;
-    if (!slot) return;
-    const rect = slot.getBoundingClientRect();
-    setDrop({
-      x: window.innerWidth / 2 - (rect.left + rect.width / 2),
-      y: window.innerHeight * INTRO.dropCentreY - (rect.top + rect.height / 2),
-    });
-  }, []);
-
-  const dropped = phase === "drop";
-  const canRender = skipped || drop !== null;
-  const gateLevel = hovered ? GATE_LEVEL.hover : GATE_LEVEL.idle;
-
-  return (
-    <div
-      ref={slotRef}
-      className="relative"
-      style={{ width: SPHERE_SIZE, height: SPHERE_SIZE, zIndex: phase === "done" ? undefined : 45 }}
-    >
-      {canRender ? (
-        <motion.div
-          className={`absolute inset-0 rounded-full ${dropped ? "cursor-pointer" : ""}`}
-          onClick={dropped ? enter : undefined}
-          onPointerEnter={() => setHovered(true)}
-          onPointerLeave={() => setHovered(false)}
-          initial={
-            skipped
-              ? false
-              : { x: drop!.x, y: drop!.y, scale: INTRO.dropScale * 0.72, opacity: 0 }
-          }
-          animate={
-            dropped
-              ? { x: drop!.x, y: drop!.y, scale: INTRO.dropScale, opacity: 1 }
-              : { x: 0, y: 0, scale: 1, opacity: 1 }
-          }
-          transition={
-            dropped
-              ? { duration: 1.1, ease: INTRO.ease }
-              : { duration: 1.0, ease: INTRO.ease }
-          }
-        >
-          <OrganicSphere
-            size={SPHERE_SIZE}
-            level={dropped ? gateLevel : level}
-            oversample={INTRO.dropScale}
-          />
-        </motion.div>
-      ) : null}
-    </div>
   );
 }
 

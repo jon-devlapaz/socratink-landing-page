@@ -6,7 +6,7 @@ import { memory } from "@/lib/content";
 /** lazy.so's "Let serendipity blossom": two tall cards, then a wide one. */
 export function Memory() {
   return (
-    <section id="memory" className="relative isolate scroll-mt-24 overflow-hidden py-28 sm:py-36">
+    <section id="memory" className="relative isolate scroll-mt-24 overflow-hidden pt-12 pb-12 sm:pt-12 sm:pb-16">
       <Starfield count={40} seed={23} />
       <SectionHeading eyebrow={memory.eyebrow} sans={memory.titleSans} serif={memory.titleSerif} />
 
@@ -54,13 +54,13 @@ function EvidenceLedger() {
   return (
     <ul className="tile divide-y divide-tx/6 text-[0.8125rem]">
       {rows.map((r) => (
-        <li key={r.what} className="flex items-center gap-3 px-3.5 py-2.5">
+        <li key={r.what} className="flex items-start gap-3 px-3.5 py-2.5">
           <span
             className={`h-1.5 w-1.5 shrink-0 rounded-full ${r.ok ? "bg-accent" : "bg-tx-3"}`}
             aria-hidden
           />
-          <span className="min-w-0 flex-1 truncate text-tx-2">{r.what}</span>
-          <span className="shrink-0 text-[0.7rem] text-tx-3">{r.how}</span>
+          <span className="min-w-0 flex-1 text-pretty text-tx-2">{r.what}</span>
+          <span className="shrink-0 pt-0.5 text-[0.75rem] text-tx-2">{r.how}</span>
         </li>
       ))}
     </ul>
@@ -84,7 +84,7 @@ function ReturnTimeline() {
               p.state === "done" ? "bg-accent" : p.state === "next" ? "bg-tx" : "bg-tx-3"
             }`}
           />
-          <p className="text-[0.7rem] uppercase tracking-[0.15em] text-tx-3">{p.t}</p>
+          <p className="text-[0.75rem] uppercase tracking-[0.15em] text-tx-2">{p.t}</p>
           <p className={p.state === "later" ? "text-tx-2" : "text-tx"}>{p.label}</p>
         </li>
       ))}

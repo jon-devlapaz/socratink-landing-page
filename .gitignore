@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# hillclimb working artifacts (keep the harness scripts)
+.hillclimb/node_modules/
+.hillclimb/decision.tsv
+.hillclimb/baseline.json
+.hillclimb/latest.json
+.hillclimb/probe.json
+.hillclimb/*.png

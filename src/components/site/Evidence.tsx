@@ -8,7 +8,7 @@ export function Evidence() {
   const { steps, bounded, voice, keyboard, model } = evidence.cards;
 
   return (
-    <section className="py-28 sm:py-36">
+    <section className="py-12 sm:py-16">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeading
           eyebrow={evidence.eyebrow}
@@ -24,12 +24,12 @@ export function Evidence() {
               {steps.items.map((item, i) => (
                 <li
                   key={item}
-                  className={`tile flex items-center gap-3 px-3.5 py-2.5 text-[0.8125rem] ${
+                  className={`tile flex items-start gap-3 px-3.5 py-2.5 text-[0.8125rem] ${
                     i === steps.items.length - 1 ? "text-tx" : "text-tx-2"
                   }`}
                 >
-                  <span className="w-4 text-right text-[0.7rem] text-tx-3">{i + 1}</span>
-                  <span className="min-w-0 truncate">{item}</span>
+                  <span className="w-4 shrink-0 text-right text-[0.75rem] text-tx-2">{i + 1}</span>
+                  <span className="min-w-0 text-pretty">{item}</span>
                 </li>
               ))}
             </ol>
@@ -40,10 +40,10 @@ export function Evidence() {
             <CardHead title={bounded.title} sub={bounded.sub} />
             <ul className="mt-6 flex flex-col gap-3">
               {bounded.states.map((s) => (
-                <li key={s.label} className="flex items-center justify-between gap-4 text-[0.8125rem]">
-                  <span className="min-w-0 truncate text-tx-2">{s.label}</span>
-                  <span className="flex shrink-0 items-center gap-3">
-                    <span className="text-[0.7rem] text-tx-3">{s.note}</span>
+                <li key={s.label} className="flex items-start justify-between gap-4 text-[0.8125rem]">
+                  <span className="min-w-0 flex-1 text-pretty text-tx-2">{s.label}</span>
+                  <span className="flex shrink-0 items-center gap-3 pt-0.5">
+                    <span className="text-[0.75rem] text-tx-2">{s.note}</span>
                     <span className="flex gap-1" aria-label={`evidence strength ${s.level} of 3`}>
                       {[1, 2, 3].map((n) => (
                         <span
@@ -91,7 +91,7 @@ export function Evidence() {
                   {c}
                 </span>
               ))}
-              <span className="tile px-3 py-1.5 text-[0.8125rem] text-tx-3">…</span>
+              <span className="tile px-3 py-1.5 text-[0.8125rem] text-tx-2">…</span>
             </div>
             <div>
               <h3 className="text-[1.05rem] text-tx">{model.title}</h3>

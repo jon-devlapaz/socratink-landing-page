@@ -16,6 +16,9 @@
   --accent: #3aa99f;
   --accent-deep: #24837b;
   --error: #d14d41;
+  --ink: var(--tx);
+  --mark-fill: radial-gradient(circle at 62% 72%, #cecdc3 0%, #b7b5ac 42%, #878580 100%);
+  --ease-out: ease-out;
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   color-scheme: dark;
 }
@@ -72,10 +75,10 @@ body::after {
 
 @layer components {
   .eyebrow {
-    font-size: 0.6875rem;
-    letter-spacing: 0.22em;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--tx-3);
+    color: var(--tx-2);
   }
 
   /* lazy.so's two-voice headline: a plain sans line followed by a metallic serif line. */
@@ -146,17 +149,16 @@ body::after {
     box-shadow:
       0 1px 0 0 color-mix(in srgb, white 5%, transparent) inset,
       0 6px 20px -10px rgba(0, 0, 0, 0.8);
-    transition:
-      background-color 180ms var(--ease-press),
-      border-color 180ms var(--ease-press),
-      transform 180ms var(--ease-press);
+    transition-property: background-color, border-color, scale;
+    transition-duration: 180ms;
+    transition-timing-function: var(--ease-press);
   }
   .btn-primary:hover {
     background: color-mix(in srgb, var(--ui-2) 90%, transparent);
     border-color: color-mix(in srgb, var(--tx) 20%, transparent);
   }
   .btn-primary:active {
-    transform: translateY(1px);
+    scale: 0.96;
   }
 
   .btn-accent {
@@ -171,24 +173,29 @@ body::after {
     background: var(--accent);
     border: 1px solid color-mix(in srgb, var(--accent) 70%, white);
     box-shadow: 0 0 36px -6px color-mix(in srgb, var(--accent) 45%, transparent);
-    transition:
-      filter 180ms var(--ease-press),
-      transform 180ms var(--ease-press);
+    transition-property: filter, scale;
+    transition-duration: 180ms;
+    transition-timing-function: var(--ease-press);
   }
   .btn-accent:hover {
     filter: brightness(1.08);
   }
   .btn-accent:active {
-    transform: translateY(1px);
+    scale: 0.96;
   }
 
   .btn-ghost {
     font-size: 0.8125rem;
     color: var(--tx-2);
-    transition: color 160ms var(--ease-press);
+    transition-property: color, scale;
+    transition-duration: 180ms;
+    transition-timing-function: var(--ease-press);
   }
   .btn-ghost:hover {
     color: var(--tx);
+  }
+  .btn-ghost:active {
+    scale: 0.96;
   }
 
   .window {
@@ -209,11 +216,75 @@ body::after {
 .sphere {
   position: relative;
   flex: none;
+  --orb-visual-radius: 29.55%;
   filter: drop-shadow(0 0 28px rgba(210, 198, 178, 0.14)) drop-shadow(0 24px 48px rgba(0, 0, 0, 0.6));
 }
 /* The app's wordmark asset is ink on transparent; invert it for dark paper, as the app does. */
 .wordmark-img {
   filter: invert(1) brightness(0.86);
+  transform-origin: left center;
+  transition-property: opacity, filter;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+.brand-ipa {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  display: flex;
+  align-items: baseline;
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--tx);
+  pointer-events: none;
+  opacity: 0;
+  filter: blur(4px);
+  translate: 0 -50%;
+  transform-origin: left center;
+  transition-property: opacity, filter;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+.brand-ipa-slash,
+.brand-ipa-dot,
+.brand-ipa-stress {
+  color: var(--tx-2);
+}
+.brand-ipa-slash {
+  font-size: 0.7em;
+}
+.brand-ipa-dot {
+  padding-inline: 0.12em;
+}
+.brand-ipa-stress {
+  margin-inline-end: 0.04em;
+}
+.brand-lockup:focus-visible .wordmark-img {
+  opacity: 0;
+  filter: invert(1) brightness(0.86) blur(4px);
+}
+.brand-lockup:focus-visible .brand-ipa {
+  opacity: 1;
+  filter: blur(0);
+}
+@media (hover: hover) {
+  .brand-lockup:hover .wordmark-img {
+    opacity: 0;
+    filter: invert(1) brightness(0.86) blur(4px);
+  }
+  .brand-lockup:hover .brand-ipa {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+.brand-mark {
+  transition-property: opacity;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
 .sphere-fallback {
   border-radius: 50%;
@@ -235,6 +306,106 @@ body::after {
   animation: caret-blink 1s steps(1) infinite;
 }
 
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 0.75rem;
+  z-index: 70;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.4rem;
+  background: var(--paper-2);
+  color: var(--tx);
+  border: 1px solid color-mix(in srgb, var(--tx) 16%, transparent);
+  transform: translateY(-160%);
+  transition: transform 160ms var(--ease-press);
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--tx);
+  outline-offset: 2px;
+}
+
+.smooth-cursor {
+  --cursor-x: 0px;
+  --cursor-y: 0px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 16px;
+  height: 18px;
+  pointer-events: none;
+  translate: calc(var(--cursor-x) - 50%) calc(var(--cursor-y) - 50%);
+  scale: 1;
+  opacity: 0;
+  transition-property: scale, opacity, width, height;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
+}
+
+.smooth-cursor.is-visible {
+  opacity: 1;
+}
+
+.smooth-cursor.is-moving {
+  scale: 0.95;
+}
+
+.smooth-cursor.is-fused-mark.is-moving,
+.smooth-cursor.is-fused-core.is-moving {
+  scale: 1;
+}
+
+.smooth-cursor.is-grabbing {
+  scale: 0.96;
+}
+
+.smooth-cursor.is-fused-mark {
+  width: var(--fuse-w, 0.46em);
+  height: var(--fuse-h, 0.46em);
+}
+
+.smooth-cursor-orb {
+  position: absolute;
+  top: 4px;
+  left: 3px;
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 48% 52% 49% 51% / 52% 48% 52% 48%;
+  background: var(--mark-fill);
+  box-shadow:
+    inset 0 -1px 2px rgba(255, 255, 255, 0.045),
+    0 0.5px 1.25px rgba(20, 19, 17, 0.18);
+  transform-origin: center;
+  transition-property: opacity, filter, scale, width, height, top, left;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.smooth-cursor.is-fused-core .smooth-cursor-orb {
+  opacity: 0;
+  filter: blur(4px);
+  scale: 0.25;
+}
+
+.smooth-cursor.is-fused-mark .smooth-cursor-orb {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+html:has(.smooth-cursor.is-fused-mark) .brand-mark {
+  opacity: 0;
+}
+
+html.has-smooth-cursor,
+html.has-smooth-cursor * {
+  cursor: none !important;
+}
+
 @keyframes orbit-spin {
   to {
     transform: rotate(360deg);
@@ -250,21 +421,6 @@ body::after {
 }
 .orbit-item {
   animation: orbit-counter var(--orbit-duration, 60s) linear infinite;
-}
-
-@keyframes tab-fill {
-  from {
-    width: 0%;
-  }
-  to {
-    width: 100%;
-  }
-}
-.tab-progress {
-  animation: tab-fill var(--tab-duration, 7s) linear forwards;
-}
-.tab-progress[data-paused="true"] {
-  animation-play-state: paused;
 }
 
 @keyframes twinkle {
@@ -283,8 +439,15 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .orbit-ring,
   .orbit-item,
-  .star {
+  .star,
+  .caret {
     animation: none;
+  }
+  .smooth-cursor,
+  .smooth-cursor-orb,
+  .wordmark-img,
+  .brand-ipa {
+    transition: none;
   }
   html {
     scroll-behavior: auto;

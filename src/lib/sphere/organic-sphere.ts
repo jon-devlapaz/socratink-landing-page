@@ -152,11 +152,12 @@ export function mountOrganicSphere(
     // Rise quickly, settle slowly: the same asymmetry the app uses for voice.
     const levelEase = 1 - Math.exp(-dt * (targetLevel > level ? 18 : 5));
     level += (targetLevel - level) * levelEase;
+    const frozen = still || mount.classList.contains("is-still");
     const motion = motionForLevel(D2, level);
     const ease = 1 - Math.exp(-dt * 10);
-    displacement.value += ((still ? 0 : motion.displacement) - displacement.value) * ease;
-    distortion.value += ((still ? 0 : motion.distortion) - distortion.value) * ease;
-    if (!still) {
+    displacement.value += ((frozen ? 0 : motion.displacement) - displacement.value) * ease;
+    distortion.value += ((frozen ? 0 : motion.distortion) - distortion.value) * ease;
+    if (!frozen) {
       timeUniform.value += dt * motion.timeScale;
       const t = timeUniform.value;
       drift.set(Math.sin(t * 0.13), Math.cos(t * 0.09), Math.sin(t * 0.07)).multiplyScalar(dt * 0.18);

@@ -8,7 +8,7 @@ import { wiseWords } from "@/lib/content";
  */
 export function WiseWords() {
   return (
-    <section className="py-28 sm:py-36">
+    <section className="py-12 sm:py-16">
       <SectionHeading eyebrow={wiseWords.eyebrow} sans={wiseWords.titleSans} serif={wiseWords.titleSerif} />
 
       <div className="mx-auto mt-14 grid max-w-5xl gap-4 px-5 sm:px-8 md:grid-cols-3">
@@ -19,7 +19,7 @@ export function WiseWords() {
             </blockquote>
             <figcaption className="text-[0.8125rem]">
               <p className="text-tx">{q.who}</p>
-              <p className="text-tx-3">{q.where}</p>
+              <p className="text-tx-2">{q.where}</p>
             </figcaption>
           </Reveal>
         ))}

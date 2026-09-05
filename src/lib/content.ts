@@ -22,6 +22,10 @@ export const site = {
   url: "https://socratink.ai",
   appUrl: "https://app.socratink.ai/",
   year: new Date().getFullYear(),
+  pronunciation: {
+    respell: "so-cre-tink",
+    syllables: ["soʊ", "krə", "tɪŋk"],
+  },
 } as const;
 
 export const nav = {
@@ -44,7 +48,7 @@ export const hero = {
   primary: { label: "Open Socratink", href: site.appUrl },
   secondary: { label: "Free to start", href: site.appUrl },
   demoHint: {
-    strong: "Try the demo",
+    strong: "Watch an example conversation",
     rest: "Pick a move and watch Socratink hand the thinking back to you.",
   },
 } as const;
@@ -272,5 +276,6 @@ export const footer = {
     { label: "Open app", href: site.appUrl },
     { label: "Method", href: "#method" },
     { label: "Moves", href: "#moves" },
+    { label: "Memory", href: "#memory" },
   ],
 } as const;

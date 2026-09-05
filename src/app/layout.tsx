@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Instrument_Serif } from "next/font/google";
+import { SmoothCursor } from "@/components/ui/SmoothCursor";
 import { site } from "@/lib/content";
 import "./globals.css";
 
@@ -53,7 +54,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${inter.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <SmoothCursor />
+      </body>
     </html>
   );
 }
