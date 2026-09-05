@@ -66,19 +66,19 @@ export function Lenses() {
 
 function Moves({ active, onSelect }: { active: number; onSelect: (i: number) => void }) {
   return (
-    <div className="mt-8 grid gap-2.5 sm:grid-cols-3 sm:gap-3">
+    <div className="mt-8 grid gap-2.5 sm:grid-cols-3 sm:gap-3" role="group" aria-label="Moves">
       {lenses.map((lens: Lens, i) => {
         const isActive = i === active;
         return (
           <button
             key={lens.id}
             type="button"
-            aria-current={isActive ? "true" : undefined}
+            aria-pressed={isActive}
             onClick={() => onSelect(i)}
             className={`tile min-h-11 w-full p-4 text-left transition-[border-color,background-color,scale] duration-[180ms] ease-[var(--ease-press)] active:scale-[0.96] ${
               isActive
                 ? "border-tx/20 bg-ui/70"
-                : "hover:border-tx/16"
+                : "[@media(hover:hover)]:hover:border-tx/16"
             }`}
           >
             <span className="block text-[0.75rem] tabular-nums tracking-[0.14em] text-tx-2">

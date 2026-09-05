@@ -89,9 +89,11 @@ export function LiveDemo({ onActivity }: { onActivity?: (level: number) => void 
                   key={l.id}
                   type="button"
                   onClick={() => start(l.id)}
-                  className="tile flex min-h-11 items-center gap-2 px-3 py-1.5 text-left text-[0.8125rem] text-tx-2 transition-[border-color,color,scale] duration-150 ease-out hover:border-accent/40 hover:text-tx active:scale-[0.96]"
+                  className="tile flex min-h-11 items-center gap-2 px-3 py-1.5 text-left text-[0.8125rem] text-tx-2 transition-[border-color,color,scale] duration-150 ease-out [@media(hover:hover)]:hover:border-accent/40 [@media(hover:hover)]:hover:text-tx active:scale-[0.96]"
                 >
-                  <span className="text-accent">✦</span>
+                  <span className="text-accent" aria-hidden="true">
+                    ✦
+                  </span>
                   {l.label}
                 </button>
               ))}

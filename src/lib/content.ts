@@ -39,8 +39,7 @@ export const nav = {
 } as const;
 
 export const hero = {
-  eyebrowA: "Meet Socratink",
-  eyebrowB: "a tutor that keeps the evidence",
+  eyebrow: "a tutor that keeps the evidence",
   titleSans: "Know",
   titleSerif: "what you actually know.",
   subtitle:

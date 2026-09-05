@@ -19,7 +19,7 @@ export function Hero() {
         <div className="flex w-full max-w-xl flex-col items-center gap-5 text-center lg:items-start lg:text-left">
           <div className="flex flex-col items-center gap-3 lg:items-start">
             <div>
-              <p className="eyebrow">{hero.eyebrowB}</p>
+              <p className="eyebrow">{hero.eyebrow}</p>
             </div>
 
             <div>
