@@ -1,13 +1,10 @@
-import { Evidence } from "@/components/site/Evidence";
+import { EncounterStrip } from "@/components/site/EncounterStrip";
 import { FinalCta } from "@/components/site/FinalCta";
-import { Footer } from "@/components/site/Footer";
+import { ScrollCraft } from "@/components/site/ScrollCraft";
 import { Hero } from "@/components/site/Hero";
-import { Lenses } from "@/components/site/Lenses";
 import { Memory } from "@/components/site/Memory";
-import { Method } from "@/components/site/Method";
 import { Nav } from "@/components/site/Nav";
 import { Orbit } from "@/components/site/Orbit";
-import { WiseWords } from "@/components/site/WiseWords";
 
 export default function Home() {
   return (
@@ -18,15 +15,12 @@ export default function Home() {
       <Nav />
       <main id="main" tabIndex={-1} className="flex-1 outline-none">
         <Hero />
-        <Method />
-        <Lenses />
-        <Evidence />
+        <EncounterStrip />
         <Orbit />
         <Memory />
-        <WiseWords />
         <FinalCta />
       </main>
-      <Footer />
+      <ScrollCraft />
     </>
   );
 }

@@ -1,17 +1,25 @@
-import { OrganicSphere } from "@/components/ui/OrganicSphere";
+"use client";
+
+import { useLayoutEffect, useRef } from "react";
+import { useMotionValueEvent, useScroll } from "motion/react";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { evidence } from "@/lib/content";
 
 /** lazy.so's "Universal Inbox" bento, retargeted at Socratink's evidence model. */
 export function Evidence() {
-  const { steps, bounded, voice, keyboard, model } = evidence.cards;
+  const { steps, bounded } = evidence.cards;
+  const sectionRef = useRef<HTMLElement>(null);
+  const recordRef = useRef<HTMLOListElement>(null);
+  const { scrollYProgress } = useScroll({ target: recordRef, offset: ["start 70%", "end 45%"] });
+  const paint = (value: number) => sectionRef.current?.style.setProperty("--evidence-p", value.toFixed(4));
+  useLayoutEffect(() => { paint(scrollYProgress.get()); }, [scrollYProgress]);
+  useMotionValueEvent(scrollYProgress, "change", paint);
 
   return (
-    <section className="py-12 sm:py-16">
+    <section ref={sectionRef} id="evidence" data-sc-act="flow" className="py-12 sm:py-16">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeading
-          eyebrow={evidence.eyebrow}
           sans={evidence.titleSans}
           serif={evidence.titleSerif}
           align="left"
@@ -20,7 +28,7 @@ export function Evidence() {
         <div className="mt-12 grid gap-4 md:grid-cols-2 [&>*]:min-w-0">
           <Reveal className="card flex flex-col p-6 sm:p-7">
             <CardHead title={steps.title} sub={steps.sub} />
-            <ol className="mt-6 flex flex-col gap-2">
+            <ol ref={recordRef} className="evidence-record mt-6 flex flex-col gap-2">
               {steps.items.map((item, i) => (
                 <li
                   key={item}
@@ -29,22 +37,26 @@ export function Evidence() {
                   }`}
                 >
                   <span className="w-4 shrink-0 text-right text-[0.75rem] text-tx-2">{i + 1}</span>
-                  <span className="min-w-0 text-pretty">{item}</span>
+                  <span className="min-w-0 text-pretty">
+                    {i === 1 ? <>{item.slice(0, 10)}<span className="evidence-reveal">{item.slice(10)}</span></>
+                      : i === steps.items.length - 1 ? <>{item.slice(0, item.indexOf("after one reveal"))}<span className="evidence-assistance">after one reveal</span></>
+                      : item}
+                  </span>
                 </li>
               ))}
             </ol>
             <p className="mt-6 text-[0.8125rem] leading-relaxed text-tx-2">{steps.body}</p>
           </Reveal>
 
-          <Reveal delay={0.08} className="card flex flex-col p-6 sm:p-7">
+          <Reveal delay={0.05} className="card flex flex-col p-6 sm:p-7">
             <CardHead title={bounded.title} sub={bounded.sub} />
             <ul className="mt-6 flex flex-col gap-3">
               {bounded.states.map((s) => (
                 <li key={s.label} className="flex items-start justify-between gap-4 text-[0.8125rem]">
                   <span className="min-w-0 flex-1 text-pretty text-tx-2">{s.label}</span>
                   <span className="flex shrink-0 items-center gap-3 pt-0.5">
-                    <span className="text-[0.75rem] text-tx-2">{s.note}</span>
-                    <span className="flex gap-1" aria-label={`evidence strength ${s.level} of 3`}>
+                    <span className={`text-[0.75rem] text-tx-2 ${s.note === "after 1 reveal" ? "evidence-assessment" : ""}`}>{s.note}</span>
+                    <span className="flex gap-1" aria-hidden="true">
                       {[1, 2, 3].map((n) => (
                         <span
                           key={n}
@@ -59,45 +71,6 @@ export function Evidence() {
             <p className="mt-6 text-[0.8125rem] leading-relaxed text-tx-2">{bounded.body}</p>
           </Reveal>
 
-          <Reveal delay={0.12} className="card flex items-center gap-6 p-6 sm:p-7">
-            <OrganicSphere size={64} level={0.35} className="shrink-0" />
-            <div>
-              <h3 className="text-[1.05rem] text-tx">{voice.title}</h3>
-              <p className="mt-2 text-[0.8125rem] leading-relaxed text-tx-2">{voice.body}</p>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.16} className="card flex items-center gap-6 p-6 sm:p-7">
-            <div className="flex shrink-0 items-center gap-1.5">
-              {keyboard.kbd.map((k) => (
-                <span key={k} className="kbd h-8 min-w-8 px-2 text-[0.8rem]">
-                  {k}
-                </span>
-              ))}
-            </div>
-            <div>
-              <h3 className="text-[1.05rem] text-tx">{keyboard.title}</h3>
-              <p className="mt-2 text-[0.8125rem] leading-relaxed text-tx-2">{keyboard.body}</p>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.2} className="card flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:p-7 md:col-span-2">
-            <div className="flex shrink-0 gap-2">
-              {model.chips.map((c, i) => (
-                <span
-                  key={c}
-                  className={`tile px-3 py-1.5 text-[0.8125rem] ${i === 0 ? "text-tx" : "text-tx-2"}`}
-                >
-                  {c}
-                </span>
-              ))}
-              <span className="tile px-3 py-1.5 text-[0.8125rem] text-tx-2">…</span>
-            </div>
-            <div>
-              <h3 className="text-[1.05rem] text-tx">{model.title}</h3>
-              <p className="mt-2 max-w-2xl text-[0.8125rem] leading-relaxed text-tx-2">{model.body}</p>
-            </div>
-          </Reveal>
         </div>
       </div>
     </section>

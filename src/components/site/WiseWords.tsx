@@ -1,29 +1,18 @@
-import { Reveal } from "@/components/ui/Reveal";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { wiseWords } from "@/lib/content";
 
-/**
- * lazy.so closes with stacked testimonial cards. Socratink has no testimonials to
- * quote yet, so the slot holds the older voices the method descends from.
- */
+/** A single editorial coda after the product has made its case. */
 export function WiseWords() {
+  const quote = wiseWords.quotes[0];
   return (
-    <section className="py-12 sm:py-16">
-      <SectionHeading eyebrow={wiseWords.eyebrow} sans={wiseWords.titleSans} serif={wiseWords.titleSerif} />
-
-      <div className="mx-auto mt-14 grid max-w-5xl gap-4 px-5 sm:px-8 md:grid-cols-3">
-        {wiseWords.quotes.map((q, i) => (
-          <Reveal key={q.who} delay={i * 0.08} className="card flex flex-col justify-between gap-8 p-6 sm:p-7">
-            <blockquote className="font-serif text-[1.35rem] leading-snug text-tx">
-              “{q.text}”
-            </blockquote>
-            <figcaption className="text-[0.8125rem]">
-              <p className="text-tx">{q.who}</p>
-              <p className="text-tx-2">{q.where}</p>
-            </figcaption>
-          </Reveal>
-        ))}
+    <section id="wise-words" data-sc-act="flow" className="wise-editorial content-wrap">
+      <div>
+        <h2 className="text-base text-tx">{wiseWords.titleSans}</h2>
+        <p className="mt-1 text-sm text-tx-2">{wiseWords.titleSerif}</p>
       </div>
+      <figure>
+        <blockquote className="wise-pullquote">“{quote.text}”</blockquote>
+        <figcaption className="mt-6 text-sm text-tx-2">{quote.who} · {quote.where}</figcaption>
+      </figure>
     </section>
   );
 }

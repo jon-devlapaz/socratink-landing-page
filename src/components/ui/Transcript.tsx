@@ -37,7 +37,7 @@ function TurnRow({
   const isYou = role === "you";
   const pad = dense ? "px-3 py-2" : "px-3.5 py-2.5";
   return (
-    <li className={`flex ${isYou ? "justify-end" : "justify-start"}`}>
+    <li data-turn className={`flex ${isYou ? "justify-end" : "justify-start"}`}>
       <div className={`flex max-w-[85%] items-start gap-2.5 ${isYou ? "flex-row-reverse" : ""}`}>
         {isYou ? null : (
           <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-tx/90" aria-hidden />

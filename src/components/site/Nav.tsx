@@ -6,14 +6,15 @@ import { Wordmark } from "@/components/ui/Wordmark";
 import { nav } from "@/lib/content";
 
 export function Nav() {
-  // lazy.so's "Get Lazy [L]" shortcut; here a bare "S" jumps to the app.
+  // A modifier avoids single-letter navigation while using speech input.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       const typing =
         target && (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable);
-      if (typing || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
-      if (e.key.toLowerCase() === nav.cta.kbd.toLowerCase()) {
+      if (typing || e.metaKey || e.ctrlKey || !e.altKey || e.repeat) return;
+      if (e.code === "KeyS") {
+        e.preventDefault();
         window.location.assign(nav.cta.href);
       }
     };
@@ -30,7 +31,7 @@ export function Nav() {
           <ul className="hidden items-center gap-7 text-[0.8125rem] text-tx-2 md:flex">
             {nav.links.map((l) => (
               <li key={l.href}>
-                <a href={l.href} className="transition-colors hover:text-tx">
+                <a href={l.href} className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors hover:text-tx">
                   {l.label}
                 </a>
               </li>
@@ -38,12 +39,12 @@ export function Nav() {
           </ul>
 
           <div className="flex items-center gap-4">
-            <Link href={nav.login.href} className="btn-ghost hidden sm:inline">
+            <Link href={nav.login.href} className="btn-ghost hidden sm:inline-flex">
               {nav.login.label}
             </Link>
-            <Link href={nav.cta.href} className="btn-primary">
+            <Link href={nav.cta.href} className="btn-primary" aria-keyshortcuts="Alt+S">
               {nav.cta.label}
-              <span className="kbd">{nav.cta.kbd}</span>
+              <span className="kbd nav-shortcut" aria-hidden="true">⌥ S</span>
             </Link>
           </div>
         </nav>

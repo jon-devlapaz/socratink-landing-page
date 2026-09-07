@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Socratink — Know what you actually know</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #100f0f;
+    --paper-2: #1c1b1a;
+    --ui: #282726;
+    --tx: #cecdc3;
+    --tx-2: #878580;
+    --tx-3: #575653;
+    --accent: #4385be;
+    --accent-glow: color-mix(in srgb, #4385be 38%, transparent);
+    --warn: #d0a215;
+    --ok: #879a39;
+    --ledger: #f2f0e9;
+    --ledger-ink: #1c1b1a;
+    --ledger-mute: #575653;
+    --ledger-line: color-mix(in srgb, #1c1b1a 12%, transparent);
+    --charcoal: #1c1b1a;
+    --nav: 3.25rem;
+    --font: Inter, ui-sans-serif, system-ui, sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+    /* scroll-scrub CSS vars (set by rAF) */
+    --p: 0;
+    --cost-p: 0;
+    --return-p: 0;
+    --ghost-op: 1;
+    --ghost-blur: 0px;
+    --stamp-op: 0.55;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: auto; }
+  body {
+    margin: 0;
+    font-family: var(--font);
+    background: var(--paper);
+    color: var(--tx);
+    line-height: 1.45;
+  }
+  header {
+    position: fixed; inset-inline: 0; top: 0; z-index: 50;
+    height: var(--nav);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.35rem;
+    background: color-mix(in srgb, var(--paper) 84%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid color-mix(in srgb, var(--tx) 8%, transparent);
+    font-size: 0.875rem;
+  }
+  header .mark { font-weight: 500; letter-spacing: -0.01em; }
+  header .hint { color: var(--tx-3); font-size: 0.72rem; }
+
+  .hero {
+    min-height: 52vh;
+    display: grid;
+    place-content: center;
+    padding: 5.5rem 1.5rem 2rem;
+    text-align: center;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2rem, 4.2vw, 3.1rem);
+    margin: 0 0 0.65rem;
+    letter-spacing: -0.02em;
+  }
+  .hero p {
+    color: var(--tx-2);
+    max-width: 30rem;
+    margin: 0 auto;
+    font-size: 0.95rem;
+  }
+
+  .track { position: relative; }
+  .shell {
+    position: sticky;
+    top: var(--nav);
+    z-index: 10;
+    height: calc(100dvh - var(--nav));
+    display: flex;
+    flex-direction: column;
+    padding: 0.55rem 1.1rem 0.7rem;
+    background: var(--paper);
+    border-bottom: 1px solid color-mix(in srgb, var(--tx) 8%, transparent);
+    overflow: hidden;
+  }
+  .principle {
+    flex-shrink: 0;
+    text-align: center;
+    font-family: var(--serif);
+    font-size: clamp(1rem, 1.65vw, 1.28rem);
+    padding: 0.32rem 0;
+    border-block: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
+    color: var(--tx-2);
+  }
+
+  .stage {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.18fr);
+    gap: 0.85rem;
+    max-width: 70rem;
+    width: 100%;
+    margin: 0.55rem auto 0;
+  }
+  .left, .ledger-wrap {
+    min-height: 0;
+    background: var(--paper-2);
+    border: 1px solid color-mix(in srgb, var(--tx) 9%, transparent);
+    border-radius: 0.85rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .plane-auth {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.42rem 1rem 0.2rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--tx-3);
+  }
+  .plane-auth strong {
+    color: var(--tx-2);
+    font-weight: 600;
+  }
+  .cue {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.28rem 1rem 0.48rem;
+    font-size: 0.76rem;
+    color: var(--tx-2);
+    border-bottom: 1px solid color-mix(in srgb, var(--tx) 8%, transparent);
+  }
+  .panel {
+    flex: 1;
+    min-height: 0;
+    padding: 0.95rem 1.05rem 1.05rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .beat {
+    position: absolute;
+    inset: 0;
+    padding: 0.95rem 1.05rem 1.05rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    overflow: auto;
+    opacity: 0;
+    transform: scale(0.985);
+    pointer-events: none;
+    transition: opacity 280ms ease, transform 320ms cubic-bezier(.2,.8,.2,1);
+  }
+  .beat.is-on {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    z-index: 2;
+  }
+  .label {
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tx-3);
+    margin: 0;
+  }
+  .target {
+    font-family: var(--serif);
+    font-size: clamp(1.15rem, 2vw, 1.55rem);
+    line-height: 1.28;
+    margin: 0;
+    letter-spacing: -0.015em;
+  }
+  .target.sm { font-size: clamp(1.02rem, 1.65vw, 1.25rem); }
+  .meta { color: var(--tx-2); font-size: 0.84rem; margin: 0; }
+
+  .choices { display: grid; gap: 0.48rem; }
+  .choices button {
+    font: inherit;
+    text-align: left;
+    padding: 0.72rem 0.85rem;
+    min-height: 44px;
+    border-radius: 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--tx) 14%, transparent);
+    background: transparent;
+    color: var(--tx);
+    cursor: pointer;
+    transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+  }
+  .choices button:hover {
+    background: color-mix(in srgb, var(--ui) 70%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .choices button:focus-visible {
+    outline: none;
+    background: color-mix(in srgb, var(--ui) 70%, transparent);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .choices button[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, var(--ui));
+  }
+
+  .transfer {
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    line-height: 1.35;
+    margin: 0;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: fit-content;
+    min-height: 44px;
+    margin-top: 0.15rem;
+    padding: 0.58rem 0.95rem;
+    border-radius: 0.6rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--tx);
+    background: color-mix(in srgb, var(--ui) 85%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tx) 12%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in srgb, white 5%, transparent) inset,
+      0 6px 20px -10px rgba(0, 0, 0, 0.8);
+    transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  }
+  .btn-primary:hover {
+    background: color-mix(in srgb, var(--ui) 100%, transparent);
+    border-color: color-mix(in srgb, var(--tx) 22%, transparent);
+  }
+  .btn-primary:focus-visible {
+    outline: none;
+    background: color-mix(in srgb, var(--ui) 100%, transparent);
+    border-color: var(--accent);
+    box-shadow:
+      0 1px 0 0 color-mix(in srgb, white 5%, transparent) inset,
+      0 6px 20px -10px rgba(0, 0, 0, 0.8),
+      0 0 0 3px var(--accent-glow);
+  }
+  .btn-primary:active { transform: scale(0.96); }
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: fit-content;
+    min-height: 44px;
+    margin-top: 0.15rem;
+    padding: 0.6rem 1rem;
+    border-radius: 0.6rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--paper);
+    background: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 70%, white);
+    box-shadow: 0 8px 24px -12px rgba(10, 18, 16, 0.8);
+    transition: filter 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  }
+  .btn-accent:hover { filter: brightness(1.08); }
+  .btn-accent:focus-visible {
+    outline: none;
+    box-shadow:
+      0 8px 24px -12px rgba(10, 18, 16, 0.8),
+      0 0 0 3px var(--accent-glow);
+  }
+  .btn-accent:active { transform: scale(0.96); }
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.35rem;
+    border-radius: 0.3rem;
+    font-size: 0.6875rem;
+    font-family: var(--font);
+    font-weight: 500;
+    color: color-mix(in srgb, var(--paper) 78%, transparent);
+    background: color-mix(in srgb, var(--paper) 18%, transparent);
+    border: 1px solid color-mix(in srgb, var(--paper) 22%, transparent);
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--paper) 12%, transparent);
+  }
+  .cta-sub {
+    margin: 0;
+    font-size: 0.74rem;
+    color: var(--tx-3);
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.28rem 0.58rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--tx) 12%, transparent);
+    font-size: 0.74rem;
+    color: var(--tx-2);
+    width: fit-content;
+  }
+  .chip strong { color: var(--tx); font-weight: 500; }
+
+  .spacer { height: 55vh; pointer-events: none; }
+  .spacer-cost { height: 100vh; }
+  .spacer-return { height: 140vh; }
+  .after {
+    padding: 2.75rem 1.5rem 4.5rem;
+    max-width: 36rem;
+    margin: 0 auto;
+    color: var(--tx-3);
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  /* —— Right: Cognitive Ledger —— */
+  .ledger-head {
+    flex-shrink: 0;
+    padding: 0.65rem 1rem 0.52rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--tx) 8%, transparent);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .ledger-head .label { margin: 0; }
+  .ledger-head .label-wrap { display: grid; gap: 0.12rem; }
+  .ledger-head .quiet {
+    margin: 0;
+    font-size: 0.62rem;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--tx-3);
+  }
+  .ledger-head .beat-name {
+    font-size: 0.72rem;
+    color: var(--tx-2);
+  }
+  .ledger-body {
+    flex: 1;
+    min-height: 0;
+    padding: 0.8rem 0.9rem 0.95rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .sample-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 5;
+    font-size: 0.62rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.28rem 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--warn) 22%, var(--ledger));
+    color: #6b5410;
+    border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 280ms ease;
+  }
+  .sample-badge.show { opacity: 1; }
+
+  .slip {
+    flex: 1;
+    min-height: 0;
+    background: var(--ledger);
+    color: var(--ledger-ink);
+    border-radius: 0.45rem;
+    box-shadow:
+      0 1px 0 color-mix(in srgb, #fff 35%, transparent) inset,
+      0 12px 28px color-mix(in srgb, #000 35%, transparent);
+    padding: 1rem 1.05rem 1.05rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    overflow: auto;
+    position: relative;
+  }
+
+  /* —— Visual 1: Fluency Ghost —— */
+  .ghost-stage {
+    position: relative;
+    flex: 1;
+    min-height: 8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .ghost-text {
+    font-family: var(--serif);
+    font-size: 1.02rem;
+    line-height: 1.42;
+    margin: 0;
+    color: var(--ledger-ink);
+    opacity: var(--ghost-op);
+    filter: blur(var(--ghost-blur));
+    transition: none;
+    will-change: opacity, filter;
+  }
+  .ghost-stamp {
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-11deg);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, #a02f2f 75%, var(--ledger-ink));
+    border: 2px solid color-mix(in srgb, #a02f2f 55%, transparent);
+    padding: 0.35rem 0.55rem;
+    border-radius: 0.2rem;
+    white-space: nowrap;
+    opacity: calc(var(--stamp-op) * (1 - var(--ghost-op) * 0.35));
+    pointer-events: none;
+    z-index: 2;
+  }
+  .ghost-critique {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    color: var(--ledger-mute);
+    opacity: calc(0.35 + (1 - var(--ghost-op)) * 0.65);
+  }
+  .ruled-line {
+    margin-top: auto;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--ledger-line);
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent 1.55rem,
+      var(--ledger-line) 1.55rem,
+      var(--ledger-line) calc(1.55rem + 1px)
+    );
+    background-size: 100% 1.6rem;
+    min-height: 3.4rem;
+  }
+  .ruled-line p {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 0.98rem;
+    line-height: 1.55rem;
+    color: var(--ledger-ink);
+    opacity: calc(1 - var(--ghost-op));
+  }
+  .ghost-meta {
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ledger-mute);
+  }
+
+  /* —— Visual 2: Ink vs Glow —— */
+  .prov-stack { display: grid; gap: 0.7rem; flex: 1; }
+  .ink-block {
+    padding: 0.55rem 0 0.35rem;
+  }
+  .ink-tag {
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #1c1b1a;
+    font-weight: 600;
+    margin: 0 0 0.35rem;
+  }
+  .ink-sentence {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    line-height: 1.35;
+    color: var(--charcoal);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.22em;
+    text-decoration-color: var(--charcoal);
+  }
+  .ink-sentence.empty {
+    text-decoration: none;
+    color: var(--ledger-mute);
+    font-size: 0.92rem;
+  }
+  .glow-block {
+    padding: 0.7rem 0.8rem;
+    border-radius: 0.4rem;
+    background: color-mix(in srgb, #4385be 14%, transparent);
+    border: 1px solid color-mix(in srgb, #4385be 42%, transparent);
+    box-shadow: 0 0 18px color-mix(in srgb, #4385be 18%, transparent);
+  }
+  .glow-tag {
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #2a5a8a;
+    font-weight: 600;
+    margin: 0 0 0.35rem;
+  }
+  .glow-body {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.4;
+    color: color-mix(in srgb, #1c1b1a 78%, #4385be);
+  }
+  .lock-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    margin-top: 0.15rem;
+  }
+  .lock-pill {
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.28rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--charcoal) 28%, transparent);
+    color: var(--charcoal);
+    background: color-mix(in srgb, var(--charcoal) 6%, transparent);
+    font-weight: 600;
+  }
+  .reality {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.4;
+    color: var(--ledger-mute);
+    border-top: 1px solid var(--ledger-line);
+    padding-top: 0.55rem;
+  }
+
+  /* —— Visual 3: Capability Horizon —— */
+  .horizon-title {
+    font-family: var(--serif);
+    font-size: 1.12rem;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .horizon-meta {
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ledger-mute);
+    margin: 0;
+  }
+  .horizon-matrix {
+    display: grid;
+    gap: 0.42rem;
+    margin: 0.35rem 0 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+  .hz-row {
+    display: grid;
+    grid-template-columns: 1.2rem 1fr auto;
+    gap: 0.45rem;
+    align-items: baseline;
+    padding: 0.28rem 0;
+    border-bottom: 1px solid var(--ledger-line);
+  }
+  .hz-mark {
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+  .hz-mark.filled { color: #9a7a12; }
+  .hz-mark.hollow { color: color-mix(in srgb, var(--ledger-mute) 70%, transparent); }
+  .hz-label { color: var(--ledger-ink); }
+  .hz-state {
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .hz-state.prov { color: #9a7a12; }
+  .hz-state.unt { color: var(--ledger-mute); }
+  .hz-state.pend { color: color-mix(in srgb, var(--ledger-mute) 85%, #4385be); }
+  .ceiling {
+    margin: 0.45rem 0 0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--ledger-mute);
+    border-left: 2px solid color-mix(in srgb, var(--warn) 55%, transparent);
+    padding-left: 0.6rem;
+  }
+  .ceiling strong { color: var(--ledger-ink); font-weight: 500; }
+
+  /* —— Visual 3b: Evidence Contract (EVD-0004) —— */
+  .contract-meta {
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ledger-mute);
+    margin: 0;
+  }
+  .contract-title {
+    font-family: var(--serif);
+    font-size: 1.12rem;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .contract-block { margin: 0; }
+  .contract-block .k {
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ledger-mute);
+  }
+  .contract-block .v {
+    font-size: 0.86rem;
+    line-height: 1.4;
+    margin: 0.12rem 0 0;
+    color: var(--ledger-ink);
+  }
+  .non-inf {
+    margin: 0.15rem 0 0;
+    padding: 0.55rem 0.65rem;
+    border-radius: 0.35rem;
+    background: color-mix(in srgb, #a02f2f 10%, transparent);
+    border: 1px solid color-mix(in srgb, #a02f2f 38%, transparent);
+  }
+  .non-inf .k {
+    font-size: 0.64rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #8a2a2a;
+    font-weight: 600;
+    margin: 0 0 0.35rem;
+  }
+  .non-inf ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.28rem;
+  }
+  .non-inf li {
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: var(--ledger-ink);
+    font-weight: 500;
+  }
+  .non-inf .xi {
+    color: #a02f2f;
+    font-weight: 700;
+    margin-right: 0.15rem;
+  }
+  .horizon-compact {
+    margin-top: 0.35rem;
+    padding-top: 0.45rem;
+    border-top: 1px solid var(--ledger-line);
+  }
+  .horizon-compact .horizon-meta {
+    margin-bottom: 0.2rem;
+  }
+  .horizon-compact .horizon-matrix {
+    margin: 0;
+  }
+  .horizon-compact .hz-row {
+    padding: 0.18rem 0;
+    font-size: 0.72rem;
+  }
+
+  /* —— Visual 4: Time-Lapse Scaffold —— */
+  .tl-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .tl-day {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    color: var(--ledger-mute);
+  }
+  .tl-track {
+    height: 3px;
+    border-radius: 999px;
+    background: var(--ledger-line);
+    position: relative;
+    overflow: hidden;
+  }
+  .tl-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(var(--return-p) * 100%);
+    background: color-mix(in srgb, var(--charcoal) 55%, transparent);
+    border-radius: inherit;
+  }
+  .tl-scaffold {
+    display: grid;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+    min-height: 5.5rem;
+  }
+  .tl-opt {
+    font-size: 0.86rem;
+    padding: 0.4rem 0.55rem;
+    border: 1px solid var(--ledger-line);
+    border-radius: 0.35rem;
+    color: var(--ledger-ink);
+    opacity: clamp(0, calc(1 - var(--return-p) * 1.25), 1);
+    filter: blur(calc(var(--return-p) * 3.2px));
+    transform: translateY(calc(var(--return-p) * -4px));
+    letter-spacing: calc(var(--return-p) * 0.12em);
+    will-change: opacity, filter, letter-spacing;
+  }
+  .tl-opt .ltr {
+    display: inline;
+    opacity: clamp(0, calc(1 - var(--return-p) * 1.25), 1);
+  }
+  .tl-naked {
+    opacity: clamp(0, calc((var(--return-p) - 0.2) / 0.55), 1);
+    transform: translateY(calc((1 - var(--return-p)) * 8px));
+    font-family: var(--serif);
+    font-size: 1.02rem;
+    line-height: 1.38;
+    margin: 0.2rem 0 0;
+  }
+  .tl-note {
+    margin-top: auto;
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.74rem;
+    color: var(--ledger-mute);
+  }
+  .tl-note p { margin: 0; }
+  .tl-note .promise {
+    color: var(--ledger-ink);
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+  .tl-note .demo-aside {
+    font-size: 0.68rem;
+    color: color-mix(in srgb, var(--ledger-mute) 85%, transparent);
+  }
+
+  /* Target / attempt ledger bits */
+  .slip-title {
+    font-family: var(--serif);
+    font-size: 1.12rem;
+    margin: 0;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+  }
+  .slip-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.7rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ledger-mute);
+    border-bottom: 1px solid var(--ledger-line);
+    padding-bottom: 0.45rem;
+  }
+  .slip-block .k {
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ledger-mute);
+  }
+  .slip-block .v {
+    font-size: 0.88rem;
+    line-height: 1.4;
+    margin: 0.15rem 0 0;
+  }
+  .slip-block .v.quote {
+    font-family: var(--serif);
+    font-size: 1rem;
+    border-left: 2px solid color-mix(in srgb, var(--accent) 55%, #1c1b1a);
+    padding-left: 0.55rem;
+  }
+  .contrast {
+    margin-top: auto;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--ledger-line);
+    font-size: 0.8rem;
+    color: var(--ledger-mute);
+    line-height: 1.35;
+  }
+  .contrast strong { color: var(--ledger-ink); font-weight: 500; }
+
+  .ledger-layer {
+    position: absolute;
+    inset: 0.8rem 0.9rem 0.95rem;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: scale(0.988);
+    pointer-events: none;
+    transition: opacity 260ms ease, transform 300ms cubic-bezier(.2,.8,.2,1);
+  }
+  .ledger-layer.is-on {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    z-index: 2;
+  }
+  .ledger-layer .slip {
+    height: 100%;
+  }
+
+  @media (max-width: 860px) {
+    .stage {
+      grid-template-columns: 1fr;
+      grid-template-rows: minmax(0, 0.55fr) minmax(0, 0.45fr);
+      gap: 0.55rem;
+    }
+    .shell {
+      height: calc(100dvh - var(--nav));
+      padding: 0.45rem 0.7rem 0.55rem;
+    }
+    .panel, .beat { padding: 0.75rem 0.8rem 0.85rem; }
+    .choices button { font-size: 0.9rem; padding: 0.65rem 0.75rem; }
+    .btn-primary, .btn-accent { font-size: 0.875rem; width: 100%; max-width: 18rem; }
+    .non-inf { padding: 0.5rem 0.55rem; }
+    .non-inf li { font-size: 0.78rem; line-height: 1.4; }
+    .contract-block .v { font-size: 0.8rem; }
+    .principle { font-size: 0.95rem; }
+    .target { font-size: 1.12rem; }
+    .ledger-head { padding: 0.5rem 0.75rem 0.42rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .beat, .ledger-layer, .sample-badge, .tl-opt, .tl-naked, .ghost-text {
+      transition: none !important;
+    }
+    .ghost-text { filter: none !important; }
+    .tl-opt { filter: none !important; letter-spacing: 0 !important; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span class="mark">Socratink</span>
+  <span class="hint">Scroll the encounter</span>
+</header>
+
+<section class="hero">
+  <h1>Know what you actually know.</h1>
+  <p>A learning agent for material that has to hold. It makes you do the thinking, and the record it keeps is your work, not the AI's.</p>
+</section>
+
+<div class="track" id="track">
+  <div class="shell" id="shell" data-beat="target">
+    <p class="principle">Recognition ≠ independent recall</p>
+    <div class="stage">
+      <!-- LEFT: Encounter -->
+      <div class="left">
+        <p class="plane-auth"><strong>The Encounter</strong></p>
+        <p class="cue" id="cue">Learning target</p>
+        <div class="panel" id="panel">
+          <div class="beat is-on" id="beat-target" data-beat="target">
+            <p class="label">Learning target · Sampling</p>
+            <p class="target">Why doesn’t a larger sample fix a biased one?</p>
+            <p class="meta">One attempt. Wrong is useful. Help comes after you choose.</p>
+          </div>
+
+          <div class="beat" id="beat-cost" inert data-beat="cost">
+            <p class="label">Cost of fluent help</p>
+            <p class="target sm">Correct assistance can steal the retrieval.</p>
+            <p class="meta">Reading feels like understanding. You generated none of it.</p>
+          </div>
+
+          <div class="beat" id="beat-attempt" inert data-beat="attempt">
+            <p class="label">Your attempt</p>
+            <p class="target sm">Which sentence would you give a colleague?</p>
+            <div class="choices" role="group" aria-label="Choose one attempt">
+              <button type="button" data-choice="a" aria-pressed="false">A larger sample averages bias away.</button>
+              <button type="button" data-choice="b" aria-pressed="false">Bias is about how you sample, not how many.</button>
+              <button type="button" data-choice="c" aria-pressed="false">I don’t know yet.</button>
+            </div>
+          </div>
+
+          <div class="beat" id="beat-provenance" inert data-beat="provenance">
+            <p class="label">Provenance</p>
+            <p class="target sm">Your ink. Their glow. Locked conditions.</p>
+            <p class="meta" id="prov-left-meta">Commit on the left — or keep scrolling for a Sample Trace.</p>
+          </div>
+
+          <div class="beat" id="beat-bound" inert data-beat="bound">
+            <p class="label">Evidence contract</p>
+            <p class="target sm">What this observation can and cannot support.</p>
+            <p class="meta">Target · Observed · Bounded inference · Non-inferences. No mastery score.</p>
+          </div>
+
+          <div class="beat" id="beat-return" inert data-beat="return">
+            <p class="label">Durable learning for hard material</p>
+            <p class="target sm">Don't find out on the exam that you only had recognition.</p>
+            <p class="meta">Bring your syllabus, certifications, or technical texts. Socratink makes you do the thinking and keeps the evidence.</p>
+            <a class="btn-accent" href="https://app.socratink.ai/" aria-keyshortcuts="S">Open Socratink <span class="kbd" aria-hidden="true">S</span></a>
+            <p class="cta-sub">Free to start</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Cognitive Ledger -->
+      <aside class="ledger-wrap" aria-label="Evidence ledger">
+        <div class="ledger-head">
+          <div class="label-wrap">
+            <p class="label">The Evidence Ledger</p>
+            <p class="quiet">what you showed · what it can support</p>
+          </div>
+          <span class="beat-name" id="beat-name">Target</span>
+        </div>
+        <div class="ledger-body">
+          <span class="sample-badge" id="sample-badge" aria-live="polite">Demonstrating Option B · Click to test yourself</span>
+
+          <!-- Target -->
+          <div class="ledger-layer is-on" id="led-target">
+            <article class="slip">
+              <h2 class="slip-title">Why doesn’t a larger sample fix a biased one?</h2>
+              <div class="slip-meta"><span>Target</span><span>Sampling</span><span>Reconstruction ask</span></div>
+              <div class="slip-block">
+                <div class="k">Object</div>
+                <p class="v">One question. Evidence begins when you attempt.</p>
+              </div>
+              <p class="contrast"><strong>Recognition ≠ recall.</strong> Evidence begins when you attempt.</p>
+            </article>
+          </div>
+
+          <!-- Fluency Ghost (Cost) -->
+          <div class="ledger-layer" id="led-cost" inert>
+            <article class="slip">
+              <p class="ghost-meta">Assisted explanation · correct</p>
+              <div class="ghost-stage">
+                <span class="ghost-stamp" aria-hidden="true">AI FLUENCY ≠ YOUR MEMORY</span>
+                <p class="ghost-text" id="ghost-text">Bias is a property of the sampling process, not of sample size. Drawing more observations from the same skewed process reproduces the skew with tighter variance — it does not cancel the systematic error.</p>
+                <p class="ghost-critique">Reading feels like understanding. You generated none of it.</p>
+                <div class="ruled-line">
+                  <p id="ghost-residue">Your head is empty until you produce it.</p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Attempt (waiting / committed) -->
+          <div class="ledger-layer" id="led-attempt" inert>
+            <article class="slip" id="slip-attempt">
+              <!-- filled -->
+            </article>
+          </div>
+
+          <!-- Ink vs Glow Provenance -->
+          <div class="ledger-layer" id="led-provenance" inert>
+            <article class="slip" id="slip-provenance">
+              <!-- filled -->
+            </article>
+          </div>
+
+          <!-- Capability Horizon -->
+          <div class="ledger-layer" id="led-bound" inert>
+            <article class="slip" id="slip-bound">
+              <!-- filled -->
+            </article>
+          </div>
+
+          <!-- Time-Lapse Scaffold -->
+          <div class="ledger-layer" id="led-return" inert>
+            <article class="slip">
+              <div class="tl-head">
+                <h2 class="slip-title">Scaffold strip</h2>
+                <span class="tl-day" id="tl-day">Day 0</span>
+              </div>
+              <div class="tl-track" aria-hidden="true"><div class="tl-fill"></div></div>
+              <div class="tl-scaffold" id="tl-scaffold">
+                <div class="tl-opt" data-opt="a">A · A larger sample averages bias away.</div>
+                <div class="tl-opt" data-opt="b">B · Bias is about how you sample, not how many.</div>
+                <div class="tl-opt" data-opt="c">C · I don’t know yet.</div>
+              </div>
+              <p class="tl-naked" id="tl-naked">A medical study polls 25,000 opt-in mobile app users to estimate national diabetes rates. Identify the structural error — without multiple choice.</p>
+              <div class="tl-note">
+                <p>This page cannot schedule your +5 day verification.</p>
+                <p class="promise">The Socratink Learner Agent can — it remembers what you actually produced, and returns when the scaffolding is gone.</p>
+                <p class="demo-aside">This demo stores nothing.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="spacer" data-beat-anchor="target"></div>
+  <div class="spacer spacer-cost" data-beat-anchor="cost"></div>
+  <div class="spacer" data-beat-anchor="attempt"></div>
+  <div class="spacer" data-beat-anchor="provenance"></div>
+  <div class="spacer" data-beat-anchor="bound"></div>
+  <div class="spacer spacer-return" data-beat-anchor="return"></div>
+</div>
+
+<section class="after">
+  <p>Socratink · durable learning for hard material</p>
+  <p class="demo-aside" style="margin-top:0.45rem;font-size:0.72rem;opacity:0.85">This page is a choice-only demo · nothing stored.</p>
+</section>
+
+<script>
+(() => {
+  const shell = document.getElementById('shell');
+  const cue = document.getElementById('cue');
+  const beatName = document.getElementById('beat-name');
+  const sampleBadge = document.getElementById('sample-badge');
+  const track = document.getElementById('track');
+  const root = document.documentElement;
+  const tlDay = document.getElementById('tl-day');
+  const ghostResidue = document.getElementById('ghost-residue');
+
+  const beatEls = {
+    target: document.getElementById('beat-target'),
+    cost: document.getElementById('beat-cost'),
+    attempt: document.getElementById('beat-attempt'),
+    provenance: document.getElementById('beat-provenance'),
+    bound: document.getElementById('beat-bound'),
+    return: document.getElementById('beat-return'),
+  };
+  const ledEls = {
+    target: document.getElementById('led-target'),
+    cost: document.getElementById('led-cost'),
+    attempt: document.getElementById('led-attempt'),
+    provenance: document.getElementById('led-provenance'),
+    bound: document.getElementById('led-bound'),
+    return: document.getElementById('led-return'),
+  };
+
+  const CHOICES = {
+    a: {
+      text: 'A larger sample averages bias away.',
+      reality: 'Conflation: sample size cannot cure a biased sampling process (a bigger bucket of salty water doesn't make it fresh).',
+      glow: 'Answer key withheld. 3-choice recognition · distractors present · answer key withheld.',
+      contract: {
+        target: 'Sampling bias invariance under sample size / variance vs selection',
+        observed: 'Conflated variance with selection; stated “larger averages bias away” under prompt.',
+        inference: 'Misconception captured; salty-water repair indicated. Does not support independent capability.',
+        nonInferences: [
+          'Does NOT establish durable retention',
+          'Does NOT establish unprompted reconstruction',
+          'Does NOT establish transfer to novel domains',
+        ],
+      },
+      horizon: {
+        rows: [
+          { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Concept Recognition (3-choice)' },
+          { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Independent Reconstruction (Cold)' },
+          { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Transfer to Unseen Domain' },
+          { mark: '○', state: 'PENDING (+5d)', kind: 'pend', label: '5-Day Temporal Durability' },
+        ],
+      },
+    },
+    b: {
+      text: 'Bias is about how you sample, not how many.',
+      reality: 'Surface recognition from a menu. Bounded: can identify the principle when prompted — not unassisted recall.',
+      glow: 'Answer key withheld. 3-choice recognition · distractors present · answer key withheld.',
+      contract: {
+        target: 'Sampling bias invariance under sample size / variance vs selection',
+        observed: 'Selected correct principle from three options (surface recognition).',
+        inference: 'Can identify the principle when prompted under multiple-choice conditions.',
+        nonInferences: [
+          'Does NOT establish durable retention',
+          'Does NOT establish unprompted reconstruction',
+          'Does NOT establish transfer to novel domains',
+        ],
+      },
+      horizon: {
+        rows: [
+          { mark: '●', state: 'PROVISIONAL', kind: 'prov', label: 'Concept Recognition (3-choice)' },
+          { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Independent Reconstruction (Cold)' },
+          { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Transfer to Unseen Domain' },
+          { mark: '○', state: 'PENDING (+5d)', kind: 'pend', label: '5-Day Temporal Durability' },
+        ],
+      },
+    },
+    c: {
+      text: 'I don’t know yet.',
+      reality: 'Calibrated gap. Zero pollution — no misconception formed. Ready for a minimal scaffold.',
+      glow: 'Answer key withheld. Admission recorded; no recognition credit issued.',
+      contract: {
+        target: 'Sampling bias invariance under sample size / variance vs selection',
+        observed: 'Calibrated admission of gap under prompt; no false claim of knowing.',
+        inference: 'Zero pollution; ready for minimal scaffold; no misconception formed.',
+        nonInferences: [
+          'Does NOT establish durable retention',
+          'Does NOT establish unprompted reconstruction',
+          'Does NOT establish transfer to novel domains',
+        ],
+      },
+      horizon: {
+        rows: [
+          { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Concept Recognition (3-choice)' },
+          { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Independent Reconstruction (Cold)' },
+          { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Transfer to Unseen Domain' },
+          { mark: '○', state: 'PENDING (+5d)', kind: 'pend', label: '5-Day Temporal Durability' },
+        ],
+      },
+    },
+  };
+
+  const NAMES = {
+    target: 'Target',
+    cost: 'Fluency Ghost',
+    attempt: 'Attempt',
+    provenance: 'Ink vs Glow',
+    bound: 'Evidence Contract',
+    return: 'Time-Lapse',
+  };
+
+  const CUES = {
+    target: 'Learning target',
+    cost: 'Cost · scroll to dissolve',
+    attempt: 'Three choices · scroll never waits',
+    provenance: 'Ink vs glow',
+    bound: 'Evidence contract',
+    return: 'Day 0 → +5d',
+  };
+
+  let scrollBeat = 'target';
+  let choice = null;
+  let sampleTrace = false;
+  let lastRenderKey = '';
+  let costP = 0;
+  let returnP = 0;
+  let globalP = 0;
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function effectiveChoice() {
+    if (choice) return { key: choice, sample: false };
+    if (sampleTrace) return { key: 'b', sample: true };
+    return null;
+  }
+
+  function setLayers(beat) {
+    Object.entries(beatEls).forEach(([k, el]) => {
+      const on = k === beat;
+      el.classList.toggle('is-on', on);
+      el.inert = !on;
+    });
+    Object.entries(ledEls).forEach(([k, el]) => {
+      const on = k === beat;
+      el.classList.toggle('is-on', on);
+      el.inert = !on;
+    });
+  }
+
+  function renderAttemptSlip() {
+    const el = document.getElementById('slip-attempt');
+    const ec = effectiveChoice();
+    if (!ec) {
+      el.innerHTML = `
+        <h2 class="slip-title">Docket</h2>
+        <div class="slip-meta"><span>Awaiting attempt</span><span>3-choice recognition</span></div>
+        <div class="slip-block"><div class="k">Status</div><p class="v">Empty — your sentence has not been written yet.</p></div>
+        <div class="slip-block"><div class="k">Conditions</div><p class="v">3-choice recognition · distractors present · answer key withheld</p></div>
+        <p class="contrast"><strong>Choose on the left, or keep scrolling.</strong> Scroll never locks.</p>`;
+      return;
+    }
+    const c = CHOICES[ec.key];
+    el.innerHTML = `
+      <h2 class="slip-title">Attempt</h2>
+      <div class="slip-meta"><span>${ec.sample ? 'Sample Trace' : 'Committed'}</span><span>Three options</span></div>
+      <div class="ink-block">
+        <p class="ink-tag">[YOU · UNASSISTED]</p>
+        <p class="ink-sentence">${c.text}</p>
+      </div>
+      <div class="glow-block">
+        <p class="glow-tag">[AGENT · ANSWER KEY WITHHELD]</p>
+        <p class="glow-body">Multiple-choice scaffold active. Correct option not revealed as feedback.</p>
+      </div>
+      ${ec.sample ? '<p class="reality">Sample Trace — demonstration, not your evidence.</p>' : '<p class="contrast"><strong>Ink recorded.</strong> Scroll for provenance lock.</p>'}`;
+  }
+
+  function renderProvenance() {
+    const el = document.getElementById('slip-provenance');
+    const ec = effectiveChoice();
+    if (!ec) {
+      el.innerHTML = `
+        <h2 class="slip-title">Provenance</h2>
+        <div class="slip-meta"><span>Waiting</span></div>
+        <p class="ink-sentence empty">No ink yet — choose left, or scroll for Sample Trace.</p>`;
+      return;
+    }
+    const c = CHOICES[ec.key];
+    el.innerHTML = `
+      <div class="prov-stack">
+        <div class="ink-block">
+          <p class="ink-tag">[YOU · UNASSISTED]</p>
+          <p class="ink-sentence">${c.text}</p>
+        </div>
+        <div class="glow-block">
+          <p class="glow-tag">[AGENT · ANSWER KEY WITHHELD]</p>
+          <p class="glow-body">${c.glow}</p>
+        </div>
+        <div class="lock-row">
+          <span class="lock-pill">PROVENANCE LOCKED</span>
+          <span class="lock-pill">ZERO POLLUTION</span>
+        </div>
+        <p class="reality">${c.reality}${ec.sample ? ' · Sample Trace — not visitor evidence.' : ''}</p>
+      </div>`;
+  }
+
+  function renderContract() {
+    const el = document.getElementById('slip-bound');
+    const ec = effectiveChoice();
+    const emptyContract = {
+      target: 'Sampling bias invariance under sample size / variance vs selection',
+      observed: 'No attempt on the slip yet.',
+      inference: 'Nothing bounded — no learner performance recorded.',
+      nonInferences: [
+        'Does NOT establish durable retention',
+        'Does NOT establish unprompted reconstruction',
+        'Does NOT establish transfer to novel domains',
+      ],
+    };
+    const emptyHorizon = {
+      rows: [
+        { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Concept Recognition (3-choice)' },
+        { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Independent Reconstruction (Cold)' },
+        { mark: '○', state: 'UNTESTED', kind: 'unt', label: 'Transfer to Unseen Domain' },
+        { mark: '○', state: 'PENDING (+5d)', kind: 'pend', label: '5-Day Temporal Durability' },
+      ],
+    };
+    const c = ec ? CHOICES[ec.key].contract : emptyContract;
+    const h = ec ? CHOICES[ec.key].horizon : emptyHorizon;
+    const non = c.nonInferences.map((n) => `<li><span class="xi" aria-hidden="true">✕</span> ${n}</li>`).join('');
+    const rows = h.rows.map((r) => `
+      <div class="hz-row">
+        <span class="hz-mark ${r.mark === '●' ? 'filled' : 'hollow'}">${r.mark}</span>
+        <span class="hz-label">${r.label}</span>
+        <span class="hz-state ${r.kind}">${r.state}</span>
+      </div>`).join('');
+    el.innerHTML = `
+      <p class="contract-meta">EVIDENCE CONTRACT · RECONSTRUCTION PROTOCOL${ec && ec.sample ? ' · SAMPLE TRACE' : ''}</p>
+      <h2 class="contract-title">Bound inference</h2>
+      <div class="contract-block"><div class="k">Target</div><p class="v">${c.target}</p></div>
+      <div class="contract-block"><div class="k">Observed</div><p class="v">${c.observed}</p></div>
+      <div class="contract-block"><div class="k">Bounded inference</div><p class="v">${c.inference}</p></div>
+      <div class="non-inf"><div class="k">Non-inferences</div><ul>${non}</ul></div>
+      <div class="horizon-compact">
+        <p class="horizon-meta">Capability horizon · boolean only</p>
+        <div class="horizon-matrix">${rows}</div>
+      </div>`;
+  }
+
+  function applyBeatContent() {
+    const ec = effectiveChoice();
+    const key = [
+      scrollBeat,
+      ec ? ec.key + (ec.sample ? ':s' : '') : 'none',
+      Math.round(costP * 20),
+      Math.round(returnP * 20),
+    ].join('|');
+
+    // Always update scrub vars
+    const ghostOp = reduced ? (costP > 0.55 ? 0 : 1) : Math.max(0, 1 - costP);
+    const ghostBlur = reduced ? 0 : (costP * 7);
+    const stampOp = reduced ? (costP > 0.35 ? 0.7 : 0.35) : (0.25 + costP * 0.65);
+    root.style.setProperty('--p', String(globalP));
+    root.style.setProperty('--cost-p', String(costP));
+    root.style.setProperty('--return-p', String(returnP));
+    root.style.setProperty('--ghost-op', String(ghostOp));
+    root.style.setProperty('--ghost-blur', ghostBlur.toFixed(2) + 'px');
+    root.style.setProperty('--stamp-op', String(stampOp));
+
+    const dayLabel = returnP < 0.08 ? 'Day 0' : returnP >= 0.88 ? '+5d' : `+${Math.round(returnP * 5)}d`;
+    tlDay.textContent = dayLabel;
+
+    if (costP > 0.72) {
+      ghostResidue.textContent = 'You understood. You cannot yet produce it.';
+    } else {
+      ghostResidue.textContent = 'Your head is empty until you produce it.';
+    }
+
+    sampleBadge.classList.toggle(
+      'show',
+      !!(ec && ec.sample && (scrollBeat === 'attempt' || scrollBeat === 'provenance' || scrollBeat === 'bound' || scrollBeat === 'return'))
+    );
+
+    if (key === lastRenderKey) return;
+    lastRenderKey = key;
+
+    shell.dataset.beat = scrollBeat;
+    setLayers(scrollBeat);
+    beatName.textContent = NAMES[scrollBeat] || scrollBeat;
+
+    if (scrollBeat === 'attempt') {
+      cue.textContent = choice
+        ? 'Choice committed · keep scrolling'
+        : CUES.attempt;
+    } else if (scrollBeat === 'provenance') {
+      cue.textContent = CUES.provenance;
+      const meta = document.getElementById('prov-left-meta');
+      if (meta) {
+        meta.textContent = ec
+          ? (ec.sample ? 'Sample Trace on the right — click left to overwrite with your ink.' : 'Ink committed. Ledger shows conditions.')
+          : 'Commit on the left — or keep scrolling for a Sample Trace.';
+      }
+    } else if (scrollBeat === 'return') {
+      cue.textContent = dayLabel === '+5d' ? 'Naked transfer ask' : CUES.return;
+    } else {
+      cue.textContent = CUES[scrollBeat] || '';
+    }
+
+    renderAttemptSlip();
+    renderProvenance();
+    renderContract();
+  }
+
+  function pickProgress() {
+    const nav = parseFloat(getComputedStyle(root).getPropertyValue('--nav')) || 52;
+    const trackTop = track.offsetTop;
+    const y = window.scrollY + nav - trackTop;
+    const travel = Math.max(1, track.offsetHeight - shell.offsetHeight);
+    const p = Math.min(1, Math.max(0, y / travel));
+    globalP = p;
+
+    // Beat regions — leave ~8% travel after return scrub so shell stays sticky at +5d
+    // 0–0.11 target | 0.11–0.32 cost | 0.32–0.45 attempt | 0.45–0.58 provenance | 0.58–0.68 bound | 0.68–0.92 return | 0.92–1 hold
+    let beat;
+    if (p < 0.11) {
+      beat = 'target';
+      costP = 0;
+      returnP = 0;
+    } else if (p < 0.32) {
+      beat = 'cost';
+      costP = (p - 0.11) / (0.32 - 0.11);
+      returnP = 0;
+    } else if (p < 0.45) {
+      beat = 'attempt';
+      costP = 1;
+      returnP = 0;
+    } else if (p < 0.58) {
+      beat = 'provenance';
+      costP = 1;
+      returnP = 0;
+    } else if (p < 0.68) {
+      beat = 'bound';
+      costP = 1;
+      returnP = 0;
+    } else if (p < 0.92) {
+      beat = 'return';
+      costP = 1;
+      returnP = (p - 0.68) / (0.92 - 0.68);
+    } else {
+      beat = 'return';
+      costP = 1;
+      returnP = 1;
+    }
+
+    scrollBeat = beat;
+
+    // Sample Trace when leaving attempt without click
+    if (!choice && (beat === 'provenance' || beat === 'bound' || beat === 'return')) {
+      sampleTrace = true;
+    }
+    if (beat === 'attempt' && !choice) {
+      sampleTrace = false;
+    }
+    if (beat === 'target' || beat === 'cost') {
+      // keep prior choice if any; clear sample until past attempt
+      if (!choice) sampleTrace = false;
+    }
+  }
+
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      pickProgress();
+      applyBeatContent();
+      ticking = false;
+    });
+  }
+
+  document.querySelectorAll('.choices button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      choice = btn.dataset.choice;
+      sampleTrace = false;
+      document.querySelectorAll('.choices button').forEach((b) => {
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+      lastRenderKey = '';
+      applyBeatContent();
+    });
+  });
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  pickProgress();
+  applyBeatContent();
+})();
+</script>
+</body>
+</html>

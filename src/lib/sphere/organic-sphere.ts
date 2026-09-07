@@ -143,7 +143,7 @@ export function mountOrganicSphere(
   const drift = new THREE.Vector3();
 
   const render = (now: number) => {
-    if (!visible) {
+    if (!visible || document.hidden) {
       frame = 0;
       return;
     }
@@ -181,6 +181,14 @@ export function mountOrganicSphere(
   );
   intersection.observe(mount);
 
+  const onVisibilityChange = () => {
+    if (!document.hidden && visible && frame === 0) {
+      previous = performance.now();
+      frame = requestAnimationFrame(render);
+    }
+  };
+  document.addEventListener("visibilitychange", onVisibilityChange);
+
   return {
     setLevel(next) {
       targetLevel = Math.min(1, Math.max(0, next));
@@ -192,6 +200,7 @@ export function mountOrganicSphere(
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();
       intersection.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       geometry.dispose();
       material.dispose();
       renderer.dispose();

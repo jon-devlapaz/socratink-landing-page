@@ -47,3 +47,15 @@ next-env.d.ts
 .hillclimb/latest.json
 .hillclimb/probe.json
 .hillclimb/*.png
+
+# Local scroll verification screenshots; reports and harness remain in source.
+/scrollcraft/builds/*/lab/
+
+# Taste hill-climb captures and source checkpoints (decisions stay reviewable).
+/.hillclimb/taste/*/source-before/
+/.hillclimb/taste/*/source-after/
+/.hillclimb/taste/*/functional/
+/.hillclimb/taste/*/desktop/
+/.hillclimb/taste/*/mobile/
+/.hillclimb/taste/*/compact/
+/.hillclimb/taste/*/reduced/

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Instrument_Serif } from "next/font/google";
-import { SmoothCursor } from "@/components/ui/SmoothCursor";
 import { site } from "@/lib/content";
 import "./globals.css";
 
@@ -52,7 +51,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         {children}
-        <SmoothCursor />
       </body>
     </html>
   );
