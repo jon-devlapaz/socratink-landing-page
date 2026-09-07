@@ -139,25 +139,15 @@ float perlin4d(vec4 P){
 
 #define M_PI 3.1415926535897932384626433832795
 
-uniform vec3 uLightAColor;
-uniform vec3 uLightAPosition;
-uniform float uLightAIntensity;
-uniform vec3 uLightBColor;
-uniform vec3 uLightBPosition;
-uniform float uLightBIntensity;
 uniform vec2 uSubdivision;
 uniform vec3 uOffset;
 uniform float uDistortionFrequency;
 uniform float uDistortionStrength;
 uniform float uDisplacementFrequency;
 uniform float uDisplacementStrength;
-uniform float uFresnelOffset;
-uniform float uFresnelMultiplier;
-uniform float uFresnelPower;
-uniform float uBlackCore;
-uniform float uHotRim;
 uniform float uTime;
-varying vec3 vColor;
+varying vec3 vNormal;
+varying vec3 vWorldPosition;
 
 vec3 getDisplacedPosition(vec3 _position)
 {
@@ -184,28 +174,41 @@ void main()
   vec3 positionB = position + biTangent.xyz * distanceB;
   vec3 displacedPositionB = getDisplacedPosition(positionB);
   vec3 computedNormal = cross(displacedPositionA - displacedPosition.xyz, displacedPositionB - displacedPosition.xyz);
-  computedNormal = normalize(mat3(modelMatrix) * normalize(computedNormal));
+  vNormal = normalize(mat3(modelMatrix) * normalize(computedNormal));
+  vWorldPosition = worldPosition.xyz;
+}
+`;
 
-  vec3 viewDirection = normalize(worldPosition.xyz - cameraPosition);
-  float fresnel = uFresnelOffset + (1.0 + dot(viewDirection, computedNormal)) * uFresnelMultiplier;
+export const fragmentShader = `
+uniform vec3 uLightAColor;
+uniform vec3 uLightAPosition;
+uniform float uLightAIntensity;
+uniform vec3 uLightBColor;
+uniform vec3 uLightBPosition;
+uniform float uLightBIntensity;
+uniform float uFresnelOffset;
+uniform float uFresnelMultiplier;
+uniform float uFresnelPower;
+uniform float uBlackCore;
+uniform float uHotRim;
+
+varying vec3 vNormal;
+varying vec3 vWorldPosition;
+
+void main()
+{
+  vec3 normal = normalize(vNormal);
+  vec3 viewDirection = normalize(vWorldPosition - cameraPosition);
+  float fresnel = uFresnelOffset + (1.0 + dot(viewDirection, normal)) * uFresnelMultiplier;
   fresnel = pow(max(0.0, fresnel), uFresnelPower);
 
-  float lightAIntensity = max(0.0, -dot(computedNormal.xyz, normalize(-uLightAPosition))) * uLightAIntensity;
-  float lightBIntensity = max(0.0, -dot(computedNormal.xyz, normalize(-uLightBPosition))) * uLightBIntensity;
+  float lightAIntensity = max(0.0, -dot(normal, normalize(-uLightAPosition))) * uLightAIntensity;
+  float lightBIntensity = max(0.0, -dot(normal, normalize(-uLightBPosition))) * uLightBIntensity;
   vec3 color = vec3(0.0);
   color = mix(color, uLightAColor, lightAIntensity * fresnel);
   color = mix(color, uLightBColor, lightBIntensity * fresnel);
   color = mix(color, vec3(1.0), clamp(pow(max(0.0, fresnel - 0.8), 3.0), 0.0, 1.0) * uHotRim);
   float coreKeep = mix(1.0, clamp(fresnel, 0.0, 1.0), uBlackCore);
-  vColor = color * coreKeep;
-}
-`;
-
-export const fragmentShader = `
-varying vec3 vColor;
-
-void main()
-{
-  gl_FragColor = vec4(vColor, 1.0);
+  gl_FragColor = vec4(color * coreKeep, 1.0);
 }
 `;

@@ -78,14 +78,14 @@ export function mountOrganicSphere(
 
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   renderer.setClearColor(0x000000, 0);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2) * oversample);
+  renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio || 1, 2) * oversample, 3));
   renderer.domElement.setAttribute("aria-hidden", "true");
   renderer.domElement.style.display = "block";
   renderer.domElement.style.width = "100%";
   renderer.domElement.style.height = "100%";
   mount.replaceChildren(renderer.domElement);
 
-  const geometry = new THREE.SphereGeometry(1, 192, 192);
+  const geometry = new THREE.SphereGeometry(1, 320, 320);
   geometry.computeTangents();
   const lightAPosition = new THREE.Vector3().setFromSpherical(new THREE.Spherical(1, 0.615, 2.049));
   const lightBPosition = new THREE.Vector3().setFromSpherical(new THREE.Spherical(1, 2.561, -1.844));
@@ -100,7 +100,7 @@ export function mountOrganicSphere(
       uLightBColor: { value: new THREE.Color(D2.lightB.color) },
       uLightBPosition: { value: lightBPosition },
       uLightBIntensity: { value: D2.lightB.intensity },
-      uSubdivision: { value: new THREE.Vector2(192, 192) },
+      uSubdivision: { value: new THREE.Vector2(320, 320) },
       uOffset: { value: new THREE.Vector3() },
       uDistortionFrequency: { value: 1.5 },
       uDistortionStrength: { value: 0.65 },
