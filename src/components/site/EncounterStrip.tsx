@@ -4,7 +4,7 @@ import "./encounter-strip.css";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { method } from "@/lib/content";
+import { encounterFrame, method } from "@/lib/content";
 
 type Beat = "target" | "cost" | "attempt" | "provenance" | "bound" | "return";
 type ChoiceKey = "a" | "b" | "c";
@@ -337,6 +337,7 @@ export function EncounterStrip() {
             <div className="encounter-left">
               <p className="encounter-plane">
                 <strong>The Encounter</strong>
+                <span className="encounter-walk-badge">{encounterFrame.walkthrough}</span>
               </p>
               <p className="encounter-cue">{cue}</p>
               <div className="encounter-panel">
@@ -355,6 +356,7 @@ export function EncounterStrip() {
                 <div className={`encounter-beat${beat === "attempt" ? " is-on" : ""}`} inert={beat !== "attempt" ? true : undefined}>
                   <p className="encounter-label">Your attempt</p>
                   <p className="encounter-target encounter-target--sm">Which sentence would you give a colleague?</p>
+                  <p className="encounter-scaffold-cap">{encounterFrame.scaffoldCap}</p>
                   <div className="encounter-choices" role="group" aria-label="Choose one attempt">
                     {(
                       [
@@ -397,10 +399,10 @@ export function EncounterStrip() {
                     Bring your syllabus, certifications, or technical texts. Socratink makes you do the thinking and keeps
                     the evidence.
                   </p>
-                  <a className="btn-accent encounter-cta" href="https://app.socratink.ai/" aria-keyshortcuts="S">
-                    Open Socratink <span className="kbd" aria-hidden="true">S</span>
+                  <a className="btn-accent encounter-cta" href={encounterFrame.cta.href}>
+                    {encounterFrame.cta.label}
                   </a>
-                  <p className="encounter-cta-sub">Free to start</p>
+                  <p className="encounter-cta-sub">{encounterFrame.ctaSub}</p>
                 </div>
               </div>
             </div>

@@ -14,7 +14,9 @@ export function Hero() {
         <Image src="/brand/socratink_wordmark.png" alt="Socratink" width={489} height={88} preload className="hero-wordmark" />
         <h1 className="hero-title notebook-display">{notebook.heroTitle}</h1>
         <p>{notebook.heroBody}</p>
+        <p className="hero-form">{notebook.heroForm}</p>
         <Link href={hero.primary.href} className="btn-accent">{hero.primary.label}<span aria-hidden="true">↗</span></Link>
+        <p className="hero-trust">{notebook.heroTrust}</p>
       </div>
       <figure className="hero-scene">
         <div className="hero-subject" aria-hidden="true"><OrganicSphere size={560} /></div>

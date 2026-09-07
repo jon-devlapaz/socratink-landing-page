@@ -458,6 +458,8 @@ textarea:disabled { cursor: not-allowed; }
 .hero-wordmark { display: block; width: 15rem; height: auto; margin-bottom: 2rem; filter: invert(1) brightness(0.86); }
 .hero-title.notebook-display { font-size: clamp(3rem, 4.6vw, 4rem); text-wrap: initial; }
 .hero-copy p { max-width: 38ch; margin-block: 1.5rem; font-size: 1rem; line-height: 1.65; color: var(--tx-2); }
+.hero-copy p.hero-form { max-width: 42ch; margin: 0 0 1.25rem; font-size: 0.8125rem; line-height: 1.5; color: var(--tx-2); }
+.hero-copy p.hero-trust { max-width: 44ch; margin: 0.75rem 0 0; font-size: 0.75rem; line-height: 1.45; color: var(--tx-2); letter-spacing: 0.01em; }
 .hero-scene { min-width: 0; }
 .hero-subject { position: relative; height: 25rem; overflow: clip; }
 .hero-subject .sphere { position: absolute; left: 50%; top: 50%; translate: -50% -50%; }
@@ -474,6 +476,8 @@ textarea:disabled { cursor: not-allowed; }
   .hero-wordmark { width: 11rem; margin-bottom: 1.5rem; }
   .hero-title.notebook-display { font-size: clamp(2.5rem, 11vw, 3rem); }
   .hero-copy p { font-size: 0.9375rem; margin-block: 1.25rem; }
+  .hero-copy p.hero-form { margin-bottom: 1rem; font-size: 0.75rem; }
+  .hero-copy p.hero-trust { font-size: 0.6875rem; }
   .hero-subject { height: 11rem; }
   .hero-subject .sphere { scale: 0.5; }
   .hero-scene figcaption { margin-top: 0.75rem; font-size: 0.8125rem; }

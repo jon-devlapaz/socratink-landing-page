@@ -35,7 +35,7 @@ export const nav = {
     { label: "Memory", href: "#memory" },
   ],
   login: { label: "Log in", href: site.appUrl },
-  cta: { label: "Open Socratink", href: site.appUrl, kbd: "S" },
+  cta: { label: "Start a free attempt", href: site.appUrl },
 } as const;
 
 export const hero = {
@@ -43,8 +43,8 @@ export const hero = {
   titleSans: "Know",
   titleSerif: "what you actually know.",
   subtitle:
-    "A learning agent for material that has to hold: the exam, the license, the job. It makes you do the thinking, and the record it keeps is your work, not the AI's.",
-  primary: { label: "Open Socratink", href: site.appUrl },
+    "A learning agent for medical boards, the bar exam, cloud certs, and consequential STEM. Unassisted attempts become evidence of what you can hold under pressure — your work, not the AI's.",
+  primary: { label: "Start a free attempt", href: site.appUrl },
   secondary: { label: "Free to start", href: site.appUrl },
   demoHint: {
     strong: "Watch an example conversation",
@@ -371,8 +371,8 @@ export const wiseWords = {
 export const finalCta = {
   titleSans: "Know what you know.",
   titleSerif: "Open Socratink.",
-  button: { label: "Open Socratink", href: site.appUrl },
-  sub: "Opens the chat in your browser. No download required.",
+  button: { label: "Start a free attempt", href: site.appUrl },
+  sub: "Instant in-browser · No account required · Free to start",
 } as const;
 
 export const footer = {
@@ -388,6 +388,16 @@ export const footer = {
 export const notebook = {
   heroTitle: "Know what you\nactually know.",
   heroBody:
-    "For the exam, the license, the job: make the attempt yourself. Socratink keeps your work as evidence, not the AI's, in your browser.",
+    "For medical boards, the bar exam, cloud certs, and consequential STEM: make the attempt yourself. Socratink keeps unassisted evidence of what you can hold under pressure — your work, not the AI's.",
+  heroForm: "A web app for unassisted attempts — open the workspace in your browser.",
+  heroTrust: "Instant in-browser · No account required · Free to start",
   heroNote: "The thinking stays yours.",
+} as const;
+
+/** Encounter framing micro-copy (candidate 16). */
+export const encounterFrame = {
+  walkthrough: "Interactive walkthrough — how fluent help becomes your retrieval",
+  scaffoldCap: "Day 0 Training Scaffold",
+  cta: { label: "Start a free attempt", href: site.appUrl },
+  ctaSub: "Instant in-browser · No account required · Free to start",
 } as const;

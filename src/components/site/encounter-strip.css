@@ -80,6 +80,10 @@
 
 .encounter-plane {
   flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.65rem;
   margin: 0;
   padding: 0.42rem 1rem 0.2rem;
   font-size: 0.62rem;
@@ -90,6 +94,21 @@
 .encounter-plane strong {
   color: var(--tx-2);
   font-weight: 600;
+}
+.encounter-walk-badge {
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-weight: 500;
+  color: var(--tx-2);
+  opacity: 0.92;
+}
+.encounter-scaffold-cap {
+  margin: 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tx-2);
 }
 
 .encounter-cue {

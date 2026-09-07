@@ -1,27 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
 import { Wordmark } from "@/components/ui/Wordmark";
 import { nav } from "@/lib/content";
 
 export function Nav() {
-  // A modifier avoids single-letter navigation while using speech input.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const typing =
-        target && (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable);
-      if (typing || e.metaKey || e.ctrlKey || !e.altKey || e.repeat) return;
-      if (e.code === "KeyS") {
-        e.preventDefault();
-        window.location.assign(nav.cta.href);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
   return (
     <header className="fixed inset-x-0 top-0 z-50">
       <div className="border-b border-tx/6 bg-paper/70 backdrop-blur-xl">
@@ -42,9 +25,8 @@ export function Nav() {
             <Link href={nav.login.href} className="btn-ghost hidden sm:inline-flex">
               {nav.login.label}
             </Link>
-            <Link href={nav.cta.href} className="btn-primary" aria-keyshortcuts="Alt+S">
+            <Link href={nav.cta.href} className="btn-primary">
               {nav.cta.label}
-              <span className="kbd nav-shortcut" aria-hidden="true">⌥ S</span>
             </Link>
           </div>
         </nav>

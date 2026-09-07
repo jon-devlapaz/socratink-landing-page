@@ -1,0 +1,20 @@
+iteration	hypothesis	quality	taste	decision	evidence
+00	Freeze restored original and approved hero	24 functional checks, 162 captures	User-approved anchors	baseline	00-baseline
+01	Reading copy 16px, conversations 15px	All gates pass	Readability win; other dimensions tie	keep	01-typography/review.json
+02	Stagger evidence rows in original order	24 functional checks and visual harness pass	Hierarchy tie; readability/rhythm/restraint lose	reject and restore	02-evidence-motion/review.json
+03	Separate evidence peak and final invitation	24 functional checks and 162 visual captures pass	Rhythm win; other dimensions tie	keep	03-rhythm/review.json
+04a	Restore user-requested phone orbit	Targeted label containment failed	Long word exceeds its pill	reject	04-phone-orbit/REJECTED.md
+04b	Repair long-label sizing in phone orbit	33 orbit checks, 24 functional checks, 162 captures pass	Identity win; other inspected dimensions tie	keep	04-phone-orbit-final/REPORT.md
+05a	Structural tightening from user critique	Existing checks pass; abrupt footer jumps fail at ten widths	Closing action still waits on entry	reject	05-structure-final/REJECTED.md
+05b	Remove remaining closing entrance; compact demo controls	94 checks and 159 final captures pass	Brand, hierarchy, surfaces and rhythm improve	keep	05-structure-kept/REPORT.md
+06	Clarify browser entry and merge Method into Moves	98 checks, 136 final captures and source gates pass	Hierarchy and clarity win; other dimensions tie	keep	06-clarity/REPORT.md
+07a	Split hero with isolated ink object	Tablet canvas overflow at 768 and 1024px	Containment regression	reject	07-hero/REJECTED.md
+07b	Contain tablet canvas and retain minimal split hero	128 checks, 137 captures and source gates pass	Hierarchy, surfaces, rhythm and restraint win	keep	07-hero-final/REPORT.md
+08	Validate larger nav targets and baseline-aligned distinctions	61 checks, 137 captures and quality gates pass	Wrapped comparison readability improves; composition retained	keep	08-micro-polish/REPORT.md
+11-encounter-alive	ACCEPT	rhythm	sticky Method→Moves recognize/cost/operate; spirit preserved
+13-cold-ledger	ACCEPT	rhythm	Fluency Ghost + NON-INFERENCES twin climaxes; parent cold-scroll
+14-forest-rebalance	ACCEPT	depth→breadth→horizon	post-Encounter forest without echo sticky
+15-orbit-interactive	ACCEPT	breadth	in-place curriculum Orbit; no second sticky engine
+16-hero-five-second	ACCEPT	clarity+conversion	boards/bar/cloud + free/no-account trust; sticky not brochure
+17-attempt-click	VERIFY	interaction	Attempt choices clickable on :4500; no code change
+17-cta-handoff	ACCEPT	conversion handoff	Start a free attempt; honesty gate guest attempt on app
