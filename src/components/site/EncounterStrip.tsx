@@ -66,8 +66,9 @@ export function EncounterStrip() {
   const [showSampleBadge, setShowSampleBadge] = useState(false);
   const [boundPlayed, setBoundPlayed] = useState(false);
   const [landedClaims, setLandedClaims] = useState(0);
-  const [refusedClaims, setRefusedClaims] = useState(0);
+  const [claimsDismissed, setClaimsDismissed] = useState(false);
   const [showNonInferences, setShowNonInferences] = useState(false);
+  const [revealedNonInferences, setRevealedNonInferences] = useState(0);
   const [reduced, setReduced] = useState(false);
   const [pinned, setPinned] = useState(false);
 
@@ -88,8 +89,9 @@ export function EncounterStrip() {
     boundPlayedRef.current = false;
     setBoundPlayed(false);
     setLandedClaims(0);
-    setRefusedClaims(0);
+    setClaimsDismissed(false);
     setShowNonInferences(false);
+    setRevealedNonInferences(0);
   }, [cancelBoundSchedule]);
 
   const playBoundRefusal = useCallback(() => {
@@ -98,19 +100,37 @@ export function EncounterStrip() {
     setBoundPlayed(true);
     cancelBoundSchedule();
     setLandedClaims(0);
-    setRefusedClaims(0);
-    setShowNonInferences(true);
+    setClaimsDismissed(false);
+    setShowNonInferences(false);
+    setRevealedNonInferences(0);
+
+    const claimCount = contractSlip.claims.length;
+    const landStagger = reduced ? 80 : 420;
+    const landLead = reduced ? 0 : 220;
+    const overlapHold = reduced ? 80 : 250;
+    const nonInfStagger = reduced ? 50 : 160;
 
     contractSlip.claims.forEach((_, i) => {
-      const landDelay = reduced ? i * 80 : 220 + i * 420;
-      const refuseDelay = reduced ? 40 : 280;
+      const landDelay = landLead + i * landStagger;
       window.setTimeout(() => {
         setLandedClaims((n) => Math.max(n, i + 1));
-        window.setTimeout(() => {
-          setRefusedClaims((n) => Math.max(n, i + 1));
-        }, refuseDelay);
       }, landDelay);
     });
+
+    const lastLand = landLead + (claimCount - 1) * landStagger;
+
+    window.setTimeout(() => {
+      setShowNonInferences(true);
+      contractSlip.nonInferences.forEach((_, i) => {
+        window.setTimeout(() => {
+          setRevealedNonInferences((n) => Math.max(n, i + 1));
+        }, i * nonInfStagger);
+      });
+    }, lastLand);
+
+    window.setTimeout(() => {
+      setClaimsDismissed(true);
+    }, lastLand + overlapHold);
   }, [cancelBoundSchedule, reduced]);
 
   const scheduleBoundRefusal = useCallback(() => {
@@ -453,35 +473,35 @@ export function EncounterStrip() {
                     </p>
                   ) : null}
                   <div
-                    className={`encounter-claim-layer${boundPlayed ? " is-hot" : ""}`}
+                    className={`encounter-claim-layer${boundPlayed ? " is-hot" : ""}${claimsDismissed ? " is-dismissed" : ""}`}
                     id="claimLayer"
                     aria-live="polite"
                   >
                     {contractSlip.claims.map((claim, i) => {
                       const landed = i < landedClaims;
-                      const refused = i < refusedClaims;
                       return (
                         <div
                           key={claim}
-                          className={`encounter-claim-stamp${landed ? " is-landed" : ""}${refused ? " is-refused" : ""}`}
+                          className={`encounter-claim-stamp${landed ? " is-landed" : ""}`}
                         >
                           <span className="encounter-claim-text">{claim}</span>
-                          <span className="encounter-claim-x" aria-hidden="true">
-                            ✕
-                          </span>
                         </div>
                       );
                     })}
                   </div>
                   <ul
-                    className="encounter-noninf"
+                    className={`encounter-noninf${showNonInferences ? " is-live" : ""}`}
                     id="nonInferenceList"
                     aria-label="Non-inferences"
                     hidden={!showNonInferences}
                   >
                     {showNonInferences
-                      ? contractSlip.nonInferences.map((text) => (
-                          <li key={text} data-non-inference="1">
+                      ? contractSlip.nonInferences.map((text, i) => (
+                          <li
+                            key={text}
+                            data-non-inference="1"
+                            className={i < revealedNonInferences ? "is-revealed" : ""}
+                          >
                             <span className="encounter-noninf-x" aria-hidden="true">
                               ✕
                             </span>

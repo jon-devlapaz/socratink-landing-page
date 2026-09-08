@@ -305,62 +305,38 @@
   display: grid;
   gap: 0.4rem;
   margin-top: 0.25rem;
+  transition: opacity 220ms ease, max-height 280ms ease;
+}
+
+.encounter-claim-layer.is-dismissed {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  margin-top: 0;
+  pointer-events: none;
 }
 
 .encounter-claim-stamp {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.65rem;
-  padding: 0.5rem 0.65rem;
-  border: 2px solid color-mix(in srgb, var(--slip-ink) 18%, transparent);
-  background: color-mix(in srgb, var(--slip-ledger) 92%, #fff);
-  font-size: 0.9rem;
-  font-weight: 650;
+  padding: 0.42rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--slip-ink) 22%, transparent);
+  background: color-mix(in srgb, var(--slip-ink) 4%, var(--slip-ledger));
+  font-size: 0.88rem;
+  font-weight: 600;
   line-height: 1.28;
   opacity: 0;
-  transform: translateY(10px) scale(0.97);
-  box-shadow: 0 6px 18px color-mix(in srgb, #000 10%, transparent);
+  transform: translateY(8px);
+  box-shadow: none;
   transition:
     opacity 280ms ease,
-    transform 280ms ease,
-    background 220ms ease,
-    border-color 220ms ease,
-    box-shadow 220ms ease;
+    transform 280ms ease;
 }
 
 .encounter-claim-stamp.is-landed {
   opacity: 1;
   transform: none;
-}
-
-.encounter-claim-stamp.is-refused {
-  background: color-mix(in srgb, var(--slip-refuse) 16%, var(--slip-ledger));
-  border-color: color-mix(in srgb, var(--slip-refuse) 72%, transparent);
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--slip-refuse) 18%, transparent);
-}
-
-.encounter-claim-stamp.is-refused .encounter-claim-text {
-  text-decoration: line-through;
-  text-decoration-thickness: 2px;
-  text-decoration-color: color-mix(in srgb, var(--slip-refuse) 88%, transparent);
-}
-
-.encounter-claim-x {
-  flex: none;
-  opacity: 0;
-  color: var(--slip-refuse);
-  font-weight: 800;
-  font-size: 1.2rem;
-  transform: scale(0.5);
-  transition:
-    opacity 180ms ease,
-    transform 280ms cubic-bezier(0.2, 0.85, 0.2, 1.25);
-}
-
-.encounter-claim-stamp.is-refused .encounter-claim-x {
-  opacity: 1;
-  transform: scale(1.25);
 }
 
 .encounter-noninf {
@@ -369,6 +345,12 @@
   padding: 0;
   display: grid;
   gap: 0.22rem;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.encounter-noninf.is-live {
+  opacity: 1;
 }
 
 .encounter-noninf li {
@@ -377,6 +359,20 @@
   padding: 0.05rem 0;
   color: var(--slip-ink);
   font-weight: 500;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.encounter-noninf li.is-revealed {
+  opacity: 1;
+  transform: none;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: color-mix(in srgb, var(--slip-refuse) 72%, transparent);
+  color: color-mix(in srgb, var(--slip-ink) 78%, var(--slip-mute));
 }
 
 .encounter-noninf-x {
@@ -468,8 +464,10 @@
     opacity: 1;
   }
 
-  .encounter-claim-x {
+  .encounter-noninf li {
     transition-duration: 0.01ms;
+    transform: none;
+    opacity: 1;
   }
 
   .encounter-phase,
