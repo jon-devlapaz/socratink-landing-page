@@ -281,7 +281,7 @@ export const contractSlip = {
     coldScroll: "Scroll.",
     ghostArrive: "Assisted text arrives. Keep scrolling.",
     ghostLeaving: "Assisted text is leaving.",
-    ghostGone: "The help is gone. You generated none of it.",
+    ghostGone: "That assistance fades. None of those words were yours.",
     ink: "Your sentence — or a labeled sample. Nothing masquerades.",
     inkDefault: "Write one sentence — or show a labeled sample.",
     inkRecorded: "Ink recorded. Keep scrolling.",

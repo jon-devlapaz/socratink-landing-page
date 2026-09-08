@@ -49,9 +49,29 @@ async function waitForBoundComplete(page) {
     { timeout: 12000 },
   );
   await page.waitForFunction(
-    () => document.querySelectorAll(".encounter-claim-stamp.is-refused").length >= 3,
+    () => document.querySelectorAll(".encounter-noninf li.is-revealed").length >= 3,
     { timeout: 12000 },
   );
+}
+
+async function assertSingleRefuseSurface(page) {
+  const stampRefused = await page.evaluate(
+    () => document.querySelectorAll(".encounter-claim-stamp.is-refused").length,
+  );
+  if (stampRefused > 0) {
+    fail(`production: stamp refuse echo (${stampRefused} is-refused stamps)`);
+  } else {
+    pass("production: no duplicate stamp refuse (single climax surface)");
+  }
+
+  const readable = await page.evaluate(() =>
+    /does not establish/i.test(document.body.innerText),
+  );
+  if (!readable) {
+    fail("production: missing readable NON-INFERENCE copy");
+  } else {
+    pass("production: NON-INFERENCES readable in DOM");
+  }
 }
 
 async function assertNoGhostStamp(page) {
@@ -79,6 +99,7 @@ async function testSamplePath(page) {
 
   await scrollEncounterFraction(page, 0.72);
   await waitForBoundComplete(page);
+  await assertSingleRefuseSurface(page);
 
   const badgeOnBound = await page.evaluate(() =>
     document.getElementById("demoBadge")?.classList.contains("show"),
