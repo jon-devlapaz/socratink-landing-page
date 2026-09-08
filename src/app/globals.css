@@ -24,6 +24,21 @@
   --path-hover: #fffcf0b8;
   --shadow-border: 0 0 0 1px #100f0f14, 0 1px 2px -1px #100f0f0f, 0 2px 4px 0 #100f0f0a;
   --shadow-border-hover: 0 0 0 1px #100f0f1f, 0 1px 2px -1px #100f0f14, 0 2px 4px 0 #100f0f0f;
+  --btn-primary-bg: color-mix(in srgb, var(--paper-2) 88%, var(--paper));
+  --btn-primary-bg-hover: color-mix(in srgb, var(--ui) 75%, var(--paper));
+  --btn-primary-border: color-mix(in srgb, var(--tx) 10%, transparent);
+  --btn-primary-border-hover: color-mix(in srgb, var(--tx) 16%, transparent);
+  --btn-primary-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.8) inset,
+    0 1px 2px 0 rgba(16, 15, 15, 0.04),
+    0 6px 20px -10px rgba(16, 15, 15, 0.08);
+  --btn-primary-shadow-hover:
+    0 1px 0 0 rgba(255, 255, 255, 0.9) inset,
+    0 2px 4px 0 rgba(16, 15, 15, 0.06),
+    0 8px 24px -10px rgba(16, 15, 15, 0.12);
+  --card-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.65) inset,
+    0 20px 60px -30px rgba(16, 15, 15, 0.07);
   --wordmark-filter: none;
   --mark-fill: radial-gradient(circle at 62% 72%, #100f0f 0%, #282726 42%, #575653 100%);
   --ease-out: ease-out;
@@ -50,6 +65,21 @@
   --path-hover: #343331b8;
   --shadow-border: 0 0 0 1px #cecdc314, 0 1px 2px -1px #00000052, 0 2px 4px 0 #0000003d;
   --shadow-border-hover: 0 0 0 1px #cecdc324, 0 1px 2px -1px #0006, 0 2px 4px 0 #00000047;
+  --btn-primary-bg: color-mix(in srgb, var(--ui) 60%, var(--paper-2));
+  --btn-primary-bg-hover: color-mix(in srgb, var(--ui) 90%, var(--paper-2));
+  --btn-primary-border: color-mix(in srgb, var(--tx) 14%, transparent);
+  --btn-primary-border-hover: color-mix(in srgb, var(--tx) 24%, transparent);
+  --btn-primary-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.09) inset,
+    0 1px 2px 0 rgba(0, 0, 0, 0.45),
+    0 4px 12px -2px rgba(0, 0, 0, 0.35);
+  --btn-primary-shadow-hover:
+    0 1px 0 0 rgba(255, 255, 255, 0.16) inset,
+    0 2px 4px 0 rgba(0, 0, 0, 0.55),
+    0 6px 16px -2px rgba(0, 0, 0, 0.45);
+  --card-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 20px 60px -30px rgba(0, 0, 0, 0.45);
   --wordmark-filter: invert(1);
   --mark-fill: radial-gradient(circle at 62% 72%, #cecdc3 0%, #b7b5ac 42%, #878580 100%);
   color-scheme: dark;
@@ -74,6 +104,21 @@
     --path-hover: #343331b8;
     --shadow-border: 0 0 0 1px #cecdc314, 0 1px 2px -1px #00000052, 0 2px 4px 0 #0000003d;
     --shadow-border-hover: 0 0 0 1px #cecdc324, 0 1px 2px -1px #0006, 0 2px 4px 0 #00000047;
+    --btn-primary-bg: color-mix(in srgb, var(--ui) 60%, var(--paper-2));
+    --btn-primary-bg-hover: color-mix(in srgb, var(--ui) 90%, var(--paper-2));
+    --btn-primary-border: color-mix(in srgb, var(--tx) 14%, transparent);
+    --btn-primary-border-hover: color-mix(in srgb, var(--tx) 24%, transparent);
+    --btn-primary-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.09) inset,
+      0 1px 2px 0 rgba(0, 0, 0, 0.45),
+      0 4px 12px -2px rgba(0, 0, 0, 0.35);
+    --btn-primary-shadow-hover:
+      0 1px 0 0 rgba(255, 255, 255, 0.16) inset,
+      0 2px 4px 0 rgba(0, 0, 0, 0.55),
+      0 6px 16px -2px rgba(0, 0, 0, 0.45);
+    --card-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+      0 20px 60px -30px rgba(0, 0, 0, 0.45);
     --wordmark-filter: invert(1);
     --mark-fill: radial-gradient(circle at 62% 72%, #cecdc3 0%, #b7b5ac 42%, #878580 100%);
     color-scheme: dark;
@@ -158,9 +203,7 @@ body::after {
     background: color-mix(in srgb, var(--paper-2) 72%, var(--paper));
     border: 1px solid color-mix(in srgb, var(--tx) 7%, transparent);
     border-radius: 1.25rem;
-    box-shadow:
-      0 1px 0 0 color-mix(in srgb, white 65%, transparent) inset,
-      0 20px 60px -30px rgba(16, 15, 15, 0.07);
+    box-shadow: var(--card-shadow);
   }
 
   .tile {
@@ -194,18 +237,17 @@ body::after {
     font-size: 0.8125rem;
     font-weight: 500;
     color: var(--tx);
-    background: color-mix(in srgb, var(--paper-2) 88%, var(--paper));
-    border: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
-    box-shadow:
-      0 1px 0 0 color-mix(in srgb, white 80%, transparent) inset,
-      0 6px 20px -10px rgba(16, 15, 15, 0.08);
-    transition-property: background-color, border-color, scale;
+    background: var(--btn-primary-bg);
+    border: 1px solid var(--btn-primary-border);
+    box-shadow: var(--btn-primary-shadow);
+    transition-property: background-color, border-color, box-shadow, scale;
     transition-duration: 180ms;
     transition-timing-function: var(--ease-press);
   }
   .btn-primary:hover {
-    background: color-mix(in srgb, var(--ui) 75%, var(--paper));
-    border-color: color-mix(in srgb, var(--tx) 14%, transparent);
+    background: var(--btn-primary-bg-hover);
+    border-color: var(--btn-primary-border-hover);
+    box-shadow: var(--btn-primary-shadow-hover);
   }
   .btn-primary:active {
     scale: 0.96;
@@ -486,7 +528,7 @@ p { text-wrap: pretty; }
 a, button, textarea { -webkit-tap-highlight-color: transparent; }
 a:focus-visible, button:focus-visible, textarea:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 5px;
+  outline-offset: 2px;
 }
 button, a.btn-primary, a.btn-accent, a.btn-ghost { min-height: 44px; }
 button:disabled { opacity: 0.55; cursor: not-allowed; }
