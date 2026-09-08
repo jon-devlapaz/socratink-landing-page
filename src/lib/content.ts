@@ -34,7 +34,7 @@ export const nav = {
     { label: "Disciplines", href: "#material" },
     { label: "Memory", href: "#memory" },
   ],
-  login: { label: "Log in", href: "/login" },
+  login: { label: "Log in", href: `${site.appUrl}login` },
   cta: { label: "Start a free attempt", href: site.appUrl },
 } as const;
 

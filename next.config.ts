@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/login",
+        destination: "https://app.socratink.ai/login",
+        permanent: false,
+      },
+      {
         source: "/:path*",
         has: [{ type: "host", value: "www.socratink.ai" }],
         destination: "https://socratink.ai/:path*",
