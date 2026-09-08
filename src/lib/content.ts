@@ -259,7 +259,7 @@ export const notebook = {
 /** Contract-slip Encounter copy (Method fold). */
 export const contractSlip = {
   railLabel: "Encounter",
-  question: "Why doesn't a larger sample fix a biased one?",
+  question: "What happens when the draw itself is biased?",
   sampleTraceBadge: "Sample Trace · not your evidence",
   sampleText:
     "Bigger sample from the same bad draw just makes the wrong answer more confident.",
@@ -285,11 +285,12 @@ export const contractSlip = {
     ink: "Your sentence — or a labeled sample. Nothing masquerades.",
     inkDefault: "Write one sentence — or show a labeled sample.",
     inkRecorded: "Ink recorded. Keep scrolling.",
-    inkSample: "Sample Trace on the slip. Not your evidence.",
+    inkSampleScroll: "Keep scrolling.",
     inkRefuse: "Refusal recorded. Bound next.",
     bound: "Bound. Claims try to land.",
     boundNoInk: "No ink on the slip.",
     exit: "That observation is bounded. The thinking stays yours.",
+    exitWalkthrough: "This walkthrough stores nothing on the page.",
   },
   inkPlaceholder: "Your words on the line…",
   commitLabel: "Commit ink",
@@ -297,12 +298,11 @@ export const contractSlip = {
   refuseLabel: "I don't know yet",
   cta: { label: "Start a free attempt", href: site.appUrl },
   ctaSub: "Instant in-browser · No account required · Free to start",
-  demoNote: "This walkthrough stores nothing on the page.",
 } as const;
 
 /** @deprecated use contractSlip — kept for any stale imports during port */
 export const encounterFrame = {
-  walkthrough: contractSlip.demoNote,
+  walkthrough: contractSlip.hints.exitWalkthrough,
   scaffoldCap: contractSlip.hints.inkDefault,
   cta: contractSlip.cta,
   ctaSub: contractSlip.ctaSub,

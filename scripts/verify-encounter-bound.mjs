@@ -107,6 +107,32 @@ async function testSamplePath(page) {
   if (!badgeOnBound) fail("sample: badge not visible through Bound");
   else pass("sample: badge persists through Bound");
 
+  const condText = await page.evaluate(
+    () => document.getElementById("contractCond")?.textContent?.trim() ?? "",
+  );
+  if (condText) fail(`sample: footer twin honesty should be cut (got "${condText}")`);
+  else pass("sample: no footer twin honesty on contract line");
+
+  const boundHint = await page.evaluate(() => {
+    const panel = document.getElementById("panelContract");
+    return panel?.querySelector(".encounter-hint")?.textContent?.trim() ?? "";
+  });
+  if (/claims try to land/i.test(boundHint)) {
+    fail("sample: Bound hint should not appear on Sample Trace path");
+  } else {
+    pass("sample: Bound hint cut on Sample Trace path");
+  }
+
+  const slipStoresNothing = await page.evaluate(() => {
+    const slip = document.getElementById("slip");
+    return /stores nothing/i.test(slip?.textContent ?? "");
+  });
+  if (slipStoresNothing) {
+    fail("sample: stores-nothing should not peak on Sample Trace slip");
+  } else {
+    pass("sample: stores-nothing off Sample Trace slip");
+  }
+
   const count = await page.evaluate(
     () => document.querySelectorAll("[data-non-inference]").length,
   );
