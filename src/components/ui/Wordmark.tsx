@@ -21,7 +21,7 @@ export function Wordmark({ size = "sm" }: WordmarkProps) {
       className="brand-lockup inline-flex items-center gap-2.5"
       aria-label={`${site.name} home, pronounced ${respell}`}
     >
-      <span className={`brand-mark ${dot} rounded-full bg-tx shadow-[0_0_18px_-2px_rgba(206,205,195,0.6)]`} />
+      <span className={`brand-mark ${dot} rounded-full bg-tx shadow-[0_0_18px_-2px_rgba(16,15,15,0.12)]`} />
       <span className="brand-word relative inline-flex items-center">
         <Image
           src="/brand/socratink_wordmark.png"

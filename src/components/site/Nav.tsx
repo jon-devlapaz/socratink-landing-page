@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { AppearanceToggle } from "@/components/theme/AppearanceToggle";
 import { Wordmark } from "@/components/ui/Wordmark";
 import { nav } from "@/lib/content";
 
 export function Nav() {
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      <div className="border-b border-tx/6 bg-paper/70 backdrop-blur-xl">
+      <div className="border-b border-tx/5 bg-paper/80 backdrop-blur-xl">
         <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 sm:px-8">
           <Wordmark />
 
@@ -21,7 +22,8 @@ export function Nav() {
             ))}
           </ul>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <AppearanceToggle />
             <Link href={nav.login.href} className="btn-ghost hidden sm:inline-flex">
               {nav.login.label}
             </Link>
