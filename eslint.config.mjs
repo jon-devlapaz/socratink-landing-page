@@ -13,10 +13,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "public/scrollcraft/**",
-    "scrollcraft/builds/**/scrollcraft.js",
-    // Taste snapshots + skill engine copies are not app source.
-    ".hillclimb/**",
-    ".agents/skills/scroll-craft/engine/**",
+    ".agents/**",
   ]),
 ]);
 
