@@ -5,6 +5,11 @@
     "Establishes cold reconstruction",
     "Establishes transfer to novel domains"
   ];
+  var NON_INFERENCES = [
+    "Does not establish durable retention",
+    "Does not establish unprompted reconstruction",
+    "Does not establish transfer to novel domains"
+  ];
   var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   gsap.registerPlugin(ScrollTrigger);
 
@@ -28,6 +33,7 @@
   var contractInk = document.getElementById("contractInk");
   var contractCond = document.getElementById("contractCond");
   var claimLayer = document.getElementById("claimLayer");
+  var nonInferenceList = document.getElementById("nonInferenceList");
   var caret = document.getElementById("simCaret");
 
   var ink = null;
@@ -68,10 +74,12 @@
       contractInk.textContent = "No ink on the slip.";
       contractInk.classList.add("empty");
       contractCond.textContent = "";
+      delete contractInk.dataset.inkKind;
       return;
     }
     contractInk.classList.remove("empty");
     contractInk.textContent = ink.text;
+    contractInk.dataset.inkKind = ink.kind;
     if (ink.kind === "sample") {
       contractCond.textContent = "Sample Trace · demonstration · not visitor evidence";
       setBadge(true, "Sample Trace · not your evidence");
@@ -84,10 +92,35 @@
     }
   }
 
+  function clearNonInferences() {
+    if (!nonInferenceList) return;
+    nonInferenceList.innerHTML = "";
+    nonInferenceList.hidden = true;
+    delete nonInferenceList.dataset.filled;
+  }
+
+  function renderNonInferences() {
+    if (!nonInferenceList || nonInferenceList.dataset.filled) return;
+    nonInferenceList.dataset.filled = "1";
+    nonInferenceList.hidden = false;
+    NON_INFERENCES.forEach(function (text) {
+      var li = document.createElement("li");
+      li.setAttribute("data-non-inference", "1");
+      var x = document.createElement("span");
+      x.className = "x";
+      x.setAttribute("aria-hidden", "true");
+      x.textContent = String.fromCharCode(0x2715);
+      li.appendChild(x);
+      li.appendChild(document.createTextNode(text));
+      nonInferenceList.appendChild(li);
+    });
+  }
+
   function clearClaims() {
     if (!claimLayer) return;
     claimLayer.innerHTML = "";
     claimLayer.classList.remove("is-hot");
+    clearNonInferences();
   }
 
   function playBoundRefusal() {
@@ -103,16 +136,21 @@
       el.innerHTML = "<span class=\"claim-text\">" + text + "</span><span class=\"claim-x\" aria-hidden=\"true\">" + String.fromCharCode(0x2715) + "</span>";
       el.style.setProperty("--i", String(i));
       claimLayer.appendChild(el);
-      // land then refuse
+      var landDelay = reduced ? i * 80 : 220 + i * 420;
+      var refuseDelay = reduced ? 40 : 280;
       requestAnimationFrame(function () {
         setTimeout(function () {
           el.classList.add("is-landed");
           setTimeout(function () {
             el.classList.add("is-refused");
-          }, reduced ? 40 : 280);
-        }, reduced ? i * 80 : 220 + i * 420);
+            if (i === CLAIMS.length - 1) renderNonInferences();
+          }, refuseDelay);
+        }, landDelay);
       });
     });
+    if (reduced) {
+      setTimeout(renderNonInferences, CLAIMS.length * 80 + 120);
+    }
   }
 
   function setGhostProgress(raw) {

@@ -162,6 +162,7 @@
     display: none; align-self: flex-start;
     font-size: 0.62rem; letter-spacing: 0.07em; text-transform: uppercase;
     background: #e8d48a; color: #3a320f; padding: 0.28rem 0.5rem; border-radius: 999px;
+    margin: 0 0 0.15rem;
   }
   .badge.show { display: inline-block; }
   .ink-line {
@@ -209,13 +210,30 @@
     text-decoration: none; border-radius: 0.1rem;
   }
   .ink-row button[hidden] { display: none; }
-  .claim-layer{display:grid;gap:.55rem;margin-top:.7rem;min-height:7rem}
-  .claim-stamp{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.55rem .7rem;border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);background:color-mix(in srgb,var(--ledger) 94%,#fff);font-size:.95rem;line-height:1.3;opacity:0;transform:translateY(12px) scale(.97);transition:opacity .28s ease,transform .28s ease,background .22s ease,border-color .22s ease}
+  .claim-layer{display:grid;gap:.65rem;margin-top:.7rem;min-height:8.5rem}
+  .claim-stamp{
+    display:flex;align-items:center;justify-content:space-between;gap:.85rem;
+    padding:.72rem .85rem;
+    border:2.5px solid color-mix(in srgb,var(--ink) 18%,transparent);
+    background:color-mix(in srgb,var(--ledger) 92%,#fff);
+    font-size:1.02rem;font-weight:650;line-height:1.32;
+    opacity:0;transform:translateY(14px) scale(.96);
+    box-shadow:0 10px 28px color-mix(in srgb,#000 12%,transparent);
+    transition:opacity .28s ease,transform .28s ease,background .22s ease,border-color .22s ease,box-shadow .22s ease;
+  }
   .claim-stamp.is-landed{opacity:1;transform:none}
-  .claim-stamp.is-refused{background:color-mix(in srgb,var(--stamp) 14%,var(--ledger));border-color:color-mix(in srgb,var(--stamp) 50%,transparent)}
-  .claim-stamp.is-refused .claim-text{text-decoration:line-through;text-decoration-thickness:2.2px;text-decoration-color:color-mix(in srgb,var(--stamp) 85%,transparent)}
-  .claim-x{flex:none;opacity:0;color:var(--stamp);font-weight:800;font-size:1.15rem;transform:scale(.55);transition:opacity .18s ease,transform .28s cubic-bezier(.2,.85,.2,1.25)}
-  .claim-stamp.is-refused .claim-x{opacity:1;transform:scale(1.2)}
+  .claim-stamp.is-refused{
+    background:color-mix(in srgb,var(--stamp) 16%,var(--ledger));
+    border-color:color-mix(in srgb,var(--stamp) 72%,transparent);
+    box-shadow:0 14px 36px color-mix(in srgb,var(--stamp) 22%,transparent);
+  }
+  .claim-stamp.is-refused .claim-text{text-decoration:line-through;text-decoration-thickness:2.5px;text-decoration-color:color-mix(in srgb,var(--stamp) 88%,transparent)}
+  .claim-x{flex:none;opacity:0;color:var(--stamp);font-weight:800;font-size:1.35rem;transform:scale(.5);transition:opacity .18s ease,transform .28s cubic-bezier(.2,.85,.2,1.25)}
+  .claim-stamp.is-refused .claim-x{opacity:1;transform:scale(1.25)}
+  @media (prefers-reduced-motion: reduce) {
+    .claim-stamp { transition-duration: 0.01ms; transform: none; }
+    .claim-x { transition-duration: 0.01ms; }
+  }
 </style>
 </head>
 <body>
@@ -225,6 +243,7 @@
         <div class="rail-label">Encounter</div>
       <article class="slip" id="slip">
         <p class="q">Why doesn&#8217;t a larger sample fix a biased one?</p>
+        <span class="badge" id="demoBadge">Sample Trace &#183; not your evidence</span>
         <div class="stage">
           <section class="panel is-live" data-panel="cold" id="panelCold">
             <p class="hint">One question. Evidence begins when you attempt.</p>
@@ -243,7 +262,6 @@
 
           <section class="panel" data-panel="ink" id="panelInk">
             <p class="hint">Your sentence — or a labeled sample. Nothing masquerades.</p>
-            <span class="badge" id="demoBadge">Sample Trace &#183; not your evidence</span>
             <div class="paper-ink">
               <input id="inkInput" maxlength="160" placeholder="Your words on the line&#8230;" autocomplete="off" />
             </div>
@@ -260,6 +278,7 @@
             <p class="ink-line empty" id="contractInk">No ink on the slip.</p>
             <p class="cond" id="contractCond"></p>
             <div class="claim-layer" id="claimLayer" aria-live="polite"></div>
+            <ul class="noninf" id="nonInferenceList" aria-label="Non-inferences" hidden></ul>
           </section>
 
           <section class="panel" data-panel="exit" id="panelExit">
