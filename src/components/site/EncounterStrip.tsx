@@ -411,6 +411,7 @@ export function EncounterStrip() {
                       ref={inkInputRef}
                       id="inkInput"
                       maxLength={160}
+                      aria-label={contractSlip.inkPlaceholder}
                       placeholder={contractSlip.inkPlaceholder}
                       autoComplete="off"
                       readOnly={inkLocked}

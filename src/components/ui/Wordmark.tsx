@@ -18,7 +18,7 @@ export function Wordmark({ size = "sm" }: WordmarkProps) {
   return (
     <Link
       href="/"
-      className="brand-lockup inline-flex items-center gap-2.5"
+      className="brand-lockup inline-flex min-h-11 items-center gap-2.5"
       aria-label={`${site.name} home, pronounced ${respell}`}
     >
       <span className={`brand-mark ${dot} rounded-full bg-tx shadow-[0_0_18px_-2px_rgba(16,15,15,0.12)]`} />
