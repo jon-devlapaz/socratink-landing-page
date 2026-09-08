@@ -2,13 +2,13 @@
 
 import { useEffect } from "react";
 
-/** Canvas stops in document order. Small Flexoki-family steps, never a theme cut. */
+/** Canvas stops in document order. Warm cream breath, never a theme cut. */
 const STOPS: readonly [number, string][] = [
-  [0, "#100f0f"],
-  [0.28, "#131211"],
-  [0.52, "#0c0d10"],
-  [0.78, "#100f0f"],
-  [1, "#100f0f"],
+  [0, "#fffcf0"],
+  [0.28, "#faf8f0"],
+  [0.52, "#f7f5ed"],
+  [0.78, "#fffcf0"],
+  [1, "#fffcf0"],
 ];
 
 function parseHex(hex: string): [number, number, number] {

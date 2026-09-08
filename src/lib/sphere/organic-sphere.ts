@@ -69,7 +69,7 @@ export type OrganicSphereOptions = {
 
 export function mountOrganicSphere(
   mount: HTMLElement,
-  { oversample = 1, ground = "ink" }: OrganicSphereOptions = {},
+  { oversample = 1, ground = "paper" }: OrganicSphereOptions = {},
 ): OrganicSphereController {
   const D2 = PRESETS[ground];
   const scene = new THREE.Scene();

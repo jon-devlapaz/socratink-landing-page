@@ -34,7 +34,7 @@ export function OrganicSphere({ size, level = 0, oversample = 1, className = "" 
     const el = mountRef.current;
     if (!el || reduce) return;
     try {
-      controller.current = mountOrganicSphere(el, { oversample });
+      controller.current = mountOrganicSphere(el, { oversample, ground: "paper" });
     } catch {
       el.replaceChildren();
     }

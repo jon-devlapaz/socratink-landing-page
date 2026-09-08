@@ -8,9 +8,9 @@
 .encounter-track {
   position: relative;
   --slip-ledger: #f2f0e9;
-  --slip-ink: #1c1b1a;
+  --slip-ink: #100f0f;
   --slip-mute: #6e6b64;
-  --slip-line: color-mix(in srgb, #1c1b1a 14%, transparent);
+  --slip-line: color-mix(in srgb, #100f0f 14%, transparent);
   --slip-refuse: #a02f2f;
 }
 
@@ -82,8 +82,8 @@
   min-height: min(58dvh, 28rem);
   max-height: min(84dvh, 36rem);
   background:
-    linear-gradient(color-mix(in srgb, #1c1b1a 4%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, #1c1b1a 4%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, #100f0f 4%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, #100f0f 4%, transparent) 1px, transparent 1px),
     var(--slip-ledger);
   background-size: 1.1rem 1.1rem, 1.1rem 1.1rem, auto;
   background-position: -1px -1px, -1px -1px, 0 0;
@@ -95,7 +95,7 @@
   gap: 0.55rem;
   box-shadow:
     0 0 0 1px color-mix(in srgb, #1c1b1a 8%, transparent),
-    0 28px 70px -30px #000;
+    0 28px 70px -30px rgba(16, 15, 15, 0.1);
   overflow-x: hidden;
   overflow-y: auto;
 }
