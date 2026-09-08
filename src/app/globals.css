@@ -436,35 +436,16 @@ body::after {
   }
 }
 
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-  50% {
-    opacity: 0.9;
-  }
-}
-.star {
-  animation: twinkle var(--twinkle, 4s) ease-in-out infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .method-act [data-turn][hidden] {
-    display: flex !important;
-  }
   .orbit-ring {
     transform: none;
   }
   .orbit-item {
     transform: translate(-50%, -50%);
   }
-  .star,
   .caret {
     animation: none;
   }
-  .smooth-cursor,
-  .smooth-cursor-orb,
   .wordmark-img,
   .brand-ipa {
     transition: none;
@@ -711,30 +692,13 @@ html:has(:focus-visible) { scroll-behavior: auto; }
 
 /* Restored sections stay readable without script and when motion is disabled. */
 html:not(.sc-ready) .reveal-content { opacity: 1 !important; transform: none !important; }
-.method-example:focus-within { clip-path: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .reveal-content { opacity: 1 !important; transform: none !important; }
 }
-@media (max-width: 639px) {
-  #evidence .card.flex.items-center { flex-direction: column; align-items: flex-start; gap: 1rem; }
-  #evidence li > .flex.shrink-0 { flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; }
-}
 
-/* Reading text and compact evidence labels have separate jobs. */
+/* Reading text and compact detail labels have separate jobs. */
 :root { --landing-body: 1rem; --landing-detail: 0.875rem; }
-#method .method-intro p:not(.eyebrow),
-#moves .card p:not(.paper-label),
-#evidence .card > p,
-#evidence .card > div > p:not(.font-serif),
-#memory .card > p:not(.font-serif) {
-  font-size: var(--landing-body);
-  line-height: 1.6;
-}
-#method [data-turn], #moves [data-turn] { font-size: 0.9375rem; }
-#evidence li, #memory li { font-size: var(--landing-detail); }
-
-/* Reserve breathing room for the evidence peak and final invitation. */
-#evidence { padding-block: clamp(4rem, 6vw, 6rem); }
+#memory li { font-size: var(--landing-detail); }
 .close-act { padding-top: clamp(4rem, 8vw, 7rem); }
 .close-content { padding-bottom: clamp(5rem, 9vw, 8rem); }
 
@@ -783,33 +747,6 @@ html:not(.sc-ready) .reveal-content { opacity: 1 !important; transform: none !im
 
 /* Evidence owns the panel language; what follows reads as a record and a coda. */
 .memory-column > p:last-child { max-width: 52ch; }
-.wise-editorial { display: grid; gap: 2rem; padding-block: clamp(3rem, 5vw, 5rem); border-top: 1px solid var(--ui-2); }
-.wise-pullquote { max-width: 20ch; font-family: var(--font-serif); font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1.08; text-wrap: balance; }
-@media (min-width: 768px) {
-  .wise-editorial { grid-template-columns: 1fr 2fr; gap: 3rem; }
-}
-
-.method-principle { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 0.5rem 0.75rem; margin-top: 2rem; padding-block: 1rem; border-block: 1px solid var(--ui-2); font-family: var(--font-serif); font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.3; }
-
-/* Follow the assistance history without delaying or moving any reading content. */
-#evidence {
-  --evidence-p: 1;
-  --evidence-reveal: clamp(0, min((var(--evidence-p) - 0.15) * 5, (1 - var(--evidence-p)) * 3), 1);
-  --evidence-recorded: clamp(0, (var(--evidence-p) - 0.65) / 0.35, 1);
-}
-.evidence-record { position: relative; }
-.evidence-record::before, .evidence-record::after { content: ""; position: absolute; inset-inline-start: -11px; pointer-events: none; }
-.evidence-record::before { top: 1rem; bottom: 1rem; width: 1px; background: var(--ui-2); }
-.evidence-record::after { top: calc(1rem + (100% - 2rem - 12px) * var(--evidence-p)); width: 3px; height: 12px; border-radius: 2px; background: var(--accent); }
-.evidence-reveal, .evidence-assistance, .evidence-assessment { text-decoration-line: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
-.evidence-reveal { text-decoration-color: color-mix(in srgb, var(--accent) calc(var(--evidence-reveal) * 100%), transparent); }
-.evidence-assistance { text-decoration-color: color-mix(in srgb, var(--accent) calc(var(--evidence-recorded) * 100%), transparent); }
-.evidence-assessment { text-decoration-color: var(--accent); }
-@media (min-width: 768px) { .evidence-assessment { text-decoration-color: color-mix(in srgb, var(--accent) calc(var(--evidence-recorded) * 100%), transparent); } }
-@media (prefers-reduced-motion: reduce) {
-  #evidence { --evidence-p: 1 !important; --evidence-reveal: 0.35; }
-  .evidence-record::after { display: none; }
-}
 
 
 /* Storey-style three-band footer (Site index · Legal · Attempt) */

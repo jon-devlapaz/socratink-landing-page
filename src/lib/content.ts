@@ -39,35 +39,7 @@ export const nav = {
 } as const;
 
 export const hero = {
-  eyebrow: "a tutor that keeps the evidence",
-  titleSans: "Know",
-  titleSerif: "what you actually know.",
-  subtitle:
-    "A learning agent for medical boards, the bar exam, cloud certs, and hard technical subjects. Unassisted attempts become evidence of what you can hold under pressure: your work, not the AI's.",
   primary: { label: "Start a free attempt", href: site.appUrl },
-  secondary: { label: "Free to start", href: site.appUrl },
-  demoHint: {
-    strong: "Watch an example conversation",
-    rest: "Pick a move and watch Socratink hand the thinking back to you.",
-  },
-} as const;
-
-export type DemoTurn = { role: "you" | "socratink"; text: string };
-
-export const method = {
-  eyebrow: "The end of borrowed competence",
-  titleSans: "Close the page.",
-  titleSerif: "What remains?",
-  body:
-    "What you produced, what help you got, and what you can still do later. That's the record.",
-  transcript: [
-    { role: "you", text: "Explain the central limit theorem to me." },
-    { role: "socratink", text: "Before I do: last week you used it to justify a normal approximation. What had to be true about the sample?" },
-    { role: "you", text: "It had to be big enough… like n greater than 30?" },
-    { role: "socratink", text: "That's the rule of thumb. What is the rule of thumb standing in for?" },
-    { role: "you", text: "…that the sampling distribution of the mean gets close to normal, whatever shape the population has." },
-    { role: "socratink", text: "You just stated the theorem. Now: what does it not say about a single observation?" },
-  ] satisfies DemoTurn[],
 } as const;
 
 
@@ -300,10 +272,3 @@ export const contractSlip = {
   ctaSub: "Instant in-browser · No account required · Free to start",
 } as const;
 
-/** @deprecated use contractSlip — kept for any stale imports during port */
-export const encounterFrame = {
-  walkthrough: contractSlip.hints.exitWalkthrough,
-  scaffoldCap: contractSlip.hints.inkDefault,
-  cta: contractSlip.cta,
-  ctaSub: contractSlip.ctaSub,
-} as const;
