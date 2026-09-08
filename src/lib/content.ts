@@ -203,24 +203,24 @@ export const orbit = {
 } as const;
 
 export const memory = {
-  eyebrow: "Continuity across months",
-  titleSans: "Months of attempts.",
-  titleSerif: "One record you can read.",
+  eyebrow: "Built for continuity",
+  titleSans: "When you start in the app,",
+  titleSerif: "attempts can stack into a record.",
   cards: [
     {
-      title: "Attempts accumulate.",
-      sub: "Into a list of attempts you can open.",
-      body: "Each session stands alone. Over six months those attempts stack into a record of what you can produce: not a score, your work.",
+      title: "Attempts can accumulate.",
+      sub: "Into a list you can open later.",
+      body: "In Socratink, each session can stand alone and stack over weeks into a readable record of what you produced — not a score, your work. This landing walkthrough does not save yours.",
     },
     {
       title: "The model can change.",
       sub: "The meaning of your work does not.",
-      body: "Swap the runtime underneath (Default, Chain, or whatever comes next). What you produced still means the same thing.",
+      body: "Swap the runtime underneath (Default, Chain, or whatever comes next). What you produced is still labeled with its conditions.",
     },
     {
       title: "You hold the record.",
       sub: "Inspect, correct, export, delete.",
-      body: "Review how an inference was formed, correct what is wrong, take your history with you, or erase it.",
+      body: "In the app, review how an inference was formed, correct what no longer fits, take your history with you, or erase what you choose.",
     },
   ],
 } as const;
@@ -256,10 +256,54 @@ export const notebook = {
   heroNote: "The thinking stays yours.",
 } as const;
 
-/** Encounter framing micro-copy (candidate 16). */
-export const encounterFrame = {
-  walkthrough: "Walkthrough: see what happens when the answer comes too easily",
-  scaffoldCap: "Multiple-choice help now, removed later when you return cold",
+/** Contract-slip Encounter copy (Method fold). */
+export const contractSlip = {
+  railLabel: "Encounter",
+  question: "Why doesn't a larger sample fix a biased one?",
+  sampleTraceBadge: "Sample Trace · not your evidence",
+  sampleText:
+    "Bigger sample from the same bad draw just makes the wrong answer more confident.",
+  ghostText:
+    "Bias is a property of the sampling process, not of sample size. Drawing more observations from the same skewed process reproduces the skew with tighter variance. It does not cancel the systematic error.",
+  refuseText: "I don't know yet.",
+  claims: [
+    "Establishes durable retention",
+    "Establishes cold reconstruction",
+    "Establishes transfer to novel domains",
+  ],
+  nonInferences: [
+    "Does not establish durable retention",
+    "Does not establish unprompted reconstruction",
+    "Does not establish transfer to novel domains",
+  ],
+  hints: {
+    cold: "One question. Evidence begins when you attempt.",
+    coldScroll: "Scroll.",
+    ghostArrive: "Assisted text arrives. Keep scrolling.",
+    ghostLeaving: "Assisted text is leaving.",
+    ghostGone: "The help is gone. You generated none of it.",
+    ink: "Your sentence — or a labeled sample. Nothing masquerades.",
+    inkDefault: "Write one sentence — or show a labeled sample.",
+    inkRecorded: "Ink recorded. Keep scrolling.",
+    inkSample: "Sample Trace on the slip. Not your evidence.",
+    inkRefuse: "Refusal recorded. Bound next.",
+    bound: "Bound. Claims try to land.",
+    boundNoInk: "No ink on the slip.",
+    exit: "That observation is bounded. The thinking stays yours.",
+  },
+  inkPlaceholder: "Your words on the line…",
+  commitLabel: "Commit ink",
+  sampleLabel: "Show a sample",
+  refuseLabel: "I don't know yet",
   cta: { label: "Start a free attempt", href: site.appUrl },
   ctaSub: "Instant in-browser · No account required · Free to start",
+  demoNote: "This walkthrough stores nothing on the page.",
+} as const;
+
+/** @deprecated use contractSlip — kept for any stale imports during port */
+export const encounterFrame = {
+  walkthrough: contractSlip.demoNote,
+  scaffoldCap: contractSlip.hints.inkDefault,
+  cta: contractSlip.cta,
+  ctaSub: contractSlip.ctaSub,
 } as const;

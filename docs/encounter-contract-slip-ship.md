@@ -1,16 +1,16 @@
 # Encounter · Contract-slip spine — ship spec
 
-**Status:** blocked on **Delta A** — stranger falsifiers §10.1–4 on `:4502`
+**Status:** **Delta A + B + C done** — ready for trio QC / deploy (Delta D)
 
 **Spike:** `scrollcraft/builds/socratink-contract-slip/` · serve `python3 serve.py` → http://127.0.0.1:4502/
+
+**Production:** `src/components/site/EncounterStrip.tsx` · preview `pnpm dev` → http://127.0.0.1:3000/#method
 
 ---
 
 ## Decision
 
-Replace production Encounter’s dense two-plane Cold Ledger with a **single-slip Contract spine**: one question, one ruled slip, five beats. Ghost pays **Cost** (assisted fluency erased to void + provenance hint). **Bound** is the climax — claims try to land, refuse in place, durable NON-INFERENCES remain in the DOM. ~~Ghost stamp~~ **Cut** (Jobs §10.1 FAIL, tip `b165141`): stamp won “first remembered” over Bound — removed entirely; do not add Bound chrome to compete.
-
-Production `EncounterStrip` / Method fold port is **out of scope** until Delta A clears §10.1–4 on the spike.
+Replace production Encounter’s dense two-plane Cold Ledger with a **single-slip Contract spine**: one question, one ruled slip, five beats. Ghost pays **Cost** (assisted fluency erased to void + provenance hint). **Bound** is the climax — claims try to land, refuse in place, durable NON-INFERENCES remain in the DOM. ~~Ghost stamp~~ **Cut** (Jobs §10.1): stamp won “first remembered” over Bound — removed entirely; no Bound chrome added to compete.
 
 ---
 
@@ -30,76 +30,72 @@ Production `EncounterStrip` / Method fold port is **out of scope** until Delta A
 
 | Ref | Gate |
 |-----|------|
-| **DEC-0003** | Product language must not exceed available evidence. Bound shows explicit non-claims. No mastery %, no Capability Horizon table on spike climax. |
+| **DEC-0003** | Product language must not exceed available evidence. Bound shows explicit non-claims. Memory section uses aspirational/plan language; landing walkthrough stores nothing. |
 | **EVD-0004** | Contract climax = Bound refusal + NON-INFERENCES list. Wow budget on Bound only. |
 | **EVD-0001** | Visitor ink is first-class (`typed` or `refuse`). Refuse is productive absence, not soft exit. |
 | **EVD-0002** | Sample Trace badged immediately and for entire sample duration — never masquerades as visitor evidence. |
 
 ---
 
-## Taste kills (must stay absent on spike)
+## Taste kills (held on spike + production)
 
 - Two-plane Encounter + Evidence Ledger shell
 - Capability Horizon table / mastery % / boolean companion as competing climax
 - Hidden demo badge / clock-typed persona ink
 - Target · Observed · Bounded inference brochure card stack
-- Ghost stamp / “AI fluency ≠ your memory” (cut per Jobs §10.1)
+- Ghost stamp / “AI fluency ≠ your memory”
 - Scroll deadlock / force-reset gates
 - Internal DEC-/EVD- codes in customer HTML
+- Line-through on NON-INFERENCE `<li>` text (✕ prefix only; claim stamps may strike)
 
 ---
 
 ## Evaluator minimum loop
 
-1. Serve spike: `cd scrollcraft/builds/socratink-contract-slip && python3 serve.py`
-2. Cold scroll (or `node verify-bound.mjs` from repo root)
+### Spike (`:4502`)
+1. `cd scrollcraft/builds/socratink-contract-slip && python3 serve.py`
+2. Cold scroll (or `node scrollcraft/builds/socratink-contract-slip/verify-bound.mjs`)
 3. Ghost Cost irreversible; void + provenance hint only (stamp removed)
 4. Ink: typed **or** Sample Trace (badge on) **or** refuse
 5. Bound: claims land → refuse; `[data-non-inference]` nodes with “Does not establish …” copy
 6. Exit: CTA; DOM still contains ≥1 readable NON-INFERENCE string
 
-Automated gate: `node scrollcraft/builds/socratink-contract-slip/verify-bound.mjs` (non-zero exit on failure).
+### Production (`pnpm dev`)
+1. Open http://127.0.0.1:3000/#method
+2. Same five-beat loop on single slip (no left rail / ledger)
+3. Optional smoke: `node scripts/verify-encounter-bound.mjs` (requires dev server)
 
 ---
 
-## Port plan
+## Ship deltas
 
-| Delta | Scope | Gate |
-|-------|-------|------|
-| **A** (this PR) | Harden `:4502` spike; ship spec; `verify-bound.mjs`; CLAIM-AUDIT | Stranger falsifiers §10.1–4 |
-| **B** | Port Contract-slip spine into production `EncounterStrip` | Delta A green + taste review |
-| **C** | Memory section hygiene (same PR as B port — **not this PR**) | No Encounter echoes / movie-repeat |
-| **D** | Deploy + production verify | B + C merged |
+| Delta | Scope | Status |
+|-------|-------|--------|
+| **A** | Harden `:4502` spike; ship spec; `verify-bound.mjs`; CLAIM-AUDIT | ✅ §10.1–4 |
+| **B** | Port Contract-slip spine into production `EncounterStrip` | ✅ |
+| **C** | Memory section hygiene (`Memory.tsx`, `content.ts`) | ✅ |
+| **D** | Deploy + production verify | Coordinator |
 
 ---
 
 ## Falsifiers §10 (stranger cold-scroll)
 
 ### §10.1 · Bound wins first remembered
-Stranger who scrolls to Bound remembers **claim refusal** (land → ✕), not Ghost ornament. **Applied:** Ghost stamp cut entirely on `:4502` after Jobs taste gate FAIL (Comp 3.7 / Wow 3.0; stamp dominated recall).
+Stranger who scrolls to Bound remembers **claim refusal** (land → ✕), not Ghost ornament. Ghost stamp cut entirely.
 
 ### §10.2 · Sample Trace honesty
-Any sample ink path shows **Sample Trace · not your evidence** badge for the full duration sample is on the slip (ink + contract). No hidden demo / persona typing.
+Sample ink path shows **Sample Trace · not your evidence** badge for the full duration sample is on the slip (ink + contract).
 
 ### §10.3 · Refuse is first-class ink
 “I don't know yet.” records as `refuse` kind; appears on contract line; not demoted to empty slip or skip.
 
 ### §10.4 · NON-INFERENCES instrumentable
-After Bound plays, DOM contains ≥1 readable NON-INFERENCE string (e.g. “Does not establish durable retention”) in persistent nodes — assertable by `verify-bound.mjs` / Andrej’s DOM sensor. Not strike-only animation with no durable text.
-
----
-
-## Amendments (locked)
-
-1. **Delta A hard gate** before EncounterStrip port — §10.1–4 must pass on `:4502`.
-2. **Cut stamp** — done on spike after §10.1 FAIL; no replacement ornament.
-3. **Instrument readable NON-INFERENCES** in DOM after Bound (`#nonInferenceList`, `[data-non-inference]`).
-4. **Keep refuse-as-ink** — `kind: refuse`, first-class button, contract display.
-5. **Delta C Memory hygiene** ships in same PR as later EncounterStrip port — note only; **not implemented in Delta A PR**.
+After Bound plays, DOM contains ≥3 readable NON-INFERENCE strings in persistent `[data-non-inference]` nodes.
 
 ---
 
 ## Related
 
 - Spike audit: `scrollcraft/builds/socratink-contract-slip/CLAIM-AUDIT.md`
-- Verify: `scrollcraft/builds/socratink-contract-slip/verify-bound.mjs`
+- Spike verify: `scrollcraft/builds/socratink-contract-slip/verify-bound.mjs`
+- Production smoke: `scripts/verify-encounter-bound.mjs`

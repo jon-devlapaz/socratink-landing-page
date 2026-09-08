@@ -2,163 +2,124 @@
 
 import "./encounter-strip.css";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { encounterFrame } from "@/lib/content";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { contractSlip } from "@/lib/content";
 
-type Beat = "target" | "cost" | "attempt" | "provenance" | "bound" | "return";
-type ChoiceKey = "a" | "b" | "c";
+type Beat = "cold" | "ghost" | "ink" | "bound" | "exit";
+type InkKind = "typed" | "sample" | "refuse";
 
-const BEAT_NAMES: Record<Beat, string> = {
-  target: "Target",
-  cost: "Fluency Ghost",
-  attempt: "Attempt",
-  provenance: "Words vs help",
-  bound: "Evidence Contract",
-  return: "Time-Lapse",
+type InkState = {
+  text: string;
+  kind: InkKind;
 };
 
-const CUES: Record<Beat, string> = {
-  target: "Learning target",
-  cost: "Cost · scroll to dissolve",
-  attempt: "Three choices · scroll never waits",
-  provenance: "Your words vs assisted help",
-  bound: "Evidence contract",
-  return: "Day 0 → +5d",
-};
+const BEATS: Beat[] = ["cold", "ghost", "ink", "bound", "exit"];
 
-const PRINCIPLES: Record<Beat, { left: string; right: string }> = {
-  // Hold Recognition across target→attempt→provenance so six beats aren't six slogans.
-  target: { left: "Recognition", right: "independent recall" },
-  cost: { left: "AI fluency", right: "your memory" },
-  attempt: { left: "Recognition", right: "independent recall" },
-  provenance: { left: "Recognition", right: "independent recall" },
-  bound: { left: "Correct click", right: "durable capability" },
-  return: { left: "Immediate success", right: "still yours later" },
-};
-
-const CHOICES: Record<
-  ChoiceKey,
-  {
-    text: string;
-    reality: string;
-    glow: string;
-    contract: {
-      target: string;
-      observed: string;
-      inference: string;
-      nonInferences: string[];
-    };
-    horizon: { mark: string; state: string; kind: "prov" | "unt" | "pend"; label: string }[];
+function ghostCharStyle(
+  index: number,
+  total: number,
+  progress: number,
+  reduced: boolean,
+): CSSProperties {
+  const voided = progress >= 0.88;
+  if (voided) {
+    return { opacity: 0, visibility: "hidden" };
   }
-> = {
-  a: {
-    text: "A larger sample averages bias away.",
-    reality:
-      "Conflation: sample size cannot cure a biased sampling process (a bigger bucket of salty water doesn't make it fresh).",
-    glow: "Answer key withheld. 3-choice recognition · distractors present · answer key withheld.",
-    contract: {
-      target: "Sampling bias invariance under sample size / variance vs selection",
-      observed: "Conflated variance with selection; stated “larger averages bias away” under prompt.",
-      inference: "Misconception captured; salty-water repair indicated. Does not support independent capability.",
-      nonInferences: [
-        "Does NOT establish durable retention",
-        "Does NOT establish unprompted reconstruction",
-        "Does NOT establish transfer to novel domains",
-      ],
-    },
-    horizon: [
-      { mark: "○", state: "UNTESTED", kind: "unt", label: "Concept Recognition (3-choice)" },
-      { mark: "○", state: "UNTESTED", kind: "unt", label: "Independent Reconstruction (Cold)" },
-      { mark: "○", state: "UNTESTED", kind: "unt", label: "Transfer to Unseen Domain" },
-      { mark: "○", state: "PENDING (+5d)", kind: "pend", label: "5-Day Temporal Durability" },
-    ],
-  },
-  b: {
-    text: "Bias is about how you sample, not how many.",
-    reality:
-      "Surface recognition from a menu. Bounded: can identify the principle when prompted, not unassisted recall.",
-    glow: "Answer key withheld. 3-choice recognition · distractors present · answer key withheld.",
-    contract: {
-      target: "Sampling bias invariance under sample size / variance vs selection",
-      observed: "Selected correct principle from three options (surface recognition).",
-      inference: "Can identify the principle when prompted under multiple-choice conditions.",
-      nonInferences: [
-        "Does NOT establish durable retention",
-        "Does NOT establish unprompted reconstruction",
-        "Does NOT establish transfer to novel domains",
-      ],
-    },
-    horizon: [
-      { mark: "●", state: "PROVISIONAL", kind: "prov", label: "Concept Recognition (3-choice)" },
-      { mark: "○", state: "UNTESTED", kind: "unt", label: "Independent Reconstruction (Cold)" },
-      { mark: "○", state: "UNTESTED", kind: "unt", label: "Transfer to Unseen Domain" },
-      { mark: "○", state: "PENDING (+5d)", kind: "pend", label: "5-Day Temporal Durability" },
-    ],
-  },
-  c: {
-    text: "I don’t know yet.",
-    reality: "Honest gap. You didn't invent a wrong answer. Nothing false to unlearn.",
-    glow: "Answer key withheld. Admission recorded; no recognition credit issued.",
-    contract: {
-      target: "Sampling bias invariance under sample size / variance vs selection",
-      observed: "Calibrated admission of gap under prompt; no false claim of knowing.",
-      inference: "Honest gap recorded; ready for light help; no wrong claim to undo.",
-      nonInferences: [
-        "Does NOT establish durable retention",
-        "Does NOT establish unprompted reconstruction",
-        "Does NOT establish transfer to novel domains",
-      ],
-    },
-    horizon: [
-      { mark: "○", state: "UNTESTED", kind: "unt", label: "Concept Recognition (3-choice)" },
-      { mark: "○", state: "UNTESTED", kind: "unt", label: "Independent Reconstruction (Cold)" },
-      { mark: "○", state: "UNTESTED", kind: "unt", label: "Transfer to Unseen Domain" },
-      { mark: "○", state: "PENDING (+5d)", kind: "pend", label: "5-Day Temporal Durability" },
-    ],
-  },
-};
-
-const EMPTY_CONTRACT = {
-  target: "Sampling bias invariance under sample size / variance vs selection",
-  observed: "No attempt on the slip yet.",
-  inference: "Nothing bounded: no learner performance recorded.",
-  nonInferences: [
-    "Does NOT establish durable retention",
-    "Does NOT establish unprompted reconstruction",
-    "Does NOT establish transfer to novel domains",
-  ],
-};
-
-const EMPTY_HORIZON = [
-  { mark: "○", state: "UNTESTED", kind: "unt" as const, label: "Concept Recognition (3-choice)" },
-  { mark: "○", state: "UNTESTED", kind: "unt" as const, label: "Independent Reconstruction (Cold)" },
-  { mark: "○", state: "UNTESTED", kind: "unt" as const, label: "Transfer to Unseen Domain" },
-  { mark: "○", state: "PENDING (+5d)", kind: "pend" as const, label: "5-Day Temporal Durability" },
-];
-
-const BEATS: Beat[] = ["target", "cost", "attempt", "provenance", "bound", "return"];
+  const t = index / Math.max(1, total);
+  const local = Math.min(1, Math.max(0, (progress - t * 0.38) / 0.48));
+  if (reduced) {
+    return { opacity: 1 - progress };
+  }
+  const scatter = local * local;
+  return {
+    opacity: 1 - scatter,
+    transform: `translate(${(index % 5 - 2) * scatter * 12}px, ${scatter * 26}px) rotate(${scatter * (index % 2 ? 16 : -16)}deg)`,
+    filter: `blur(${scatter * 7}px)`,
+  };
+}
 
 /**
- * Cold Ledger sticks in a viewport-fit two-plane shell:
- * Encounter (left) + Evidence Ledger (right), scroll-scrubbed beats.
- * Method intro removed (21). Pinned full-bleed (24). Ledger-primary rail (25).
+ * Contract-slip spine: one question, one ruled slip, five beats.
+ * Cold → Ghost Cost (no stamp) → Ink → Bound climax → Exit CTA.
  */
 export function EncounterStrip() {
   const trackRef = useRef<HTMLDivElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
-  const [beat, setBeat] = useState<Beat>("target");
-  const [choice, setChoice] = useState<ChoiceKey | null>(null);
-  const [sampleTrace, setSampleTrace] = useState(false);
-  const [costP, setCostP] = useState(0);
-  const [returnP, setReturnP] = useState(0);
+  const inkInputRef = useRef<HTMLInputElement>(null);
+  const boundTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const belowBoundRef = useRef(true);
+  const beatRef = useRef<Beat>("cold");
+  const boundPlayedRef = useRef(false);
+
+  const [beat, setBeat] = useState<Beat>("cold");
+  const [ghostProgress, setGhostProgress] = useState(0);
+  const [ink, setInk] = useState<InkState | null>(null);
+  const [inkDraft, setInkDraft] = useState("");
+  const [inkLocked, setInkLocked] = useState(false);
+  const [showSampleBadge, setShowSampleBadge] = useState(false);
+  const [boundPlayed, setBoundPlayed] = useState(false);
+  const [landedClaims, setLandedClaims] = useState(0);
+  const [refusedClaims, setRefusedClaims] = useState(0);
+  const [showNonInferences, setShowNonInferences] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [pinned, setPinned] = useState(false);
 
-  const effective = useCallback((): { key: ChoiceKey; sample: boolean } | null => {
-    if (choice) return { key: choice, sample: false };
-    if (sampleTrace) return { key: "b", sample: true };
-    return null;
-  }, [choice, sampleTrace]);
+  const ghostChars = useMemo(
+    () => Array.from(contractSlip.ghostText),
+    [],
+  );
+
+  const cancelBoundSchedule = useCallback(() => {
+    if (boundTimerRef.current) {
+      clearTimeout(boundTimerRef.current);
+      boundTimerRef.current = null;
+    }
+  }, []);
+
+  const resetBound = useCallback(() => {
+    cancelBoundSchedule();
+    boundPlayedRef.current = false;
+    setBoundPlayed(false);
+    setLandedClaims(0);
+    setRefusedClaims(0);
+    setShowNonInferences(false);
+  }, [cancelBoundSchedule]);
+
+  const playBoundRefusal = useCallback(() => {
+    if (boundPlayedRef.current) return;
+    boundPlayedRef.current = true;
+    setBoundPlayed(true);
+    cancelBoundSchedule();
+    setLandedClaims(0);
+    setRefusedClaims(0);
+    setShowNonInferences(true);
+
+    contractSlip.claims.forEach((_, i) => {
+      const landDelay = reduced ? i * 80 : 220 + i * 420;
+      const refuseDelay = reduced ? 40 : 280;
+      window.setTimeout(() => {
+        setLandedClaims((n) => Math.max(n, i + 1));
+        window.setTimeout(() => {
+          setRefusedClaims((n) => Math.max(n, i + 1));
+        }, refuseDelay);
+      }, landDelay);
+    });
+  }, [cancelBoundSchedule, reduced]);
+
+  const scheduleBoundRefusal = useCallback(() => {
+    if (boundPlayedRef.current || boundTimerRef.current) return;
+    boundTimerRef.current = setTimeout(() => {
+      boundTimerRef.current = null;
+      playBoundRefusal();
+    }, reduced ? 60 : 120);
+  }, [playBoundRefusal, reduced]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -169,86 +130,91 @@ export function EncounterStrip() {
   }, []);
 
   useEffect(() => {
+    return () => cancelBoundSchedule();
+  }, [cancelBoundSchedule]);
+
+  useEffect(() => {
     const track = trackRef.current;
     const shell = shellRef.current;
     if (!track || !shell) return;
 
-    const applyVars = (nextCost: number, nextReturn: number) => {
-      const ghostOp = reduced ? (nextCost > 0.55 ? 0 : 1) : Math.max(0, 1 - nextCost);
-      const ghostBlur = reduced ? 0 : nextCost * 7;
-      const stampOp = reduced ? (nextCost > 0.35 ? 0.7 : 0.35) : 0.25 + nextCost * 0.65;
-      const root = document.documentElement;
-      root.style.setProperty("--enc-cost-p", String(nextCost));
-      root.style.setProperty("--enc-return-p", String(nextReturn));
-      root.style.setProperty("--enc-ghost-op", String(ghostOp));
-      root.style.setProperty("--enc-ghost-blur", `${ghostBlur.toFixed(2)}px`);
-      root.style.setProperty("--enc-stamp-op", String(stampOp));
+    let maxGhost = 0;
+    let costLocked = false;
+
+    const applyProgress = (p: number) => {
+      const setBeatAndMaybeBound = (nextBeat: Beat) => {
+        const prevBeat = beatRef.current;
+        if (nextBeat !== prevBeat) {
+          if (nextBeat === "bound") {
+            scheduleBoundRefusal();
+          } else if (nextBeat === "exit" && !boundPlayedRef.current) {
+            playBoundRefusal();
+          }
+          beatRef.current = nextBeat;
+        }
+        setBeat(nextBeat);
+      };
+
+      if (p < 0.08) {
+        maxGhost = 0;
+        costLocked = false;
+        belowBoundRef.current = true;
+        setPinned(false);
+        beatRef.current = "cold";
+        setBeat("cold");
+        setGhostProgress(0);
+        setInk(null);
+        setInkDraft("");
+        setInkLocked(false);
+        setShowSampleBadge(false);
+        resetBound();
+        return;
+      }
+
+      const nav = 56;
+      const shellTop = shell.getBoundingClientRect().top;
+      setPinned(shellTop <= nav + 1);
+
+      if (p < 0.58) {
+        if (!belowBoundRef.current) {
+          resetBound();
+        }
+        belowBoundRef.current = true;
+      } else {
+        belowBoundRef.current = false;
+      }
+
+      if (p < 0.34) {
+        setBeatAndMaybeBound("ghost");
+        let g = (p - 0.08) / (0.34 - 0.08);
+        maxGhost = Math.max(maxGhost, g);
+        if (costLocked) g = maxGhost;
+        if (g > 0.15) costLocked = true;
+        setGhostProgress(g);
+      } else if (p < 0.58) {
+        setBeatAndMaybeBound("ink");
+        setGhostProgress(1);
+      } else if (p < 0.82) {
+        setBeatAndMaybeBound("bound");
+        setGhostProgress(1);
+      } else {
+        setBeatAndMaybeBound("exit");
+        setGhostProgress(1);
+      }
     };
 
     const pick = () => {
-      const nav = 56; // Nav h-14
+      const nav = 56;
       const shellTop = shell.getBoundingClientRect().top;
-      // Pin gate: beat scrubbing only after sticky shell is actually stuck
       if (shellTop > nav + 1) {
-        setPinned(false);
-        setBeat("target");
-        setCostP(0);
-        setReturnP(0);
-        setSampleTrace(false);
-        applyVars(0, 0);
+        applyProgress(0);
         return;
       }
-      setPinned(true);
 
-      // Progress from track top vs sticky shell height (getBoundingClientRect).
       const trackTop = track.getBoundingClientRect().top;
       const travel = Math.max(1, track.offsetHeight - shell.offsetHeight);
-      let p = Math.min(1, Math.max(0, (nav - trackTop) / travel));
-
-      // Lead-in: hold Target for first ~10% of post-pin travel before Fluency Ghost
-      const LEAD = 0.1;
-      if (p < LEAD) p = 0;
-      else p = (p - LEAD) / (1 - LEAD);
-
-      let next: Beat;
-      let nextCost = 0;
-      let nextReturn = 0;
-      if (p < 0.11) {
-        next = "target";
-      } else if (p < 0.32) {
-        next = "cost";
-        nextCost = (p - 0.11) / (0.32 - 0.11);
-      } else if (p < 0.45) {
-        next = "attempt";
-        nextCost = 1;
-      } else if (p < 0.58) {
-        next = "provenance";
-        nextCost = 1;
-      } else if (p < 0.68) {
-        next = "bound";
-        nextCost = 1;
-      } else if (p < 0.92) {
-        next = "return";
-        nextCost = 1;
-        nextReturn = (p - 0.68) / (0.92 - 0.68);
-      } else {
-        next = "return";
-        nextCost = 1;
-        nextReturn = 1;
-      }
-
-      setBeat(next);
-      setCostP(nextCost);
-      setReturnP(nextReturn);
-
-      setSampleTrace((prev) => {
-        if (choice) return false;
-        if (next === "provenance" || next === "bound" || next === "return") return true;
-        if (next === "attempt" || next === "target" || next === "cost") return false;
-        return prev;
-      });
-
-      applyVars(nextCost, nextReturn);
+      const p = Math.min(1, Math.max(0, (nav - trackTop) / travel));
+      applyProgress(p);
     };
 
     let ticking = false;
@@ -260,6 +226,7 @@ export function EncounterStrip() {
         ticking = false;
       });
     };
+
     pick();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
@@ -267,374 +234,278 @@ export function EncounterStrip() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [choice, reduced]);
+  }, [resetBound, scheduleBoundRefusal, playBoundRefusal]);
 
-  const ec = effective();
-  const dayLabel = returnP < 0.08 ? "Day 0" : returnP >= 0.88 ? "+5d" : `+${Math.round(returnP * 5)}d`;
-  const showSample =
-    !!(ec && ec.sample && (beat === "attempt" || beat === "provenance" || beat === "bound" || beat === "return"));
-  const ghostResidue =
-    costP > 0.72 ? "You understood. You cannot yet produce it." : "Your head is empty until you produce it.";
+  const effectiveInk: InkState | null =
+    ink ??
+    (beat === "bound" || beat === "exit"
+      ? { text: contractSlip.sampleText, kind: "sample" }
+      : null);
 
-  let cue = CUES[beat];
-  if (beat === "attempt" && choice) cue = "Choice committed · keep scrolling";
-  if (beat === "provenance") {
-    cue = CUES.provenance;
-  }
-  if (beat === "return") {
-    cue = dayLabel === "+5d" ? "Naked transfer ask" : CUES.return;
-  }
+  const badgeVisible =
+    showSampleBadge || effectiveInk?.kind === "sample";
 
-  const principle = PRINCIPLES[beat];
+  const ghostHint =
+    ghostProgress >= 0.88
+      ? contractSlip.hints.ghostGone
+      : ghostProgress > 0.35
+        ? contractSlip.hints.ghostLeaving
+        : contractSlip.hints.ghostArrive;
 
-  const provLeftMeta = ec
-    ? ec.sample
-      ? "Sample Trace on the right. Click left to overwrite with your attempt."
-      : "Attempt committed. Ledger shows conditions."
-    : "Commit on the left, or keep scrolling for a Sample Trace.";
+  const inkHint = (() => {
+    if (!ink) return contractSlip.hints.inkDefault;
+    switch (ink.kind) {
+      case "sample":
+        return contractSlip.hints.inkSample;
+      case "refuse":
+        return contractSlip.hints.inkRefuse;
+      case "typed":
+        return contractSlip.hints.inkRecorded;
+      default: {
+        const _exhaustive: never = ink.kind;
+        return _exhaustive;
+      }
+    }
+  })();
 
-  const contract = ec ? CHOICES[ec.key].contract : EMPTY_CONTRACT;
-  const horizon = ec ? CHOICES[ec.key].horizon : EMPTY_HORIZON;
+  const contractInkText =
+    effectiveInk?.kind === "refuse"
+      ? contractSlip.refuseText
+      : effectiveInk?.text ?? contractSlip.hints.boundNoInk;
 
-  const onChoose = (key: ChoiceKey) => {
-    setChoice(key);
-    setSampleTrace(false);
+  const contractCond = (() => {
+    if (!effectiveInk) return "";
+    switch (effectiveInk.kind) {
+      case "sample":
+        return "Sample Trace · demonstration · not visitor evidence";
+      case "refuse":
+        return "Visitor refused · productive absence";
+      case "typed":
+        return "Visitor ink · unassisted on this slip · no answer key";
+      default: {
+        const _exhaustive: never = effectiveInk.kind;
+        return _exhaustive;
+      }
+    }
+  })();
+
+  const onCommitInk = () => {
+    const t = inkDraft.trim();
+    if (!t) {
+      inkInputRef.current?.focus();
+      return;
+    }
+    setInk({ text: t, kind: "typed" });
+    setInkLocked(true);
+    setShowSampleBadge(false);
   };
 
-  // Thin rail only when the left has a job (choice or finale CTA). Else ledger owns the glass.
-  const railLive = beat === "attempt" || beat === "return";
+  const onSample = () => {
+    setInk({ text: contractSlip.sampleText, kind: "sample" });
+    setInkDraft(contractSlip.sampleText);
+    setInkLocked(true);
+    setShowSampleBadge(true);
+  };
+
+  const onRefuse = () => {
+    setInk({ text: contractSlip.refuseText, kind: "refuse" });
+    setInkDraft("");
+    setInkLocked(true);
+    setShowSampleBadge(false);
+  };
+
+  const ghostVoidOpacity =
+    ghostProgress > 0.5 ? Math.min(1, (ghostProgress - 0.5) / 0.35) : 0;
 
   return (
     <section data-sc-act="flow" id="method" className="relative scroll-mt-24">
-      {/* Air after Hero so the machine does not clip the fold (candidate 22). */}
       <div className="encounter-lead" aria-hidden="true" />
-      <div className="encounter-track" ref={trackRef} data-encounter="cold-ledger">
+      <div className="encounter-track" ref={trackRef} data-encounter="contract-slip">
         <div
-          className={`encounter-shell is-ledger-primary${pinned ? " is-pinned" : ""}${railLive ? " is-rail-live" : ""}`}
+          className={`encounter-shell${pinned ? " is-pinned" : ""}`}
           ref={shellRef}
           data-beat={beat}
-          data-rail={railLive ? "live" : "collapsed"}
-          style={
-            {
-              ["--enc-cost-p" as string]: String(costP),
-              ["--enc-return-p" as string]: String(returnP),
-            } as CSSProperties
-          }
         >
-          <p
-            className={`encounter-principle content-wrap${pinned ? " is-on" : ""}`}
-            key={`${principle.left}|${principle.right}`}
-            aria-live="polite"
-            aria-hidden={pinned ? undefined : true}
-          >
-            <span>{principle.left}</span>
-            <span className="text-accent" aria-label="is not">
-              ≠
-            </span>
-            <span>{principle.right}</span>
-          </p>
+          <div className="encounter-rail-stage">
+            <p className="encounter-rail-label">{contractSlip.railLabel}</p>
+            <article className="encounter-slip" id="slip">
+              <p className="encounter-q">{contractSlip.question}</p>
+              <span
+                className={`encounter-badge${badgeVisible ? " show" : ""}`}
+                id="demoBadge"
+              >
+                {contractSlip.sampleTraceBadge}
+              </span>
+              <p className="encounter-demo-note">{contractSlip.demoNote}</p>
 
-          <div id="moves" className="encounter-stage scroll-mt-24">
-            {/* LEFT: The Encounter */}
-            <div className="encounter-left">
-              <p className="encounter-plane">
-                <strong>Attempt</strong>
-                <span className="encounter-walk-badge">{encounterFrame.walkthrough}</span>
-              </p>
-              <p className="encounter-cue">{cue}</p>
-              <div className="encounter-panel">
-                <div className={`encounter-beat${beat === "target" ? " is-on" : ""}`} data-rail="echo" inert={beat !== "target" ? true : undefined}>
-                  <p className="encounter-label">Learning target · Sampling</p>
-                  <p className="encounter-target">Why doesn’t a larger sample fix a biased one?</p>
-                  <p className="encounter-meta">One attempt. Wrong is useful. Help comes after you choose.</p>
-                </div>
+              <div className="encounter-stage">
+                <section
+                  className={`encounter-panel${beat === "cold" ? " is-live" : ""}`}
+                  data-panel="cold"
+                  id="panelCold"
+                  inert={beat !== "cold" ? true : undefined}
+                >
+                  <p className="encounter-hint">{contractSlip.hints.cold}</p>
+                  <div className="encounter-ruled" aria-hidden="true" />
+                  <p className="encounter-hint">{contractSlip.hints.coldScroll}</p>
+                </section>
 
-                <div className={`encounter-beat${beat === "cost" ? " is-on" : ""}`} data-rail="echo" inert={beat !== "cost" ? true : undefined}>
-                  <p className="encounter-label">Cost of fluent help</p>
-                  <p className="encounter-target encounter-target--sm">Correct assistance can steal the retrieval.</p>
-                  <p className="encounter-meta">Reading feels like understanding. You generated none of it.</p>
-                </div>
-
-                <div className={`encounter-beat${beat === "attempt" ? " is-on" : ""}`} inert={beat !== "attempt" ? true : undefined}>
-                  <p className="encounter-label">Your attempt</p>
-                  <p className="encounter-target encounter-target--sm">Which sentence would you give a colleague?</p>
-                  <p className="encounter-scaffold-cap">{encounterFrame.scaffoldCap}</p>
-                  <div className="encounter-choices" role="group" aria-label="Choose one attempt">
-                    {(
-                      [
-                        ["a", CHOICES.a.text],
-                        ["b", CHOICES.b.text],
-                        ["c", CHOICES.c.text],
-                      ] as const
-                    ).map(([key, text]) => (
-                      <button
-                        key={key}
-                        type="button"
-                        data-choice={key}
-                        aria-pressed={choice === key}
-                        onClick={() => onChoose(key)}
-                      >
-                        {text}
-                      </button>
-                    ))}
+                <section
+                  className={`encounter-panel${beat === "ghost" ? " is-live" : ""}`}
+                  data-panel="ghost"
+                  id="panelGhost"
+                  inert={beat !== "ghost" ? true : undefined}
+                >
+                  <div className="encounter-ghost-block">
+                    <p className="encounter-ghost-copy" id="ghostCopy">
+                      {ghostChars.map((ch, i) => (
+                        <span
+                          key={`${i}-${ch}`}
+                          className="encounter-ghost-char"
+                          style={ghostCharStyle(i, ghostChars.length, ghostProgress, reduced)}
+                        >
+                          {ch === " " ? "\u00a0" : ch}
+                        </span>
+                      ))}
+                    </p>
+                    <div
+                      className="encounter-ghost-void"
+                      id="ghostVoid"
+                      aria-hidden="true"
+                      style={{ opacity: ghostVoidOpacity }}
+                    />
                   </div>
-                </div>
-
-                <div className={`encounter-beat${beat === "provenance" ? " is-on" : ""}`} data-rail="echo" inert={beat !== "provenance" ? true : undefined}>
-                  <p className="encounter-label">Provenance</p>
-                  <p className="encounter-target encounter-target--sm">Your words vs assisted help</p>
-                  <p className="encounter-meta">{provLeftMeta}</p>
-                </div>
-
-                <div className={`encounter-beat${beat === "bound" ? " is-on" : ""}`} data-rail="echo" inert={beat !== "bound" ? true : undefined}>
-                  <p className="encounter-label">Evidence contract</p>
-                  <p className="encounter-target encounter-target--sm">What this observation can and cannot support.</p>
-                  <p className="encounter-meta">Target · Observed · Bounded inference · Non-inferences. No mastery score.</p>
-                </div>
-
-                <div className={`encounter-beat${beat === "return" ? " is-on" : ""}`} inert={beat !== "return" ? true : undefined}>
-                  <p className="encounter-label">When the scaffolding is gone</p>
-                  <p className="encounter-target encounter-target--sm">
-                    Don&apos;t find out on the exam that you only had recognition.
+                  <p className="encounter-hint" id="ghostHint">
+                    {ghostHint}
                   </p>
-                  <p className="encounter-meta">
-                    Bring your syllabus, certifications, or technical texts. Socratink makes you do the thinking and keeps
-                    the evidence.
+                </section>
+
+                <section
+                  className={`encounter-panel${beat === "ink" ? " is-live" : ""}`}
+                  data-panel="ink"
+                  id="panelInk"
+                  inert={beat !== "ink" ? true : undefined}
+                >
+                  <p className="encounter-hint">{contractSlip.hints.ink}</p>
+                  <div className="encounter-paper-ink">
+                    <input
+                      ref={inkInputRef}
+                      id="inkInput"
+                      maxLength={160}
+                      placeholder={contractSlip.inkPlaceholder}
+                      autoComplete="off"
+                      readOnly={inkLocked}
+                      value={inkDraft}
+                      onChange={(e) => setInkDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") onCommitInk();
+                      }}
+                    />
+                  </div>
+                  <div className="encounter-ink-row">
+                    <button
+                      type="button"
+                      className={`encounter-ink-btn primary${ink?.kind === "typed" || ink?.kind === "sample" ? " is-press" : ""}`}
+                      id="commitBtn"
+                      onClick={onCommitInk}
+                    >
+                      {contractSlip.commitLabel}
+                    </button>
+                    <button
+                      type="button"
+                      className="encounter-ink-btn"
+                      id="sampleBtn"
+                      onClick={onSample}
+                    >
+                      {contractSlip.sampleLabel}
+                    </button>
+                    <button
+                      type="button"
+                      className="encounter-ink-btn"
+                      id="refuseBtn"
+                      onClick={onRefuse}
+                    >
+                      {contractSlip.refuseLabel}
+                    </button>
+                  </div>
+                  <p className="encounter-hint" id="inkHint">
+                    {inkHint}
                   </p>
-                  <a className="btn-accent encounter-cta" href={encounterFrame.cta.href}>
-                    {encounterFrame.cta.label}
-                  </a>
-                  <p className="encounter-cta-sub">{encounterFrame.ctaSub}</p>
-                </div>
-              </div>
-            </div>
+                </section>
 
-            {/* RIGHT: Evidence Ledger */}
-            <aside className="encounter-ledger" aria-label="Evidence ledger">
-              <div className="encounter-ledger__head">
-                <div className="encounter-ledger__titles">
-                  <p className="encounter-label">The Evidence Ledger</p>
-                  <p className="encounter-ledger__quiet">what you showed · what it can support</p>
-                </div>
-                <span className="encounter-ledger__beat">{BEAT_NAMES[beat]}</span>
-              </div>
-              <div className="encounter-ledger__body">
-                <span
-                  className={`encounter-sample${showSample ? " show" : ""}`}
-                  aria-live="polite"
+                <section
+                  className={`encounter-panel encounter-panel--contract${beat === "bound" ? " is-live" : ""}`}
+                  data-panel="contract"
+                  id="panelContract"
+                  inert={beat !== "bound" ? true : undefined}
                 >
-                  Demonstrating Option B · Click to test yourself
-                </span>
-
-                {/* Target slip */}
-                <div className={`ledger-layer${beat === "target" ? " is-on" : ""}`} inert={beat !== "target" ? true : undefined}>
-                  <article className="ledger-slip">
-                    <h2 className="ledger-slip__title">Why doesn’t a larger sample fix a biased one?</h2>
-                    <div className="ledger-slip__meta">
-                      <span>Target</span>
-                      <span>Sampling</span>
-                      <span>Reconstruction ask</span>
-                    </div>
-                    <div className="ledger-block">
-                      <div className="ledger-k">Object</div>
-                      <p className="ledger-v">One question. Evidence begins when you attempt.</p>
-                    </div>
-                    <p className="ledger-contrast">
-                      <strong>Recognition ≠ recall.</strong> Evidence begins when you attempt.
+                  <p className="encounter-hint">{contractSlip.hints.bound}</p>
+                  <p
+                    className={`encounter-ink-line${!effectiveInk ? " empty" : ""}`}
+                    id="contractInk"
+                    data-ink-kind={effectiveInk?.kind}
+                  >
+                    {contractInkText}
+                  </p>
+                  {contractCond ? (
+                    <p className="encounter-cond" id="contractCond">
+                      {contractCond}
                     </p>
-                  </article>
-                </div>
-
-                {/* Fluency Ghost */}
-                <div className={`ledger-layer${beat === "cost" ? " is-on" : ""}`} inert={beat !== "cost" ? true : undefined}>
-                  <article className="ledger-slip">
-                    <p className="ghost-meta">Assisted explanation · correct</p>
-                    <div className="ghost-stage">
-                      <span className="ghost-stamp" aria-hidden="true">
-                        AI FLUENCY ≠ YOUR MEMORY
-                      </span>
-                      <p className="ghost-text">
-                        Bias is a property of the sampling process, not of sample size. Drawing more observations from the
-                        same skewed process reproduces the skew with tighter variance. It does not cancel the systematic
-                        error.
-                      </p>
-                      <p className="ghost-critique">Reading feels like understanding. You generated none of it.</p>
-                      <div className="ghost-ruled">
-                        <p>{ghostResidue}</p>
-                      </div>
-                    </div>
-                  </article>
-                </div>
-
-                {/* Attempt */}
-                <div className={`ledger-layer${beat === "attempt" ? " is-on" : ""}`} inert={beat !== "attempt" ? true : undefined}>
-                  <article className="ledger-slip">
-                    {!ec ? (
-                      <>
-                        <h2 className="ledger-slip__title">Docket</h2>
-                        <div className="ledger-slip__meta">
-                          <span>Awaiting attempt</span>
-                          <span>3-choice recognition</span>
+                  ) : null}
+                  <div
+                    className={`encounter-claim-layer${boundPlayed ? " is-hot" : ""}`}
+                    id="claimLayer"
+                    aria-live="polite"
+                  >
+                    {contractSlip.claims.map((claim, i) => {
+                      const landed = i < landedClaims;
+                      const refused = i < refusedClaims;
+                      return (
+                        <div
+                          key={claim}
+                          className={`encounter-claim-stamp${landed ? " is-landed" : ""}${refused ? " is-refused" : ""}`}
+                        >
+                          <span className="encounter-claim-text">{claim}</span>
+                          <span className="encounter-claim-x" aria-hidden="true">
+                            ✕
+                          </span>
                         </div>
-                        <div className="ledger-block">
-                          <div className="ledger-k">Status</div>
-                          <p className="ledger-v">Empty: your sentence has not been written yet.</p>
-                        </div>
-                        <div className="ledger-block">
-                          <div className="ledger-k">Conditions</div>
-                          <p className="ledger-v">3-choice recognition · distractors present · answer key withheld</p>
-                        </div>
-                        <p className="ledger-contrast">
-                          <strong>Choose on the left, or keep scrolling.</strong> Scroll never locks.
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <h2 className="ledger-slip__title">Attempt</h2>
-                        <div className="ledger-slip__meta">
-                          <span>{ec.sample ? "Sample Trace" : "Committed"}</span>
-                          <span>Three options</span>
-                        </div>
-                        <div className="ink-block">
-                          <p className="ink-tag">[YOU · UNASSISTED]</p>
-                          <p className="ink-sentence">{CHOICES[ec.key].text}</p>
-                        </div>
-                        <div className="glow-block">
-                          <p className="glow-tag">[AGENT · ANSWER KEY WITHHELD]</p>
-                          <p className="glow-body">
-                            Multiple-choice scaffold active. Correct option not revealed as feedback.
-                          </p>
-                        </div>
-                        {ec.sample ? (
-                          <p className="ledger-reality">Sample Trace: demonstration, not your evidence.</p>
-                        ) : (
-                          <p className="ledger-contrast">
-                            <strong>Your words recorded.</strong> Scroll to see the sealed record.
-                          </p>
-                        )}
-                      </>
-                    )}
-                  </article>
-                </div>
-
-                {/* Provenance */}
-                <div
-                  className={`ledger-layer${beat === "provenance" ? " is-on" : ""}`}
-                  inert={beat !== "provenance" ? true : undefined}
-                >
-                  <article className="ledger-slip">
-                    {!ec ? (
-                      <>
-                        <h2 className="ledger-slip__title">Provenance</h2>
-                        <div className="ledger-slip__meta">
-                          <span>Waiting</span>
-                        </div>
-                        <p className="ink-sentence ink-sentence--empty">
-                          No ink yet. Choose left, or scroll for Sample Trace.
-                        </p>
-                      </>
-                    ) : (
-                      <div className="prov-stack">
-                        <div className="ink-block">
-                          <p className="ink-tag">[YOU · UNASSISTED]</p>
-                          <p className="ink-sentence">{CHOICES[ec.key].text}</p>
-                        </div>
-                        <div className="glow-block">
-                          <p className="glow-tag">[AGENT · ANSWER KEY WITHHELD]</p>
-                          <p className="glow-body">{CHOICES[ec.key].glow}</p>
-                        </div>
-                        <div className="lock-row">
-                          <span className="lock-pill">Record sealed</span>
-                          <span className="lock-pill">No answer key before attempt</span>
-                        </div>
-                        <p className="ledger-reality">
-                          {CHOICES[ec.key].reality}
-                          {ec.sample ? " · Sample Trace: not visitor evidence." : ""}
-                        </p>
-                      </div>
-                    )}
-                  </article>
-                </div>
-
-                {/* Evidence Contract */}
-                <div className={`ledger-layer${beat === "bound" ? " is-on" : ""}`} inert={beat !== "bound" ? true : undefined}>
-                  <article className="ledger-slip">
-                    <p className="contract-meta">
-                      EVIDENCE CONTRACT · RECONSTRUCTION PROTOCOL
-                      {ec && ec.sample ? " · SAMPLE TRACE" : ""}
-                    </p>
-                    <h2 className="contract-title">Bound inference</h2>
-                    <div className="ledger-block">
-                      <div className="ledger-k">Target</div>
-                      <p className="ledger-v">{contract.target}</p>
-                    </div>
-                    <div className="ledger-block">
-                      <div className="ledger-k">Observed</div>
-                      <p className="ledger-v">{contract.observed}</p>
-                    </div>
-                    <div className="ledger-block">
-                      <div className="ledger-k">Bounded inference</div>
-                      <p className="ledger-v">{contract.inference}</p>
-                    </div>
-                    <div className="non-inf">
-                      <div className="non-inf__k">Non-inferences</div>
-                      <ul>
-                        {contract.nonInferences.map((n) => (
-                          <li key={n}>
-                            <span className="non-inf__x" aria-hidden="true">
+                      );
+                    })}
+                  </div>
+                  <ul
+                    className="encounter-noninf"
+                    id="nonInferenceList"
+                    aria-label="Non-inferences"
+                    hidden={!showNonInferences}
+                  >
+                    {showNonInferences
+                      ? contractSlip.nonInferences.map((text) => (
+                          <li key={text} data-non-inference="1">
+                            <span className="encounter-noninf-x" aria-hidden="true">
                               ✕
-                            </span>{" "}
-                            {n}
+                            </span>
+                            {text}
                           </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="horizon-compact">
-                      <p className="horizon-meta">Capability horizon · boolean only</p>
-                      <div className="horizon-matrix">
-                        {horizon.map((r) => (
-                          <div className="hz-row" key={r.label}>
-                            <span className={`hz-mark ${r.mark === "●" ? "filled" : "hollow"}`}>{r.mark}</span>
-                            <span className="hz-label">{r.label}</span>
-                            <span className={`hz-state ${r.kind}`}>{r.state}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </article>
-                </div>
+                        ))
+                      : null}
+                  </ul>
+                </section>
 
-                {/* Time-lapse */}
-                <div className={`ledger-layer${beat === "return" ? " is-on" : ""}`} inert={beat !== "return" ? true : undefined}>
-                  <article className="ledger-slip">
-                    <div className="tl-head">
-                      <h2 className="ledger-slip__title">Scaffold strip</h2>
-                      <span className="tl-day">{dayLabel}</span>
-                    </div>
-                    <div className="tl-track" aria-hidden="true">
-                      <div className="tl-fill" />
-                    </div>
-                    <div className="tl-scaffold">
-                      <div className="tl-opt">A · A larger sample averages bias away.</div>
-                      <div className="tl-opt">B · Bias is about how you sample, not how many.</div>
-                      <div className="tl-opt">C · I don’t know yet.</div>
-                    </div>
-                    <p className="tl-naked">
-                      A medical study polls 25,000 opt-in mobile app users to estimate national diabetes rates. Identify the
-                      structural error, without multiple choice.
-                    </p>
-                    <div className="tl-note">
-                      <p>This page cannot schedule your +5 day verification.</p>
-                      <p className="tl-promise">
-                        The Socratink Learner Agent can. It remembers what you actually produced, and returns when the
-                        scaffolding is gone.
-                      </p>
-                      <p className="tl-demo">This demo stores nothing.</p>
-                    </div>
-                  </article>
-                </div>
+                <section
+                  className={`encounter-panel${beat === "exit" ? " is-live" : ""}`}
+                  data-panel="exit"
+                  id="panelExit"
+                  inert={beat !== "exit" ? true : undefined}
+                >
+                  <p className="encounter-hint">{contractSlip.hints.exit}</p>
+                  <a className="btn-accent encounter-cta" href={contractSlip.cta.href}>
+                    {contractSlip.cta.label}
+                  </a>
+                  <p className="encounter-cta-sub">{contractSlip.ctaSub}</p>
+                </section>
               </div>
-            </aside>
+            </article>
           </div>
         </div>
 
@@ -642,7 +513,7 @@ export function EncounterStrip() {
           <div
             key={b}
             data-encounter-phase={b}
-            className={`encounter-phase${b === "cost" ? " encounter-phase--cost" : ""}${b === "return" ? " encounter-phase--return" : ""}`}
+            className={`encounter-phase${b === "ghost" ? " encounter-phase--ghost" : ""}${b === "exit" ? " encounter-phase--exit" : ""}`}
             aria-hidden="true"
           />
         ))}

@@ -28,12 +28,12 @@ export function Memory() {
   );
 }
 
-/** Many attempts → a readable record over ~6 months. */
+/** Illustration: how attempts could stack over time in the app (not this demo). */
 function AccumulationArc() {
   const points = [
     { t: "Week 1", label: "First attempts", marks: 2 },
-    { t: "Month 2", label: "Targets compound", marks: 5 },
-    { t: "Month 6", label: "A record you can read", marks: 9 },
+    { t: "Later", label: "Targets compound", marks: 5 },
+    { t: "Over time", label: "A record you can read", marks: 9 },
   ];
   return (
     <ol className="relative flex flex-col gap-5 border-s border-tx/10 ps-5 text-[0.8125rem]">
