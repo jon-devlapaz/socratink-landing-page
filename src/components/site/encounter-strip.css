@@ -1,4 +1,11 @@
-/* encounter-strip — Method flows; Cold Ledger sticks viewport-fit */
+/* encounter-strip: Cold Ledger sticks viewport-fit; lead air before pin */
+.encounter-lead {
+  /* Candidate 26: black seam so cream never peeks the fold. */
+  height: 3rem;
+  background: var(--paper);
+  pointer-events: none;
+}
+
 .encounter-track {
   position: relative;
   --ledger: #f2f0e9;
@@ -37,12 +44,25 @@
   align-items: baseline;
   gap: 0.45rem 0.65rem;
   margin: 0;
-  padding-block: 0.32rem;
-  border-block: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
   font-family: var(--font-serif);
   font-size: clamp(1rem, 1.65vw, 1.28rem);
   line-height: 1.3;
   color: var(--tx-2);
+  opacity: 0;
+  max-height: 3rem;
+  background: var(--paper);
+  padding-block: 0;
+  border-block: 1px solid transparent;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.encounter-principle.is-on {
+  opacity: 1;
+  max-height: 4rem;
+  padding-block: 0.32rem;
+  border-block-color: color-mix(in srgb, var(--tx) 10%, transparent);
+  pointer-events: auto;
   animation: encounter-principle-in 280ms ease;
 }
 
@@ -57,7 +77,8 @@
 
 .encounter-stage {
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 3rem;
+  background: var(--paper);
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.18fr);
   gap: 0.85rem;
@@ -69,7 +90,8 @@
 
 .encounter-left,
 .encounter-ledger {
-  min-height: 0;
+  min-height: 3rem;
+  background: var(--paper);
   background: var(--paper-2);
   border: 1px solid color-mix(in srgb, var(--tx) 9%, transparent);
   border-radius: 0.85rem;
@@ -122,7 +144,8 @@
 
 .encounter-panel {
   flex: 1;
-  min-height: 0;
+  min-height: 3rem;
+  background: var(--paper);
   position: relative;
   overflow: hidden;
 }
@@ -220,7 +243,7 @@
   color: var(--tx-2);
 }
 
-/* —— Ledger —— */
+/* === Ledger === */
 .encounter-ledger__head {
   flex-shrink: 0;
   padding: 0.65rem 1rem 0.52rem;
@@ -247,7 +270,8 @@
 
 .encounter-ledger__body {
   flex: 1;
-  min-height: 0;
+  min-height: 3rem;
+  background: var(--paper);
   padding: 0.8rem 0.9rem 0.95rem;
   display: flex;
   flex-direction: column;
@@ -295,7 +319,8 @@
 
 .ledger-slip {
   flex: 1;
-  min-height: 0;
+  min-height: 3rem;
+  background: var(--paper);
   height: 100%;
   background: var(--ledger);
   color: var(--ledger-ink);
@@ -678,7 +703,7 @@
   color: color-mix(in srgb, var(--ledger-mute) 85%, transparent);
 }
 
-/* Scroll spacers — ~9× shell travel after pin so beats have room */
+/* Scroll spacers: ~9x shell travel after pin so beats have room */
 .encounter-phase {
   height: 110vh;
   pointer-events: none;
@@ -688,6 +713,107 @@
 }
 .encounter-phase--return {
   height: 200vh;
+}
+
+
+/* —— Full-bleed instrument when sticky-pinned (candidate 24) —— */
+.encounter-shell.is-pinned {
+  gap: 0.2rem;
+  padding: 0.2rem 0 0.3rem;
+  border-bottom-color: color-mix(in srgb, var(--tx) 5%, transparent);
+}
+
+.encounter-shell.is-pinned .encounter-principle.is-on {
+  font-size: clamp(0.9rem, 1.35vw, 1.08rem);
+  color: color-mix(in srgb, var(--tx-2) 82%, transparent);
+  max-height: 2.75rem;
+  padding-block: 0.18rem;
+  border-block-color: color-mix(in srgb, var(--tx) 6%, transparent);
+}
+
+.encounter-shell.is-pinned .encounter-stage {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding-inline: clamp(0.65rem, 2vw, 1.5rem);
+  gap: 0;
+  flex: 1 1 auto;
+  border: 1px solid color-mix(in srgb, var(--tx) 9%, transparent);
+  border-radius: 0.12rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--paper-2) 92%, #000);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tx) 3%, transparent);
+}
+
+.encounter-shell.is-pinned .encounter-left,
+.encounter-shell.is-pinned .encounter-ledger {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.encounter-shell.is-pinned .encounter-left {
+  border-right: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
+}
+
+.encounter-shell.is-pinned .encounter-plane {
+  opacity: 0.7;
+  letter-spacing: 0.09em;
+}
+
+.encounter-shell.is-pinned .encounter-walk-badge {
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.encounter-shell.is-pinned .encounter-cue {
+  opacity: 0.85;
+}
+
+.encounter-shell.is-pinned .ghost-stamp {
+  font-size: clamp(0.82rem, 1.4vw, 1rem);
+  padding: 0.48rem 0.75rem;
+  border-width: 2.5px;
+  letter-spacing: 0.11em;
+  color: color-mix(in srgb, #a02f2f 88%, var(--ledger-ink));
+  border-color: color-mix(in srgb, #a02f2f 72%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #a02f2f 22%, transparent),
+    0 8px 28px color-mix(in srgb, #a02f2f 12%, transparent);
+}
+
+.encounter-shell.is-pinned .ghost-text {
+  font-size: clamp(1.05rem, 1.7vw, 1.2rem);
+  line-height: 1.4;
+}
+
+.encounter-shell.is-pinned .ghost-critique {
+  font-size: 0.86rem;
+}
+
+.encounter-shell.is-pinned .ink-sentence {
+  font-size: 1.14rem;
+  text-decoration-thickness: 2.5px;
+}
+
+.encounter-shell.is-pinned .glow-block {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 58%, transparent);
+  box-shadow: 0 0 32px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.encounter-shell.is-pinned .glow-tag {
+  color: color-mix(in srgb, var(--accent) 55%, #fff);
+}
+
+@media (max-width: 860px) {
+  .encounter-shell.is-pinned .encounter-left {
+    border-right: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
+  }
+  .encounter-shell.is-pinned .encounter-stage {
+    padding-inline: 0.55rem;
+  }
 }
 
 @media (max-width: 860px) {
@@ -757,7 +883,8 @@
     overflow: visible;
     position: relative;
     height: auto;
-    min-height: 0;
+    min-height: 3rem;
+  background: var(--paper);
   }
   .encounter-beat,
   .ledger-layer {
@@ -798,7 +925,8 @@
   .encounter-phase,
   .encounter-phase--cost,
   .encounter-phase--return {
-    height: 0;
+    height: 3rem;
+  background: var(--paper);
   }
   .encounter-sample {
     position: static;
@@ -814,3 +942,111 @@
     transition: none !important;
   }
 }
+
+/* —— Ledger-primary instrument (candidate 25) —— */
+.encounter-shell.is-ledger-primary .encounter-stage {
+  grid-template-columns: 0fr 1fr;
+  gap: 0;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding-inline: clamp(0.65rem, 2vw, 1.35rem);
+  border: 1px solid color-mix(in srgb, var(--tx) 9%, transparent);
+  border-radius: 0.12rem;
+  overflow: hidden;
+  background: #0c0c0b;
+}
+
+.encounter-shell.is-ledger-primary .encounter-left {
+  min-width: 0;
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.encounter-shell.is-ledger-primary .encounter-ledger {
+  border: none;
+  border-radius: 0;
+  background: var(--ledger);
+  color: var(--ledger-ink);
+  min-width: 0;
+}
+
+.encounter-shell.is-ledger-primary.is-rail-live .encounter-stage {
+  grid-template-columns: minmax(15.5rem, 20rem) minmax(0, 1fr);
+}
+
+.encounter-shell.is-ledger-primary.is-rail-live .encounter-left {
+  width: auto;
+  opacity: 1;
+  pointer-events: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--paper-2) 88%, #000);
+  border-right: 1px solid color-mix(in srgb, var(--tx) 12%, transparent);
+}
+
+.encounter-shell.is-ledger-primary.is-rail-live .encounter-panel {
+  flex: 1;
+  min-height: 3rem;
+  background: var(--paper);
+  overflow: auto;
+}
+
+/* Hide left beats that only echo the ledger — keep attempt + return. */
+.encounter-shell.is-ledger-primary.is-rail-live .encounter-beat:not(.is-on) {
+  display: none;
+}
+.encounter-shell.is-ledger-primary .encounter-beat[data-rail="echo"] {
+  display: none;
+}
+
+.encounter-shell.is-ledger-primary .encounter-ledger__head {
+  background: color-mix(in srgb, var(--ledger) 92%, #d9d4c8);
+  border-bottom: 1px solid var(--ledger-line);
+}
+
+.encounter-shell.is-ledger-primary .encounter-ledger__body {
+  background: var(--ledger);
+}
+
+/* Prefer one paper: drop duplicate dark card chrome from 24 when ledger-primary */
+.encounter-shell.is-ledger-primary.is-pinned .encounter-stage {
+  background: #0c0c0b;
+  box-shadow: none;
+}
+.encounter-shell.is-ledger-primary.is-pinned .encounter-left,
+.encounter-shell.is-ledger-primary.is-pinned .encounter-ledger {
+  background: transparent;
+}
+.encounter-shell.is-ledger-primary.is-pinned .encounter-ledger {
+  background: var(--ledger);
+}
+.encounter-shell.is-ledger-primary.is-pinned.is-rail-live .encounter-left {
+  background: color-mix(in srgb, var(--paper-2) 88%, #000);
+  border-right: 1px solid color-mix(in srgb, var(--tx) 12%, transparent);
+}
+
+@media (max-width: 860px) {
+  .encounter-shell.is-ledger-primary .encounter-stage {
+    grid-template-columns: 1fr;
+  }
+  .encounter-shell.is-ledger-primary:not(.is-rail-live) .encounter-left {
+    display: none;
+  }
+  .encounter-shell.is-ledger-primary.is-rail-live .encounter-stage {
+    grid-template-columns: 1fr;
+  }
+  .encounter-shell.is-ledger-primary.is-rail-live .encounter-left {
+    width: auto;
+    max-height: 42%;
+    border-right: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--tx) 12%, transparent);
+  }
+}
+

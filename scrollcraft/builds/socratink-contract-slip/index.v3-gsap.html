@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Socratink · Contract slip v4</title>
+<style>
+  :root {
+    --bg: #070706;
+    --ledger: #f2f0e9;
+    --ink: #1c1b1a;
+    --mute: #6e6b64;
+    --line: color-mix(in srgb, #1c1b1a 14%, transparent);
+    --accent: #3aa99f;
+    --stamp: #a02f2f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: #eceae3; font-family: ui-sans-serif, system-ui, sans-serif; }
+  .pin-wrap { position: relative; height: 320vh; }
+  .shell {
+    position: sticky; top: 0; height: 100dvh;
+    display: grid; place-items: center;
+    padding: 1rem clamp(0.85rem, 3vw, 2rem);
+  }
+  .slip {
+    width: min(100%, 36rem);
+    min-height: min(68dvh, 32rem);
+    background: var(--ledger);
+    color: var(--ink);
+    border-radius: 0.12rem;
+    padding: clamp(1.35rem, 3.2vw, 2rem);
+    display: flex; flex-direction: column; gap: 0.85rem;
+    box-shadow: 0 30px 80px -28px #000;
+    overflow: hidden;
+  }
+  .q {
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, serif;
+    font-size: clamp(1.35rem, 2.7vw, 1.8rem);
+    line-height: 1.22;
+  }
+  .stage { position: relative; flex: 1; min-height: 11rem; }
+  .panel {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; gap: 0.7rem;
+    opacity: 0; visibility: hidden; pointer-events: none;
+  }
+  .panel.is-live { opacity: 1; visibility: visible; pointer-events: auto; }
+  .hint { margin: 0; font-size: 0.82rem; color: var(--mute); line-height: 1.4; }
+  .ruled {
+    flex: 1; min-height: 7.5rem;
+    border-top: 1px solid var(--line);
+    background-image: repeating-linear-gradient(
+      transparent, transparent 1.7rem,
+      var(--line) 1.7rem, var(--line) calc(1.7rem + 1px)
+    );
+    background-size: 100% 1.75rem;
+  }
+  .ghost-block { position: relative; flex: 1; min-height: 8.5rem; }
+  #ghostCopy {
+    margin: 0;
+    font-family: ui-serif, Georgia, serif;
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+  #ghostCopy .char {
+    display: inline-block;
+    will-change: transform, opacity, filter;
+  }
+  .ghost-void {
+    position: absolute; inset: 0;
+    border-top: 1px solid var(--line);
+    background-image: repeating-linear-gradient(
+      transparent, transparent 1.7rem,
+      var(--line) 1.7rem, var(--line) calc(1.7rem + 1px)
+    );
+    background-size: 100% 1.75rem;
+    opacity: 0; pointer-events: none;
+  }
+  .stamp {
+    position: absolute; left: 50%; top: 48%;
+    transform: translate(-50%, -50%) rotate(-12deg) scale(0.78);
+    font-size: 0.86rem; font-weight: 800; letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--stamp) 96%, #000);
+    border: 3px solid color-mix(in srgb, var(--stamp) 85%, transparent);
+    padding: 0.55rem 0.78rem; white-space: nowrap;
+    opacity: 0; pointer-events: none;
+    box-shadow: 0 18px 40px color-mix(in srgb, var(--stamp) 35%, transparent);
+  }
+  .paper-ink {
+    position: relative; flex: 1; min-height: 7.5rem;
+    border-top: 1px solid var(--line);
+    background-image: repeating-linear-gradient(
+      transparent, transparent 1.7rem,
+      var(--line) 1.7rem, var(--line) calc(1.7rem + 1px)
+    );
+    background-size: 100% 1.75rem;
+    padding: 0.15rem 0 0;
+  }
+  .paper-ink input {
+    width: 100%;
+    border: 0; outline: none; background: transparent;
+    font-family: ui-serif, Georgia, serif;
+    font-size: 1.15rem; line-height: 1.75rem;
+    color: var(--ink); padding: 0 0.1rem;
+    caret-color: var(--accent);
+  }
+  .paper-ink input::placeholder { color: color-mix(in srgb, var(--mute) 70%, transparent); }
+  .ink-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+  .ink-row button {
+    border: 0; background: transparent; color: var(--mute);
+    padding: 0; font-size: 0.8rem; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 0.18em;
+  }
+  .ink-row button.primary {
+    color: var(--ink); font-weight: 650; text-decoration-thickness: 2px;
+  }
+  .badge {
+    display: none; align-self: flex-start;
+    font-size: 0.62rem; letter-spacing: 0.07em; text-transform: uppercase;
+    background: #e8d48a; color: #3a320f; padding: 0.28rem 0.5rem; border-radius: 999px;
+  }
+  .badge.show { display: inline-block; }
+  .ink-line {
+    margin: 0.1rem 0 0.25rem;
+    font-family: ui-serif, Georgia, serif;
+    font-size: 1.22rem; line-height: 1.35;
+    text-decoration: underline; text-decoration-thickness: 2.5px; text-underline-offset: 0.22em;
+  }
+  .ink-line.empty { color: var(--mute); text-decoration: none; font-size: 0.95rem; }
+  .cond { margin: 0; font-size: 0.72rem; color: var(--mute); }
+  .noninf { list-style: none; margin: 0.45rem 0 0; padding: 0; display: grid; gap: 0.35rem; }
+  .noninf li {
+    font-size: 0.98rem; line-height: 1.35;
+    padding: 0.15rem 0;
+    color: var(--ink);
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in srgb, var(--stamp) 75%, transparent);
+    text-decoration-thickness: 2px;
+  }
+  .noninf .x {
+    color: var(--stamp); font-weight: 800; margin-right: 0.4rem;
+    text-decoration: none; display: inline-block;
+  }
+  .cta {
+    margin-top: auto; display: inline-flex; justify-content: center;
+    text-decoration: none; padding: 0.88rem 1.1rem;
+    background: var(--accent); color: #07110f; font-weight: 650; border-radius: 0.16rem;
+  }
+  .cta-sub { margin: 0; font-size: 0.72rem; color: var(--mute); }
+  @media (prefers-reduced-motion: reduce) {
+    #ghostCopy .char { transform: none !important; filter: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="pin-wrap" id="pinWrap">
+    <div class="shell">
+      <article class="slip" id="slip">
+        <p class="q">Why doesn&#8217;t a larger sample fix a biased one?</p>
+        <div class="stage">
+          <section class="panel is-live" data-panel="cold" id="panelCold">
+            <p class="hint">One question. Evidence begins when you attempt.</p>
+            <div class="ruled" aria-hidden="true"></div>
+            <p class="hint">Scroll.</p>
+          </section>
+
+          <section class="panel" data-panel="ghost" id="panelGhost">
+            <div class="ghost-block">
+              <p id="ghostCopy">Bias is a property of the sampling process, not of sample size. Drawing more observations from the same skewed process reproduces the skew with tighter variance. It does not cancel the systematic error.</p>
+              <div class="ghost-void" id="ghostVoid" aria-hidden="true"></div>
+              <div class="stamp" id="stamp" aria-hidden="true">AI fluency &#8800; your memory</div>
+            </div>
+            <p class="hint" id="ghostHint">Assisted text. Keep scrolling.</p>
+          </section>
+
+          <section class="panel" data-panel="ink" id="panelInk">
+            <p class="hint">One sentence for a colleague. Or refuse.</p>
+            <span class="badge" id="demoBadge">Sample Trace &#183; not your evidence</span>
+            <div class="paper-ink">
+              <input id="inkInput" maxlength="160" placeholder="Your words on the line&#8230;" autocomplete="off" />
+            </div>
+            <div class="ink-row">
+              <button type="button" class="primary" id="commitBtn">Commit ink</button>
+              <button type="button" id="refuseBtn">I don&#8217;t know yet</button>
+            </div>
+            <p class="hint" id="inkHint">Scroll past for a labeled Sample Trace.</p>
+          </section>
+
+          <section class="panel" data-panel="contract" id="panelContract">
+            <p class="ink-line empty" id="contractInk">No ink on the slip.</p>
+            <p class="cond" id="contractCond"></p>
+            <ul class="noninf">
+              <li><span class="x" aria-hidden="true">✕</span>Does not establish durable retention</li>
+              <li><span class="x" aria-hidden="true">✕</span>Does not establish unprompted reconstruction</li>
+              <li><span class="x" aria-hidden="true">✕</span>Does not establish transfer to novel domains</li>
+            </ul>
+          </section>
+
+          <section class="panel" data-panel="exit" id="panelExit">
+            <p class="hint">That observation is bounded. The thinking stays yours.</p>
+            <a class="cta" href="https://app.socratink.ai/">Start a free attempt</a>
+            <p class="cta-sub">Instant in-browser &#183; No account required &#183; Free to start</p>
+          </section>
+        </div>
+      </article>
+    </div>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
+<script src="./slip.js"></script>
+</body>
+</html>

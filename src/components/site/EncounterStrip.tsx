@@ -3,8 +3,7 @@
 import "./encounter-strip.css";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { encounterFrame, method } from "@/lib/content";
+import { encounterFrame } from "@/lib/content";
 
 type Beat = "target" | "cost" | "attempt" | "provenance" | "bound" | "return";
 type ChoiceKey = "a" | "b" | "c";
@@ -13,7 +12,7 @@ const BEAT_NAMES: Record<Beat, string> = {
   target: "Target",
   cost: "Fluency Ghost",
   attempt: "Attempt",
-  provenance: "Ink vs Glow",
+  provenance: "Words vs help",
   bound: "Evidence Contract",
   return: "Time-Lapse",
 };
@@ -22,16 +21,17 @@ const CUES: Record<Beat, string> = {
   target: "Learning target",
   cost: "Cost · scroll to dissolve",
   attempt: "Three choices · scroll never waits",
-  provenance: "Ink vs glow",
+  provenance: "Your words vs assisted help",
   bound: "Evidence contract",
   return: "Day 0 → +5d",
 };
 
 const PRINCIPLES: Record<Beat, { left: string; right: string }> = {
+  // Hold Recognition across target→attempt→provenance so six beats aren't six slogans.
   target: { left: "Recognition", right: "independent recall" },
   cost: { left: "AI fluency", right: "your memory" },
-  attempt: { left: "Attempt", right: "answer key first" },
-  provenance: { left: "Your work", right: "assisted completion" },
+  attempt: { left: "Recognition", right: "independent recall" },
+  provenance: { left: "Recognition", right: "independent recall" },
   bound: { left: "Correct click", right: "durable capability" },
   return: { left: "Immediate success", right: "still yours later" },
 };
@@ -76,7 +76,7 @@ const CHOICES: Record<
   b: {
     text: "Bias is about how you sample, not how many.",
     reality:
-      "Surface recognition from a menu. Bounded: can identify the principle when prompted — not unassisted recall.",
+      "Surface recognition from a menu. Bounded: can identify the principle when prompted, not unassisted recall.",
     glow: "Answer key withheld. 3-choice recognition · distractors present · answer key withheld.",
     contract: {
       target: "Sampling bias invariance under sample size / variance vs selection",
@@ -97,12 +97,12 @@ const CHOICES: Record<
   },
   c: {
     text: "I don’t know yet.",
-    reality: "Calibrated gap. Zero pollution — no misconception formed. Ready for a minimal scaffold.",
+    reality: "Honest gap. You didn't invent a wrong answer. Nothing false to unlearn.",
     glow: "Answer key withheld. Admission recorded; no recognition credit issued.",
     contract: {
       target: "Sampling bias invariance under sample size / variance vs selection",
       observed: "Calibrated admission of gap under prompt; no false claim of knowing.",
-      inference: "Zero pollution; ready for minimal scaffold; no misconception formed.",
+      inference: "Honest gap recorded; ready for light help; no wrong claim to undo.",
       nonInferences: [
         "Does NOT establish durable retention",
         "Does NOT establish unprompted reconstruction",
@@ -121,7 +121,7 @@ const CHOICES: Record<
 const EMPTY_CONTRACT = {
   target: "Sampling bias invariance under sample size / variance vs selection",
   observed: "No attempt on the slip yet.",
-  inference: "Nothing bounded — no learner performance recorded.",
+  inference: "Nothing bounded: no learner performance recorded.",
   nonInferences: [
     "Does NOT establish durable retention",
     "Does NOT establish unprompted reconstruction",
@@ -139,8 +139,9 @@ const EMPTY_HORIZON = [
 const BEATS: Beat[] = ["target", "cost", "attempt", "provenance", "bound", "return"];
 
 /**
- * Method intro flows. Cold Ledger sticks in a viewport-fit two-plane shell:
+ * Cold Ledger sticks in a viewport-fit two-plane shell:
  * Encounter (left) + Evidence Ledger (right), scroll-scrubbed beats.
+ * Method intro removed (21). Pinned full-bleed (24). Ledger-primary rail (25).
  */
 export function EncounterStrip() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -151,6 +152,7 @@ export function EncounterStrip() {
   const [costP, setCostP] = useState(0);
   const [returnP, setReturnP] = useState(0);
   const [reduced, setReduced] = useState(false);
+  const [pinned, setPinned] = useState(false);
 
   const effective = useCallback((): { key: ChoiceKey; sample: boolean } | null => {
     if (choice) return { key: choice, sample: false };
@@ -188,6 +190,7 @@ export function EncounterStrip() {
       const shellTop = shell.getBoundingClientRect().top;
       // Pin gate: beat scrubbing only after sticky shell is actually stuck
       if (shellTop > nav + 1) {
+        setPinned(false);
         setBeat("target");
         setCostP(0);
         setReturnP(0);
@@ -195,9 +198,9 @@ export function EncounterStrip() {
         applyVars(0, 0);
         return;
       }
+      setPinned(true);
 
-      // Document-relative progress (track.offsetTop is offsetParent-local and races
-      // ahead by method-intro height before pin — ~630px on desktop).
+      // Progress from track top vs sticky shell height (getBoundingClientRect).
       const trackTop = track.getBoundingClientRect().top;
       const travel = Math.max(1, track.offsetHeight - shell.offsetHeight);
       let p = Math.min(1, Math.max(0, (nav - trackTop) / travel));
@@ -286,9 +289,9 @@ export function EncounterStrip() {
 
   const provLeftMeta = ec
     ? ec.sample
-      ? "Sample Trace on the right — click left to overwrite with your ink."
-      : "Ink committed. Ledger shows conditions."
-    : "Commit on the left — or keep scrolling for a Sample Trace.";
+      ? "Sample Trace on the right. Click left to overwrite with your attempt."
+      : "Attempt committed. Ledger shows conditions."
+    : "Commit on the left, or keep scrolling for a Sample Trace.";
 
   const contract = ec ? CHOICES[ec.key].contract : EMPTY_CONTRACT;
   const horizon = ec ? CHOICES[ec.key].horizon : EMPTY_HORIZON;
@@ -298,25 +301,19 @@ export function EncounterStrip() {
     setSampleTrace(false);
   };
 
+  // Thin rail only when the left has a job (choice or finale CTA). Else ledger owns the glass.
+  const railLive = beat === "attempt" || beat === "return";
+
   return (
     <section data-sc-act="flow" id="method" className="relative scroll-mt-24">
-      <div className="method-intro mx-auto flex max-w-6xl flex-col gap-8 px-5 pb-10 sm:px-8 lg:flex-row lg:items-start lg:gap-20">
-        <SectionHeading
-          sans={method.titleSans}
-          serif={method.titleSerif}
-          align="left"
-          className="lg:w-[28rem] lg:shrink-0"
-        />
-        <p className="max-w-xl text-[0.95rem] leading-relaxed text-pretty text-tx-2 lg:pt-9">
-          {method.body}
-        </p>
-      </div>
-
+      {/* Air after Hero so the machine does not clip the fold (candidate 22). */}
+      <div className="encounter-lead" aria-hidden="true" />
       <div className="encounter-track" ref={trackRef} data-encounter="cold-ledger">
         <div
-          className="encounter-shell"
+          className={`encounter-shell is-ledger-primary${pinned ? " is-pinned" : ""}${railLive ? " is-rail-live" : ""}`}
           ref={shellRef}
           data-beat={beat}
+          data-rail={railLive ? "live" : "collapsed"}
           style={
             {
               ["--enc-cost-p" as string]: String(costP),
@@ -324,7 +321,12 @@ export function EncounterStrip() {
             } as CSSProperties
           }
         >
-          <p className="encounter-principle content-wrap" key={beat} aria-live="polite">
+          <p
+            className={`encounter-principle content-wrap${pinned ? " is-on" : ""}`}
+            key={`${principle.left}|${principle.right}`}
+            aria-live="polite"
+            aria-hidden={pinned ? undefined : true}
+          >
             <span>{principle.left}</span>
             <span className="text-accent" aria-label="is not">
               ≠
@@ -336,18 +338,18 @@ export function EncounterStrip() {
             {/* LEFT: The Encounter */}
             <div className="encounter-left">
               <p className="encounter-plane">
-                <strong>The Encounter</strong>
+                <strong>Attempt</strong>
                 <span className="encounter-walk-badge">{encounterFrame.walkthrough}</span>
               </p>
               <p className="encounter-cue">{cue}</p>
               <div className="encounter-panel">
-                <div className={`encounter-beat${beat === "target" ? " is-on" : ""}`} inert={beat !== "target" ? true : undefined}>
+                <div className={`encounter-beat${beat === "target" ? " is-on" : ""}`} data-rail="echo" inert={beat !== "target" ? true : undefined}>
                   <p className="encounter-label">Learning target · Sampling</p>
                   <p className="encounter-target">Why doesn’t a larger sample fix a biased one?</p>
                   <p className="encounter-meta">One attempt. Wrong is useful. Help comes after you choose.</p>
                 </div>
 
-                <div className={`encounter-beat${beat === "cost" ? " is-on" : ""}`} inert={beat !== "cost" ? true : undefined}>
+                <div className={`encounter-beat${beat === "cost" ? " is-on" : ""}`} data-rail="echo" inert={beat !== "cost" ? true : undefined}>
                   <p className="encounter-label">Cost of fluent help</p>
                   <p className="encounter-target encounter-target--sm">Correct assistance can steal the retrieval.</p>
                   <p className="encounter-meta">Reading feels like understanding. You generated none of it.</p>
@@ -378,20 +380,20 @@ export function EncounterStrip() {
                   </div>
                 </div>
 
-                <div className={`encounter-beat${beat === "provenance" ? " is-on" : ""}`} inert={beat !== "provenance" ? true : undefined}>
+                <div className={`encounter-beat${beat === "provenance" ? " is-on" : ""}`} data-rail="echo" inert={beat !== "provenance" ? true : undefined}>
                   <p className="encounter-label">Provenance</p>
-                  <p className="encounter-target encounter-target--sm">Your ink. Their glow. Locked conditions.</p>
+                  <p className="encounter-target encounter-target--sm">Your words vs assisted help</p>
                   <p className="encounter-meta">{provLeftMeta}</p>
                 </div>
 
-                <div className={`encounter-beat${beat === "bound" ? " is-on" : ""}`} inert={beat !== "bound" ? true : undefined}>
+                <div className={`encounter-beat${beat === "bound" ? " is-on" : ""}`} data-rail="echo" inert={beat !== "bound" ? true : undefined}>
                   <p className="encounter-label">Evidence contract</p>
                   <p className="encounter-target encounter-target--sm">What this observation can and cannot support.</p>
                   <p className="encounter-meta">Target · Observed · Bounded inference · Non-inferences. No mastery score.</p>
                 </div>
 
                 <div className={`encounter-beat${beat === "return" ? " is-on" : ""}`} inert={beat !== "return" ? true : undefined}>
-                  <p className="encounter-label">Durable learning for hard material</p>
+                  <p className="encounter-label">When the scaffolding is gone</p>
                   <p className="encounter-target encounter-target--sm">
                     Don&apos;t find out on the exam that you only had recognition.
                   </p>
@@ -453,7 +455,7 @@ export function EncounterStrip() {
                       </span>
                       <p className="ghost-text">
                         Bias is a property of the sampling process, not of sample size. Drawing more observations from the
-                        same skewed process reproduces the skew with tighter variance — it does not cancel the systematic
+                        same skewed process reproduces the skew with tighter variance. It does not cancel the systematic
                         error.
                       </p>
                       <p className="ghost-critique">Reading feels like understanding. You generated none of it.</p>
@@ -476,7 +478,7 @@ export function EncounterStrip() {
                         </div>
                         <div className="ledger-block">
                           <div className="ledger-k">Status</div>
-                          <p className="ledger-v">Empty — your sentence has not been written yet.</p>
+                          <p className="ledger-v">Empty: your sentence has not been written yet.</p>
                         </div>
                         <div className="ledger-block">
                           <div className="ledger-k">Conditions</div>
@@ -504,10 +506,10 @@ export function EncounterStrip() {
                           </p>
                         </div>
                         {ec.sample ? (
-                          <p className="ledger-reality">Sample Trace — demonstration, not your evidence.</p>
+                          <p className="ledger-reality">Sample Trace: demonstration, not your evidence.</p>
                         ) : (
                           <p className="ledger-contrast">
-                            <strong>Ink recorded.</strong> Scroll for provenance lock.
+                            <strong>Your words recorded.</strong> Scroll to see the sealed record.
                           </p>
                         )}
                       </>
@@ -528,7 +530,7 @@ export function EncounterStrip() {
                           <span>Waiting</span>
                         </div>
                         <p className="ink-sentence ink-sentence--empty">
-                          No ink yet — choose left, or scroll for Sample Trace.
+                          No ink yet. Choose left, or scroll for Sample Trace.
                         </p>
                       </>
                     ) : (
@@ -542,12 +544,12 @@ export function EncounterStrip() {
                           <p className="glow-body">{CHOICES[ec.key].glow}</p>
                         </div>
                         <div className="lock-row">
-                          <span className="lock-pill">PROVENANCE LOCKED</span>
-                          <span className="lock-pill">ZERO POLLUTION</span>
+                          <span className="lock-pill">Record sealed</span>
+                          <span className="lock-pill">No answer key before attempt</span>
                         </div>
                         <p className="ledger-reality">
                           {CHOICES[ec.key].reality}
-                          {ec.sample ? " · Sample Trace — not visitor evidence." : ""}
+                          {ec.sample ? " · Sample Trace: not visitor evidence." : ""}
                         </p>
                       </div>
                     )}
@@ -619,12 +621,12 @@ export function EncounterStrip() {
                     </div>
                     <p className="tl-naked">
                       A medical study polls 25,000 opt-in mobile app users to estimate national diabetes rates. Identify the
-                      structural error — without multiple choice.
+                      structural error, without multiple choice.
                     </p>
                     <div className="tl-note">
                       <p>This page cannot schedule your +5 day verification.</p>
                       <p className="tl-promise">
-                        The Socratink Learner Agent can — it remembers what you actually produced, and returns when the
+                        The Socratink Learner Agent can. It remembers what you actually produced, and returns when the
                         scaffolding is gone.
                       </p>
                       <p className="tl-demo">This demo stores nothing.</p>

@@ -9,9 +9,9 @@ import {
 } from "@/lib/content";
 import { useActProgress } from "@/lib/scroll/use-act-progress";
 
-/** Flowing handoff after EncounterStrip unpin — not a third sticky. */
+/** Flowing handoff after EncounterStrip unpin; not a third sticky. */
 const BRIDGE =
-  "One encounter for one target. Now your whole syllabus held to this standard.";
+  "One question for one concept. Now across your whole syllabus.";
 
 /** The subject field stays legible; orbit labels switch the editorial card in place. */
 export function Orbit() {

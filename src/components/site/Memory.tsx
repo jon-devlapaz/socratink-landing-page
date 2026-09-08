@@ -4,7 +4,7 @@ import { memory } from "@/lib/content";
 
 /**
  * Macro-loop Memory: six-month trajectory of continuity (DEC-0005 themes in
- * customer language). Deliberately avoids EncounterStrip echoes — no attempt
+ * customer language). Deliberately avoids EncounterStrip echoes: no attempt
  * docket, single-question ledger, or ≠ principle-bar rerun.
  */
 export function Memory() {
@@ -28,12 +28,12 @@ export function Memory() {
   );
 }
 
-/** Many bounded attempts → inspectable capability profile over ~6 months. */
+/** Many attempts → a readable record over ~6 months. */
 function AccumulationArc() {
   const points = [
-    { t: "Week 1", label: "First bounded attempts", marks: 2 },
+    { t: "Week 1", label: "First attempts", marks: 2 },
     { t: "Month 2", label: "Targets compound", marks: 5 },
-    { t: "Month 6", label: "Readable capability profile", marks: 9 },
+    { t: "Month 6", label: "A record you can read", marks: 9 },
   ];
   return (
     <ol className="relative flex flex-col gap-5 border-s border-tx/10 ps-5 text-[0.8125rem]">
@@ -61,7 +61,7 @@ function AccumulationArc() {
   );
 }
 
-/** Evidence meaning survives LLM / runtime change — no efficacy claim. */
+/** Evidence meaning survives LLM / runtime change; no efficacy claim. */
 function ModelIndependence() {
   const runtimes = ["Default", "Chain", "Next"];
   return (
@@ -78,7 +78,7 @@ function ModelIndependence() {
         ))}
       </ul>
       <p className="border-t border-tx/10 pt-3 text-tx-2">
-        Your produced work stays labeled with its conditions — meaning intact when the stack changes.
+        Your produced work stays labeled with its conditions. Meaning intact when the stack changes.
       </p>
     </div>
   );

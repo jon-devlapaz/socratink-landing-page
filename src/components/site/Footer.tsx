@@ -3,21 +3,43 @@ import { footer, site } from "@/lib/content";
 
 export function Footer() {
   return (
-    <footer className="border-t border-tx/6">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-8 text-[0.75rem] text-tx-2 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <Wordmark />
-        <p>
-          © {site.name} {site.year}. All rights reserved.
-        </p>
-        <ul className="flex items-center gap-4">
-          {footer.links.map((l) => (
-            <li key={l.href}>
-              <a href={l.href} className="transition-colors hover:text-tx">
-                {l.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+    <footer className="site-footer" aria-label="Site footer">
+      <div className="site-footer-rail">
+        <div className="site-footer-brand">
+          <Wordmark />
+          <p className="site-footer-copy">
+            © {site.name} {site.year}. {footer.legalNote}
+          </p>
+        </div>
+
+        <div className="site-footer-bands">
+          <div className="site-footer-band">
+            <p className="site-footer-kicker">{footer.indexLabel}</p>
+            <ul>
+              {footer.index.map((l) => (
+                <li key={l.href}>
+                  <a href={l.href}>{l.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="site-footer-band">
+            <p className="site-footer-kicker">{footer.legalLabel}</p>
+            <ul>
+              <li>
+                <span className="site-footer-quiet">No newsletter. No social grid.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="site-footer-band site-footer-band-attempt">
+            <p className="site-footer-kicker">{footer.attemptLabel}</p>
+            <a className="site-footer-cta" href={footer.attempt.href}>
+              {footer.attempt.label}
+            </a>
+          </div>
+        </div>
       </div>
     </footer>
   );
