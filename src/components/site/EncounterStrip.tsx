@@ -276,7 +276,7 @@ export function EncounterStrip() {
     if (!ink) return contractSlip.hints.inkDefault;
     switch (ink.kind) {
       case "sample":
-        return contractSlip.hints.inkSample;
+        return contractSlip.hints.inkSampleScroll;
       case "refuse":
         return contractSlip.hints.inkRefuse;
       case "typed":
@@ -297,7 +297,7 @@ export function EncounterStrip() {
     if (!effectiveInk) return "";
     switch (effectiveInk.kind) {
       case "sample":
-        return "Sample Trace · demonstration · not visitor evidence";
+        return "";
       case "refuse":
         return "Visitor refused · productive absence";
       case "typed":
@@ -356,7 +356,6 @@ export function EncounterStrip() {
               >
                 {contractSlip.sampleTraceBadge}
               </span>
-              <p className="encounter-demo-note">{contractSlip.demoNote}</p>
 
               <div className="encounter-stage">
                 <section
@@ -459,7 +458,9 @@ export function EncounterStrip() {
                   id="panelContract"
                   inert={beat !== "bound" ? true : undefined}
                 >
-                  <p className="encounter-hint">{contractSlip.hints.bound}</p>
+                  {effectiveInk?.kind !== "sample" ? (
+                    <p className="encounter-hint">{contractSlip.hints.bound}</p>
+                  ) : null}
                   <p
                     className={`encounter-ink-line${!effectiveInk ? " empty" : ""}`}
                     id="contractInk"
@@ -523,6 +524,11 @@ export function EncounterStrip() {
                     {contractSlip.cta.label}
                   </a>
                   <p className="encounter-cta-sub">{contractSlip.ctaSub}</p>
+                  {beat === "exit" ? (
+                    <p className="encounter-walkthrough-note encounter-demo-note">
+                      {contractSlip.hints.exitWalkthrough}
+                    </p>
+                  ) : null}
                 </section>
               </div>
             </article>
