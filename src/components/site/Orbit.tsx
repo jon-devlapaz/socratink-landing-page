@@ -28,18 +28,20 @@ export function Orbit() {
       id="material"
       data-sc-act="flow"
       ref={ref}
-      className="orbit-act material-editorial content-wrap"
+      className="orbit-act w-full"
     >
-      <div className="material-copy">
-        <p className="forest-bridge">{BRIDGE}</p>
-        <SectionHeading
-          sans={orbit.titleSans}
-          serif={orbit.titleSerif}
-          align="left"
-        />
-        <DisciplineCard active={active} />
+      <div className="material-editorial content-wrap">
+        <div className="material-copy">
+          <p className="forest-bridge">{BRIDGE}</p>
+          <SectionHeading
+            sans={orbit.titleSans}
+            serif={orbit.titleSerif}
+            align="left"
+          />
+          <DisciplineCard active={active} />
+        </div>
+        <SubjectOrbit activeId={activeId} onSelect={setActiveId} />
       </div>
-      <SubjectOrbit activeId={activeId} onSelect={setActiveId} />
     </section>
   );
 }

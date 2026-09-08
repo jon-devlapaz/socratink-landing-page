@@ -580,13 +580,56 @@ textarea:disabled { cursor: not-allowed; }
   color: var(--tx);
 }
 .hero-act {
-  position: relative;
+  position: sticky;
+  top: 0;
   width: 100%;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   box-sizing: border-box;
+  z-index: 1;
+  background: var(--paper);
+}
+
+#material {
+  position: relative;
+  z-index: 20;
+  background: var(--paper);
+  border-top: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
+  box-shadow: 0 -20px 48px -12px rgba(0, 0, 0, 0.08);
+}
+
+#memory {
+  position: relative;
+  z-index: 30;
+  background: var(--paper);
+  border-top: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
+  box-shadow: 0 -20px 48px -12px rgba(0, 0, 0, 0.08);
+}
+
+#takeaway {
+  position: relative;
+  z-index: 40;
+  background: var(--paper);
+  border-top: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
+  box-shadow: 0 -20px 48px -12px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="dark"] #material,
+:root[data-theme="dark"] #memory,
+:root[data-theme="dark"] #takeaway {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -24px 48px -12px rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(255, 255, 255, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) #material,
+  :root:not([data-theme="light"]) #memory,
+  :root:not([data-theme="light"]) #takeaway {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -24px 48px -12px rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(255, 255, 255, 0.04);
+  }
 }
 
 .hero-grid {

@@ -1,4 +1,24 @@
 /* Contract-slip Encounter: single ruled slip, five beats */
+#method {
+  position: relative;
+  z-index: 10;
+  background: var(--paper);
+  border-top: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
+  box-shadow: 0 -20px 48px -12px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="dark"] #method {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -24px 48px -12px rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(255, 255, 255, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) #method {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -24px 48px -12px rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(255, 255, 255, 0.04);
+  }
+}
+
 .encounter-lead {
   height: 3rem;
   background: var(--paper);
@@ -403,7 +423,7 @@
 }
 
 .encounter-phase--exit {
-  height: 88vh;
+  height: 100vh;
 }
 
 @media (max-width: 640px) {
