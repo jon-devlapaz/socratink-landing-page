@@ -107,7 +107,7 @@ export function EncounterStrip() {
     const claimCount = contractSlip.claims.length;
     const landStagger = reduced ? 80 : 420;
     const landLead = reduced ? 0 : 220;
-    const dismissPause = reduced ? 100 : 360;
+    const overlapHold = reduced ? 80 : 250;
     const nonInfStagger = reduced ? 50 : 160;
 
     contractSlip.claims.forEach((_, i) => {
@@ -118,15 +118,19 @@ export function EncounterStrip() {
     });
 
     const lastLand = landLead + (claimCount - 1) * landStagger;
+
     window.setTimeout(() => {
-      setClaimsDismissed(true);
       setShowNonInferences(true);
       contractSlip.nonInferences.forEach((_, i) => {
         window.setTimeout(() => {
           setRevealedNonInferences((n) => Math.max(n, i + 1));
         }, i * nonInfStagger);
       });
-    }, lastLand + dismissPause);
+    }, lastLand);
+
+    window.setTimeout(() => {
+      setClaimsDismissed(true);
+    }, lastLand + overlapHold);
   }, [cancelBoundSchedule, reduced]);
 
   const scheduleBoundRefusal = useCallback(() => {
