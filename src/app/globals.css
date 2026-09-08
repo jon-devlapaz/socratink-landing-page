@@ -215,14 +215,15 @@ body::after {
 }
 
 /*
-  The ink sphere (WebGL, ported from the app). The canvas is transparent; the
-  soft halo below sells the "ink on paper" depth on cream paper.
+  The ink sphere (WebGL, ported from the app). The canvas is transparent.
+  Do not use filter: drop-shadow on this square container — it composites a
+  visible rectangular halo against cream paper (#fffcf0). Depth is sold by the
+  shader lighting plus .hero-subject::before below.
 */
 .sphere {
   position: relative;
   flex: none;
   --orb-visual-radius: 29.55%;
-  filter: drop-shadow(0 0 20px rgba(16, 15, 15, 0.08)) drop-shadow(0 24px 48px rgba(16, 15, 15, 0.12));
 }
 /* Wordmark asset is ink on transparent — reads natively on cream paper. */
 .wordmark-img {
@@ -461,7 +462,25 @@ textarea:disabled { cursor: not-allowed; }
 .hero-copy p.hero-trust { max-width: 44ch; margin: 0.75rem 0 0; font-size: 0.75rem; line-height: 1.45; color: var(--tx-2); letter-spacing: 0.01em; }
 .hero-scene { min-width: 0; }
 .hero-subject { position: relative; height: 25rem; overflow: clip; }
-.hero-subject .sphere { position: absolute; left: 50%; top: 50%; translate: -50% -50%; }
+.hero-subject::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: min(22rem, 78%);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    circle at 50% 52%,
+    rgba(16, 15, 15, 0.1) 0%,
+    rgba(16, 15, 15, 0.04) 42%,
+    transparent 68%
+  );
+}
+.hero-subject .sphere { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 1; }
 .hero-scene figcaption { text-align: center; font-size: 0.875rem; color: var(--tx-2); margin-top: 1rem; }
 .paper-label { display: block; font-size: 0.75rem; color: var(--tx-2); letter-spacing: 0.06em; }
 @media (prefers-reduced-motion: no-preference) {
