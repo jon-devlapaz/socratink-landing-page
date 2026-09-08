@@ -22,7 +22,6 @@
   };
   var ghostCopy = document.getElementById("ghostCopy");
   var ghostVoid = document.getElementById("ghostVoid");
-  var stamp = document.getElementById("stamp");
   var ghostHint = document.getElementById("ghostHint");
   var demoBadge = document.getElementById("demoBadge");
   var inkHint = document.getElementById("inkHint");
@@ -199,12 +198,7 @@
 
     ghostVoid.style.opacity = String(g > 0.5 ? Math.min(1, (g - 0.5) / 0.35) : 0);
 
-    var stampP = g >= 0.9 ? Math.min(1, (g - 0.9) / 0.1) : 0;
-    stamp.style.opacity = String(stampP * 0.85);
-    var overshoot = stampP < 1 ? 0.72 + stampP * 0.4 : 1.0;
-    stamp.style.transform = "translate(-50%, -50%) rotate(-13deg) scale(" + overshoot + ")";
-
-    if (g >= 0.9) ghostHint.textContent = "The help is gone. You generated none of it.";
+    if (g >= 0.88) ghostHint.textContent = "The help is gone. You generated none of it.";
     else if (g > 0.35) ghostHint.textContent = "Assisted text is leaving.";
     else ghostHint.textContent = "Assisted text arrives. Keep scrolling.";
   }

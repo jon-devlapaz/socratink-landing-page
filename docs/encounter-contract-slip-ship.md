@@ -8,7 +8,7 @@
 
 ## Decision
 
-Replace production Encounter’s dense two-plane Cold Ledger with a **single-slip Contract spine**: one question, one ruled slip, five beats. Ghost pays **Cost** (assisted fluency erased). **Bound** is the climax — claims try to land, refuse in place, durable NON-INFERENCES remain in the DOM. Ghost stamp is Cost ornament only; if Bound loses “first remembered” to the stamp, **cut the stamp** — do not add Bound chrome to compete.
+Replace production Encounter’s dense two-plane Cold Ledger with a **single-slip Contract spine**: one question, one ruled slip, five beats. Ghost pays **Cost** (assisted fluency erased to void + provenance hint). **Bound** is the climax — claims try to land, refuse in place, durable NON-INFERENCES remain in the DOM. ~~Ghost stamp~~ **Cut** (Jobs §10.1 FAIL, tip `b165141`): stamp won “first remembered” over Bound — removed entirely; do not add Bound chrome to compete.
 
 Production `EncounterStrip` / Method fold port is **out of scope** until Delta A clears §10.1–4 on the spike.
 
@@ -19,7 +19,7 @@ Production `EncounterStrip` / Method fold port is **out of scope** until Delta A
 | Beat | Panel | Job |
 |------|-------|-----|
 | **1 · Cold** | `cold` | One question, ruled void. Evidence begins when you attempt. |
-| **2 · Ghost Cost** | `ghost` | Assisted text arrives, scatters, voids. Stamp = Cost ornament after emptiness. Irreversible once paid. |
+| **2 · Ghost Cost** | `ghost` | Assisted text arrives, scatters, voids. Provenance hint only — **no stamp**. Irreversible once paid. |
 | **3 · Ink** | `ink` | Visitor sentence **or** labeled Sample Trace **or** refuse (`I don't know yet.`). No hidden-badge Maya / persona clock-typing. |
 | **4 · Bound climax** | `contract` | Claims land → ✕ refuse. Underlined ink + condition line. **NON-INFERENCES** as durable readable DOM (not animation-only). |
 | **5 · Exit** | `exit` | Bounded observation; CTA handoff. NON-INFERENCES remain in DOM for sensors. |
@@ -31,7 +31,7 @@ Production `EncounterStrip` / Method fold port is **out of scope** until Delta A
 | Ref | Gate |
 |-----|------|
 | **DEC-0003** | Product language must not exceed available evidence. Bound shows explicit non-claims. No mastery %, no Capability Horizon table on spike climax. |
-| **EVD-0004** | Contract climax = Bound refusal + NON-INFERENCES list. Wow budget on Bound, not Ghost stamp. |
+| **EVD-0004** | Contract climax = Bound refusal + NON-INFERENCES list. Wow budget on Bound only. |
 | **EVD-0001** | Visitor ink is first-class (`typed` or `refuse`). Refuse is productive absence, not soft exit. |
 | **EVD-0002** | Sample Trace badged immediately and for entire sample duration — never masquerades as visitor evidence. |
 
@@ -43,7 +43,7 @@ Production `EncounterStrip` / Method fold port is **out of scope** until Delta A
 - Capability Horizon table / mastery % / boolean companion as competing climax
 - Hidden demo badge / clock-typed persona ink
 - Target · Observed · Bounded inference brochure card stack
-- Stamp winning “first remembered” over Bound (→ cut stamp)
+- Ghost stamp / “AI fluency ≠ your memory” (cut per Jobs §10.1)
 - Scroll deadlock / force-reset gates
 - Internal DEC-/EVD- codes in customer HTML
 
@@ -53,7 +53,7 @@ Production `EncounterStrip` / Method fold port is **out of scope** until Delta A
 
 1. Serve spike: `cd scrollcraft/builds/socratink-contract-slip && python3 serve.py`
 2. Cold scroll (or `node verify-bound.mjs` from repo root)
-3. Ghost Cost irreversible; stamp ≤ ornament
+3. Ghost Cost irreversible; void + provenance hint only (stamp removed)
 4. Ink: typed **or** Sample Trace (badge on) **or** refuse
 5. Bound: claims land → refuse; `[data-non-inference]` nodes with “Does not establish …” copy
 6. Exit: CTA; DOM still contains ≥1 readable NON-INFERENCE string
@@ -76,7 +76,7 @@ Automated gate: `node scrollcraft/builds/socratink-contract-slip/verify-bound.mj
 ## Falsifiers §10 (stranger cold-scroll)
 
 ### §10.1 · Bound wins first remembered
-Stranger who scrolls to Bound remembers **claim refusal** (land → ✕), not Ghost stamp alone. If stamp dominates recall, cut stamp — do not inflate Bound chrome.
+Stranger who scrolls to Bound remembers **claim refusal** (land → ✕), not Ghost ornament. **Applied:** Ghost stamp cut entirely on `:4502` after Jobs taste gate FAIL (Comp 3.7 / Wow 3.0; stamp dominated recall).
 
 ### §10.2 · Sample Trace honesty
 Any sample ink path shows **Sample Trace · not your evidence** badge for the full duration sample is on the slip (ink + contract). No hidden demo / persona typing.
@@ -92,7 +92,7 @@ After Bound plays, DOM contains ≥1 readable NON-INFERENCE string (e.g. “Does
 ## Amendments (locked)
 
 1. **Delta A hard gate** before EncounterStrip port — §10.1–4 must pass on `:4502`.
-2. **Cut stamp** if it wins first remembered over Bound.
+2. **Cut stamp** — done on spike after §10.1 FAIL; no replacement ornament.
 3. **Instrument readable NON-INFERENCES** in DOM after Bound (`#nonInferenceList`, `[data-non-inference]`).
 4. **Keep refuse-as-ink** — `kind: refuse`, first-class button, contract display.
 5. **Delta C Memory hygiene** ships in same PR as later EncounterStrip port — note only; **not implemented in Delta A PR**.
