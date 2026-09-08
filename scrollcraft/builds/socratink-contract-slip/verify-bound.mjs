@@ -24,14 +24,13 @@ function pass(msg) {
 }
 
 async function scrollFraction(page, fraction) {
-  const travel = await page.evaluate(
-    () => document.getElementById("pinWrap").offsetHeight - innerHeight,
-  );
-  await page.evaluate(
-    ({ travel, fraction }) => window.scrollTo(0, travel * fraction),
-    { travel, fraction },
-  );
-  await page.waitForTimeout(350);
+  await page.evaluate((fraction) => {
+    const pin = document.getElementById("pinWrap");
+    const travel = pin.offsetHeight - innerHeight;
+    window.scrollTo(0, travel * fraction);
+    if (typeof ScrollTrigger !== "undefined") ScrollTrigger.update();
+  }, fraction);
+  await page.waitForTimeout(400);
 }
 
 async function waitForNonInferences(page) {
@@ -75,11 +74,21 @@ async function assertClaimsRefused(page, label) {
   pass(`${label}: Bound claim refusal played (${refused} stamps)`);
 }
 
-async function driveToBound(page) {
-  await scrollFraction(page, 0.45);
-  await scrollFraction(page, 0.72);
+async function waitForBoundComplete(page) {
+  await page.waitForFunction(
+    () => document.querySelector(".panel.is-live")?.dataset.panel === "contract",
+    { timeout: 8000 },
+  );
   await waitForNonInferences(page);
-  await page.waitForTimeout(400);
+  await page.waitForFunction(
+    () => document.querySelectorAll(".claim-stamp.is-refused").length >= 3,
+    { timeout: 8000 },
+  );
+}
+
+async function driveToBound(page) {
+  await scrollFraction(page, 0.72);
+  await waitForBoundComplete(page);
 }
 
 async function testSamplePath(page) {

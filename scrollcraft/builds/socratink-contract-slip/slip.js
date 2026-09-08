@@ -123,12 +123,28 @@
     clearNonInferences();
   }
 
+  function cancelBoundSchedule() {
+    if (!boundTimer) return;
+    clearTimeout(boundTimer);
+    boundTimer = null;
+  }
+
+  function scheduleBoundRefusal() {
+    if (boundPlayed || boundTimer) return;
+    boundTimer = setTimeout(function () {
+      boundTimer = null;
+      playBoundRefusal();
+    }, reduced ? 60 : 120);
+  }
+
   function playBoundRefusal() {
     if (!claimLayer || boundPlayed) return;
     boundPlayed = true;
+    cancelBoundSchedule();
     clearClaims();
     claimLayer.classList.add("is-hot");
     paintContractMeta();
+    renderNonInferences();
 
     CLAIMS.forEach(function (text, i) {
       var el = document.createElement("div");
@@ -143,14 +159,10 @@
           el.classList.add("is-landed");
           setTimeout(function () {
             el.classList.add("is-refused");
-            if (i === CLAIMS.length - 1) renderNonInferences();
           }, refuseDelay);
         }, landDelay);
       });
     });
-    if (reduced) {
-      setTimeout(renderNonInferences, CLAIMS.length * 80 + 120);
-    }
   }
 
   function setGhostProgress(raw) {
@@ -236,13 +248,13 @@
       setBadge(true, "Sample Trace · not your evidence");
     }
     paintContractMeta();
-    if (boundTimer) clearTimeout(boundTimer);
-    boundTimer = setTimeout(playBoundRefusal, reduced ? 60 : 120);
+    scheduleBoundRefusal();
   }
 
   function onProgress(p) {
     if (p < 0.08) {
       boundPlayed = false;
+      cancelBoundSchedule();
       clearClaims();
       ink = null;
       show("cold");
@@ -254,6 +266,7 @@
     } else if (p < 0.34) {
       if (scene === "contract" || scene === "exit") {
         boundPlayed = false;
+        cancelBoundSchedule();
         clearClaims();
       }
       show("ghost");
