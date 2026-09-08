@@ -16,12 +16,57 @@
   --tx-3: #878580;
   --accent: #24837b;
   --accent-deep: #24837b;
+  --accent-ink: #fffcf0;
   --error: #d14d41;
   --ink: var(--tx);
+  --path: color-mix(in srgb, var(--tx) 6%, var(--paper));
+  --path-hover: color-mix(in srgb, var(--tx) 10%, var(--paper));
+  --wordmark-filter: none;
   --mark-fill: radial-gradient(circle at 62% 72%, #100f0f 0%, #282726 42%, #575653 100%);
   --ease-out: ease-out;
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   color-scheme: light;
+}
+
+/* Dark tokens — mirrors app `[data-theme="dark"]` and system fallback. */
+:root[data-theme="dark"] {
+  --paper: #100f0f;
+  --paper-2: #1c1b1a;
+  --ui: #282726;
+  --ui-2: #343331;
+  --ui-3: #403e3c;
+  --tx: #cecdc3;
+  --tx-2: #aaa69e;
+  --tx-3: #575653;
+  --accent: #3aa99f;
+  --accent-deep: #24837b;
+  --accent-ink: #fffcf0;
+  --path: #2827268c;
+  --path-hover: #343331b8;
+  --wordmark-filter: invert(1);
+  --mark-fill: radial-gradient(circle at 62% 72%, #cecdc3 0%, #b7b5ac 42%, #878580 100%);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #100f0f;
+    --paper-2: #1c1b1a;
+    --ui: #282726;
+    --ui-2: #343331;
+    --ui-3: #403e3c;
+    --tx: #cecdc3;
+    --tx-2: #aaa69e;
+    --tx-3: #575653;
+    --accent: #3aa99f;
+    --accent-deep: #24837b;
+    --accent-ink: #fffcf0;
+    --path: #2827268c;
+    --path-hover: #343331b8;
+    --wordmark-filter: invert(1);
+    --mark-fill: radial-gradient(circle at 62% 72%, #cecdc3 0%, #b7b5ac 42%, #878580 100%);
+    color-scheme: dark;
+  }
 }
 
 @theme inline {
@@ -163,7 +208,7 @@ body::after {
     padding: 0.6rem 1rem;
     font-size: 0.8125rem;
     font-weight: 500;
-    color: #fffcf0;
+    color: var(--accent-ink);
     background: var(--accent);
     border: 1px solid color-mix(in srgb, var(--accent) 82%, #100f0f);
     box-shadow: 0 8px 24px -12px rgba(36, 131, 123, 0.35);
@@ -228,6 +273,7 @@ body::after {
 /* Wordmark asset is ink on transparent — reads natively on cream paper. */
 .wordmark-img {
   transform-origin: left center;
+  filter: var(--wordmark-filter);
   transition-property: opacity, filter;
   transition-duration: 300ms;
   transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
@@ -424,7 +470,7 @@ body::after {
   --sc-ink: var(--tx);
   --sc-ink-soft: var(--tx-2);
   --sc-accent: var(--accent);
-  --sc-accent-ink: #fffcf0;
+  --sc-accent-ink: var(--accent-ink);
   --sc-font-display: var(--font-instrument-serif), Georgia, serif;
   --sc-font-text: var(--font-inter), system-ui, sans-serif;
   --sc-section: clamp(3rem, 7vw, 6rem);
@@ -455,7 +501,7 @@ textarea:disabled { cursor: not-allowed; }
 .content-wrap { width: min(100% - var(--sc-gutter) * 2, 1100px); margin-inline: auto; }
 .hero-act { --act-p: 0; position: relative; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; gap: clamp(2rem, 5vw, 5rem); padding-block: 8rem 4rem; min-height: 100svh; box-sizing: border-box; }
 .hero-copy { position: relative; z-index: 1; min-width: 0; text-align: start; }
-.hero-wordmark { display: block; width: 15rem; height: auto; margin-bottom: 2rem; }
+.hero-wordmark { display: block; width: 15rem; height: auto; margin-bottom: 2rem; filter: var(--wordmark-filter); }
 .hero-title.notebook-display { font-size: clamp(3rem, 4.6vw, 4rem); text-wrap: initial; }
 .hero-copy p { max-width: 38ch; margin-block: 1.5rem; font-size: 1rem; line-height: 1.65; color: var(--tx-2); }
 .hero-copy p.hero-form { max-width: 42ch; margin: 0 0 1.25rem; font-size: 0.8125rem; line-height: 1.5; color: var(--tx-2); }
@@ -531,7 +577,121 @@ textarea:disabled { cursor: not-allowed; }
 
 /* Complete initial/no-script content; enhancement never owns the reading order. */
 html:not(.sc-ready) [data-sc-cue], html:not(.sc-ready) [data-sc-in] { opacity: 1; transform: none; }
-.btn-accent { color: #fffcf0; }
+.btn-accent { color: var(--accent-ink); }
+
+/* Appearance toggle — compact orb from app menu, adapted for landing nav chrome. */
+.appearance-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--tx-3);
+  font: inherit;
+  font-size: 0.5625rem;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-align: center;
+  transition-property: color, scale;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
+}
+.appearance-toggle:hover,
+.appearance-toggle:focus-visible {
+  color: var(--tx);
+  outline: none;
+}
+.appearance-toggle:hover .appearance-orb,
+.appearance-toggle:focus-visible .appearance-orb {
+  background: var(--path-hover);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--tx) 8%, transparent),
+    0 1px 2px -1px color-mix(in srgb, var(--tx) 12%, transparent);
+}
+.appearance-toggle:focus-visible .appearance-orb {
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--tx) 8%, transparent);
+}
+.appearance-toggle:active {
+  scale: 0.96;
+}
+.appearance-orb {
+  position: relative;
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.45rem;
+  box-sizing: content-box;
+  border-radius: 999px;
+  background: var(--path);
+  color: var(--tx);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tx) 6%, transparent);
+  transition-property: background, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
+}
+.appearance-toggle .theme-icon {
+  display: grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  transition-property: opacity, filter, scale;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+.appearance-toggle .theme-icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.appearance-toggle .theme-icon.is-moon {
+  position: absolute;
+  inset: 0.45rem;
+  opacity: 0;
+  filter: blur(4px);
+  scale: 0.25;
+}
+.appearance-toggle.is-night .theme-icon.is-sun {
+  opacity: 0;
+  filter: blur(4px);
+  scale: 0.25;
+}
+.appearance-toggle.is-night .theme-icon.is-moon {
+  opacity: 1;
+  filter: blur(0);
+  scale: 1;
+}
+.appearance-label {
+  display: none;
+}
+@media (min-width: 640px) {
+  .appearance-label {
+    display: block;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .appearance-toggle,
+  .appearance-toggle .theme-icon {
+    transition: none;
+  }
+  .appearance-toggle.is-night .theme-icon.is-sun,
+  .appearance-toggle .theme-icon.is-moon {
+    opacity: 0;
+    filter: none;
+    scale: none;
+  }
+  .appearance-toggle.is-night .theme-icon.is-moon,
+  .appearance-toggle:not(.is-night) .theme-icon.is-sun {
+    opacity: 1;
+    filter: none;
+    scale: none;
+  }
+}
 .sphere-poster, .sphere-render { position: absolute; inset: 0; width: 100%; height: 100%; }
 .sphere:has(canvas) .sphere-poster { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
