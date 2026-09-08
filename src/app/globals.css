@@ -452,28 +452,54 @@ main {
   outline-offset: 2px;
 }
 
-/* A portrait orbit keeps every subject readable instead of shrinking desktop. */
-.orbit-phone { position: relative; width: min(100%, 28rem); height: 30rem; }
-.orbit-phone-track, .orbit-phone-inner {
-  position: absolute; border: 1px dashed color-mix(in srgb, var(--tx) 18%, transparent);
-  border-radius: 50%; pointer-events: none;
-}
-.orbit-phone-track { inset: 1.5rem 3rem; }
-.orbit-phone-inner { inset: 7.5rem 5rem; border-style: solid; opacity: 0.5; }
-.orbit-phone-label-slot {
-  position: absolute; transform: translate(-50%, -50%);
-}
-.orbit-phone-label {
+/* Orbiting Circles layout for Socratink syllabus */
+.orbit-phone {
   position: relative;
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 6.5rem; min-width: min-content; min-height: 2.75rem;
-  padding: 0.5rem 0.625rem; margin: 0; border: 1px solid transparent;
-  border-radius: 0.25rem; text-align: center; cursor: pointer;
-  font: inherit; font-size: 0.75rem; line-height: 1.3; color: inherit;
-  background: var(--paper-2); box-shadow: 0 8px 20px -12px rgba(16, 15, 15, 0.1);
-  transition: border-color 150ms ease, color 150ms ease, background-color 150ms ease;
+  width: min(100%, 25rem);
+  height: 25rem;
+  margin-inline: auto;
 }
-.orbit-phone-label::before {
+
+@keyframes orbit {
+  0% {
+    transform: translate(-50%, -50%) rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--radius) * -1px)) rotate(calc(var(--angle) * -1deg));
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(calc(var(--angle) * 1deg + 360deg)) translateY(calc(var(--radius) * -1px)) rotate(calc(var(--angle) * -1deg - 360deg));
+  }
+}
+
+.orbit-node-pill {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.75rem;
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--tx) 15%, transparent);
+  border-radius: 9999px;
+  text-align: center;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: var(--tx-2);
+  background: var(--paper-2);
+  box-shadow: 0 4px 16px -6px rgba(16, 15, 15, 0.15);
+  white-space: nowrap;
+  animation: orbit var(--duration) linear infinite;
+  transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  z-index: 20;
+}
+
+.orbit-node-pill.is-reverse {
+  animation-direction: reverse;
+}
+
+.orbit-node-pill::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -484,27 +510,36 @@ main {
   width: 100%;
   height: 100%;
 }
-.orbit-phone-label.is-active,
-.orbit-phone-label[aria-selected="true"] {
-  color: var(--tx); border-color: color-mix(in srgb, var(--accent) 70%, transparent);
-  background: color-mix(in srgb, var(--paper-2) 85%, var(--accent));
+
+.orbit-node-pill.is-active,
+.orbit-node-pill[aria-selected="true"] {
+  color: var(--tx);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--paper-2) 80%, var(--accent) 20%);
+  box-shadow: 0 0 16px -2px color-mix(in srgb, var(--accent) 45%, transparent);
+  font-weight: 600;
+  z-index: 30;
 }
+
 @media (hover: hover) {
-  .orbit-phone-label:hover { color: var(--tx); }
+  .orbit-container:hover .orbit-node-pill {
+    animation-play-state: paused;
+  }
+  .orbit-node-pill:hover:not(.is-active) {
+    color: var(--tx);
+    border-color: color-mix(in srgb, var(--tx) 35%, transparent);
+  }
 }
-.orbit-phone-core {
-  position: absolute; left: 50%; top: 50%; width: 3rem; height: 3rem;
-  transform: translate(-50%, -50%); border-radius: 50%; background: var(--paper-2);
-  box-shadow: 0 1px 0 oklch(1 0 0 / 0.65), 0 12px 24px -12px rgba(16, 15, 15, 0.1);
+
+.orbit-container:focus-within .orbit-node-pill {
+  animation-play-state: paused;
 }
-.orbit-phone-ink { position: absolute; inset: 1rem; border-radius: 50%; background: var(--tx); }
-.orbit-phone-satellite { position: absolute; inset: -1rem; border: 1px solid var(--ui-2); border-radius: 50%; }
-.orbit-phone-satellite::after {
-  content: ""; position: absolute; left: calc(50% - 3px); top: -3px;
-  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .orbit-phone-satellite { transform: rotate(calc(var(--act-p, 0.35) * 180deg)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-node-pill {
+    animation: none !important;
+    transform: translate(-50%, -50%) rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--radius) * -1px)) rotate(calc(var(--angle) * -1deg)) !important;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

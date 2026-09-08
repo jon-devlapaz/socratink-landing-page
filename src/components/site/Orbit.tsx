@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import {
   orbit,
@@ -48,7 +48,14 @@ export function Orbit() {
 
 function DisciplineCard({ active }: { active: OrbitDiscipline }) {
   return (
-    <figure className="material-question" aria-live="polite">
+    <figure
+      id="material-dossier"
+      role="tabpanel"
+      aria-labelledby={`orbit-tab-${active.id}`}
+      tabIndex={0}
+      className="material-question focus:outline-none"
+      aria-live="polite"
+    >
       <figcaption className="paper-label">
         Learning Target · {active.label}
       </figcaption>
@@ -70,6 +77,8 @@ function DisciplineCard({ active }: { active: OrbitDiscipline }) {
   );
 }
 
+const INNER_DISCIPLINE_IDS = new Set(["stats", "boards", "law", "analysis"]);
+
 function SubjectOrbit({
   activeId,
   onSelect,
@@ -77,43 +86,148 @@ function SubjectOrbit({
   activeId: OrbitDisciplineId;
   onSelect: (id: OrbitDisciplineId) => void;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const count = orbit.disciplines.length;
 
+  const innerDisciplines = useMemo(
+    () => orbit.disciplines.filter((d) => INNER_DISCIPLINE_IDS.has(d.id)),
+    []
+  );
+  const outerDisciplines = useMemo(
+    () => orbit.disciplines.filter((d) => !INNER_DISCIPLINE_IDS.has(d.id)),
+    []
+  );
+
+  const handleKeyDown = (e: React.KeyboardEvent, id: OrbitDisciplineId) => {
+    const currentIndex = orbit.disciplines.findIndex((d) => d.id === id);
+    let nextIndex = currentIndex;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      nextIndex = (currentIndex + 1) % count;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      nextIndex = (currentIndex - 1 + count) % count;
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      nextIndex = 0;
+    } else if (e.key === "End") {
+      e.preventDefault();
+      nextIndex = count - 1;
+    } else {
+      return;
+    }
+    const nextDiscipline = orbit.disciplines[nextIndex];
+    onSelect(nextDiscipline.id);
+    const targetButton = containerRef.current?.querySelector<HTMLButtonElement>(
+      `#orbit-tab-${nextDiscipline.id}`
+    );
+    targetButton?.focus();
+  };
+
   return (
-    <div className="orbit-phone">
-      <div className="orbit-phone-track" aria-hidden="true" />
-      <div className="orbit-phone-inner" aria-hidden="true" />
-      <div className="orbit-phone-core" aria-hidden="true">
-        <span className="orbit-phone-satellite" />
-        <span className="orbit-phone-ink" />
+    <div
+      ref={containerRef}
+      className="orbit-phone orbit-container relative flex items-center justify-center scale-85 sm:scale-100 transition-transform"
+      aria-label="Discipline selector orbit"
+    >
+      {/* Subtle Orbital Path Guides */}
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full select-none"
+        viewBox="0 0 400 400"
+        aria-hidden="true"
+      >
+        <circle
+          cx="200"
+          cy="200"
+          r="72"
+          className="stroke-tx/12 dark:stroke-tx/15"
+          strokeWidth="1"
+          strokeDasharray="4 4"
+          fill="none"
+        />
+        <circle
+          cx="200"
+          cy="200"
+          r="162"
+          className="stroke-tx/12 dark:stroke-tx/15"
+          strokeWidth="1"
+          strokeDasharray="4 4"
+          fill="none"
+        />
+      </svg>
+
+      {/* Center Ink Hub */}
+      <div
+        className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-paper-2 border border-tx/15 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.18)]"
+        aria-hidden="true"
+      >
+        <span className="h-5 w-5 rounded-full bg-tx shadow-inner" />
       </div>
-      <ul role="tablist" aria-label="Subjects for hard material">
-        {orbit.disciplines.map((discipline, i) => {
-          const angle = ((i * 360) / count - 90) * Math.PI / 180;
+
+      {/* Concentric Orbiting Discipline Tabs */}
+      <div role="tablist" aria-label="Subjects for hard material" className="contents">
+        {/* Inner Ring (4 subjects, counter-clockwise) */}
+        {innerDisciplines.map((discipline, i) => {
+          const angle = (i * 360) / innerDisciplines.length;
           const selected = discipline.id === activeId;
           return (
-            <li
+            <button
               key={discipline.id}
-              className="orbit-phone-label-slot"
-              style={{
-                left: `calc(50% + (50% - 3rem) * ${Math.cos(angle).toFixed(5)})`,
-                top: `calc(50% + (50% - 1.5rem) * ${Math.sin(angle).toFixed(5)})`,
-              }}
+              type="button"
+              role="tab"
+              id={`orbit-tab-${discipline.id}`}
+              aria-selected={selected}
+              aria-controls="material-dossier"
+              tabIndex={selected ? 0 : -1}
+              onClick={() => onSelect(discipline.id)}
+              onKeyDown={(e) => handleKeyDown(e, discipline.id)}
+              style={
+                {
+                  "--radius": 72,
+                  "--duration": "42s",
+                  "--angle": angle,
+                } as React.CSSProperties
+              }
+              className={`orbit-node-pill orbit-phone-label is-reverse tile text-tx-2${
+                selected ? " is-active" : ""
+              }`}
             >
-              <button
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                aria-controls="material"
-                className={`orbit-phone-label tile text-tx-2${selected ? " is-active" : ""}`}
-                onClick={() => onSelect(discipline.id)}
-              >
-                {discipline.label}
-              </button>
-            </li>
+              {discipline.label}
+            </button>
           );
         })}
-      </ul>
+
+        {/* Outer Ring (6 subjects, clockwise) */}
+        {outerDisciplines.map((discipline, i) => {
+          const angle = (i * 360) / outerDisciplines.length + 15;
+          const selected = discipline.id === activeId;
+          return (
+            <button
+              key={discipline.id}
+              type="button"
+              role="tab"
+              id={`orbit-tab-${discipline.id}`}
+              aria-selected={selected}
+              aria-controls="material-dossier"
+              tabIndex={selected ? 0 : -1}
+              onClick={() => onSelect(discipline.id)}
+              onKeyDown={(e) => handleKeyDown(e, discipline.id)}
+              style={
+                {
+                  "--radius": 162,
+                  "--duration": "62s",
+                  "--angle": angle,
+                } as React.CSSProperties
+              }
+              className={`orbit-node-pill orbit-phone-label tile text-tx-2${
+                selected ? " is-active" : ""
+              }`}
+            >
+              {discipline.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
