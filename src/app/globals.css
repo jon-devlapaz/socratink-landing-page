@@ -18,9 +18,12 @@
   --accent-deep: #24837b;
   --accent-ink: #fffcf0;
   --error: #d14d41;
-  --ink: var(--tx);
-  --path: color-mix(in srgb, var(--tx) 6%, var(--paper));
-  --path-hover: color-mix(in srgb, var(--tx) 10%, var(--paper));
+  --ink: #100f0f;
+  --muted: #6f6e69;
+  --path: #fffcf06b;
+  --path-hover: #fffcf0b8;
+  --shadow-border: 0 0 0 1px #100f0f14, 0 1px 2px -1px #100f0f0f, 0 2px 4px 0 #100f0f0a;
+  --shadow-border-hover: 0 0 0 1px #100f0f1f, 0 1px 2px -1px #100f0f14, 0 2px 4px 0 #100f0f0f;
   --wordmark-filter: none;
   --mark-fill: radial-gradient(circle at 62% 72%, #100f0f 0%, #282726 42%, #575653 100%);
   --ease-out: ease-out;
@@ -41,8 +44,12 @@
   --accent: #3aa99f;
   --accent-deep: #24837b;
   --accent-ink: #fffcf0;
+  --ink: #cecdc3;
+  --muted: #878580;
   --path: #2827268c;
   --path-hover: #343331b8;
+  --shadow-border: 0 0 0 1px #cecdc314, 0 1px 2px -1px #00000052, 0 2px 4px 0 #0000003d;
+  --shadow-border-hover: 0 0 0 1px #cecdc324, 0 1px 2px -1px #0006, 0 2px 4px 0 #00000047;
   --wordmark-filter: invert(1);
   --mark-fill: radial-gradient(circle at 62% 72%, #cecdc3 0%, #b7b5ac 42%, #878580 100%);
   color-scheme: dark;
@@ -61,8 +68,12 @@
     --accent: #3aa99f;
     --accent-deep: #24837b;
     --accent-ink: #fffcf0;
+    --ink: #cecdc3;
+    --muted: #878580;
     --path: #2827268c;
     --path-hover: #343331b8;
+    --shadow-border: 0 0 0 1px #cecdc314, 0 1px 2px -1px #00000052, 0 2px 4px 0 #0000003d;
+    --shadow-border-hover: 0 0 0 1px #cecdc324, 0 1px 2px -1px #0006, 0 2px 4px 0 #00000047;
     --wordmark-filter: invert(1);
     --mark-fill: radial-gradient(circle at 62% 72%, #cecdc3 0%, #b7b5ac 42%, #878580 100%);
     color-scheme: dark;
@@ -579,115 +590,122 @@ textarea:disabled { cursor: not-allowed; }
 html:not(.sc-ready) [data-sc-cue], html:not(.sc-ready) [data-sc-in] { opacity: 1; transform: none; }
 .btn-accent { color: var(--accent-ink); }
 
-/* Appearance toggle — compact orb from app menu, adapted for landing nav chrome. */
-.appearance-toggle {
+/* Appearance toggle — app menu-orbs parity, scaled ~72% for landing nav chrome. */
+.nav-appearance #appearance-toggle {
+  width: 3.2rem;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  min-width: 0;
-  min-height: 0;
+  gap: 0.3rem;
   padding: 0;
   border: 0;
+  border-radius: 0;
   background: transparent;
-  color: var(--tx-3);
+  box-shadow: none;
+  color: var(--muted);
   font: inherit;
-  font-size: 0.5625rem;
+  font-size: 0.58rem;
   line-height: 1.2;
-  letter-spacing: 0.01em;
-  cursor: pointer;
   text-align: center;
+  cursor: pointer;
   transition-property: color, scale;
   transition-duration: 150ms;
   transition-timing-function: var(--ease-out);
 }
-.appearance-toggle:hover,
-.appearance-toggle:focus-visible {
-  color: var(--tx);
+.nav-appearance #appearance-toggle:hover,
+.nav-appearance #appearance-toggle:focus-visible {
+  color: var(--ink);
+  box-shadow: none;
+  background: transparent;
   outline: none;
 }
-.appearance-toggle:hover .appearance-orb,
-.appearance-toggle:focus-visible .appearance-orb {
+.nav-appearance #appearance-toggle:hover .orb-glyph,
+.nav-appearance #appearance-toggle:focus-visible .orb-glyph {
   background: var(--path-hover);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--tx) 8%, transparent),
-    0 1px 2px -1px color-mix(in srgb, var(--tx) 12%, transparent);
+  box-shadow: var(--shadow-border-hover);
 }
-.appearance-toggle:focus-visible .appearance-orb {
+.nav-appearance #appearance-toggle:focus-visible .orb-glyph {
   box-shadow:
     0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--tx) 8%, transparent);
+    var(--shadow-border-hover);
 }
-.appearance-toggle:active {
+.nav-appearance #appearance-toggle:active {
   scale: 0.96;
 }
-.appearance-orb {
+.nav-appearance .orb-glyph {
   position: relative;
   display: block;
-  width: 2rem;
-  height: 2rem;
-  padding: 0.45rem;
+  width: 1.22rem;
+  height: 1.22rem;
+  padding: 0.62rem;
   box-sizing: content-box;
   border-radius: 999px;
   background: var(--path);
-  color: var(--tx);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tx) 6%, transparent);
+  box-shadow: var(--shadow-border);
+  color: var(--ink);
   transition-property: background, box-shadow;
   transition-duration: 150ms;
   transition-timing-function: var(--ease-out);
 }
-.appearance-toggle .theme-icon {
+.nav-appearance .theme-icon {
   display: grid;
   place-items: center;
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 1.22rem;
+  height: 1.22rem;
   transition-property: opacity, filter, scale;
   transition-duration: 300ms;
   transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
-.appearance-toggle .theme-icon svg {
-  width: 1.1rem;
-  height: 1.1rem;
+.nav-appearance .theme-icon svg {
+  width: 1.22rem;
+  height: 1.22rem;
+  box-shadow: none;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
 }
-.appearance-toggle .theme-icon.is-moon {
+.nav-appearance .theme-icon.is-moon {
+  opacity: 0;
+  filter: blur(4px);
   position: absolute;
-  inset: 0.45rem;
+  inset: 0.62rem;
+  scale: 0.25;
+}
+#appearance-toggle.is-night .theme-icon.is-sun {
   opacity: 0;
   filter: blur(4px);
   scale: 0.25;
 }
-.appearance-toggle.is-night .theme-icon.is-sun {
-  opacity: 0;
-  filter: blur(4px);
-  scale: 0.25;
-}
-.appearance-toggle.is-night .theme-icon.is-moon {
+#appearance-toggle.is-night .theme-icon.is-moon {
   opacity: 1;
   filter: blur(0);
   scale: 1;
 }
-.appearance-label {
-  display: none;
-}
-@media (min-width: 640px) {
-  .appearance-label {
-    display: block;
-  }
+#appearance-toggle:not(.is-night) .theme-icon.is-moon {
+  opacity: 0;
 }
 @media (prefers-reduced-motion: reduce) {
-  .appearance-toggle,
-  .appearance-toggle .theme-icon {
+  .nav-appearance #appearance-toggle,
+  .nav-appearance .theme-icon {
     transition: none;
   }
-  .appearance-toggle.is-night .theme-icon.is-sun,
-  .appearance-toggle .theme-icon.is-moon {
+  .nav-appearance #appearance-toggle:active {
+    scale: none;
+  }
+  #appearance-toggle.is-night .theme-icon.is-sun {
     opacity: 0;
     filter: none;
     scale: none;
   }
-  .appearance-toggle.is-night .theme-icon.is-moon,
-  .appearance-toggle:not(.is-night) .theme-icon.is-sun {
+  #appearance-toggle.is-night .theme-icon.is-moon,
+  #appearance-toggle:not(.is-night) .theme-icon.is-sun {
     opacity: 1;
+    filter: none;
+    scale: none;
+  }
+  #appearance-toggle:not(.is-night) .theme-icon.is-moon {
+    opacity: 0;
     filter: none;
     scale: none;
   }

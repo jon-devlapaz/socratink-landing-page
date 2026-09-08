@@ -22,7 +22,7 @@ export function Nav() {
             ))}
           </ul>
 
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             <AppearanceToggle />
             <Link href={nav.login.href} className="btn-ghost hidden sm:inline-flex">
               {nav.login.label}
