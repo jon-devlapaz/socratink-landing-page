@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Socratink Landing
 
-## Getting Started
+The official marketing and evidence demonstration landing site for [Socratink](https://socratink.ai).
 
-First, run the development server:
+## Tech Stack
+* **Framework**: Next.js 16 (Turbopack, App Router, React 19)
+* **Styling**: Tailwind CSS v4 + bespoke typography & scrollcraft tokens
+* **Graphics**: Three.js (Organic Ink Sphere shader canvas)
+* **Testing**: Playwright Core (headless browser smoke tests & a11y protocol audits)
+* **Package Manager**: pnpm
+
+---
+
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Start development server on :3001
 pnpm dev
-# or
-bun dev
+
+# Build for production
+pnpm build
+
+# Serve production build on :3001
+pnpm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+*(Port 3001 is default to avoid local collisions with services running on 3000).*
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architectural Guide & Invariants
 
-## Learn More
+### 1. Single Source of Truth: `src/lib/content.ts`
+All marketing copy, value propositions, syllabus learning targets, and Encounter dialogue live in [`src/lib/content.ts`](src/lib/content.ts).
+* **Rule**: UI components render copy; they do not own or hardcode text strings.
+* To add a new subject to the Orbit section, add an entry to `orbitDisciplines`.
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Page Hierarchy (`src/app/page.tsx`)
+1. **`<Nav />`**: Wordmark (with IPA pronunciation swap on hover), section anchors, and Appearance Toggle.
+2. **`<Hero />`**: Value proposition, primary CTA, and WebGL `<OrganicSphere />`.
+3. **`<EncounterStrip />` (`#method`)**: The primary interactive contract-slip spine (Cold → Ghost Cost → Ink Line → Bound Climax → Exit CTA).
+4. **`<Orbit />` (`#material`)**: 10-discipline interactive syllabus switcher with rotating satellite geometry.
+5. **`<Memory />` (`#memory`)**: Macro-loop continuity record (Accumulation Arc, Model Independence, Agency Keys).
+6. **`<FinalCta />` + `<Footer />`**: Final invitation and 3-band footer.
+7. **`<ScrollCraft />`**: Background engine coordinating scroll flow and accessibility focus.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Theme & Appearance
+* Supports **Light** (Cream Paper `#fffcf0`) and **Dark** (`#100f0f`) themes.
+* Managed via [`src/lib/theme.ts`](src/lib/theme.ts) and toggled via [`AppearanceToggle.tsx`](src/components/theme/AppearanceToggle.tsx).
+* A zero-flash boot script (`themeBootScript`) runs in `<head>` to immediately match stored preferences or system settings.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 4. Authentication Launchpad
+* Authentication lives on the product app (`https://app.socratink.ai/login`).
+* Visiting `/login` triggers a 307 redirect directly to the product app.
+* Draft auth UI and components are preserved in Git tag `auth-preview-draft` and mirrored in the `socratink` product repository.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Testing & Quality Gates
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Run these commands before opening a PR or deploying:
+
+| Command | Description |
+| :--- | :--- |
+| `pnpm run typecheck` | Validates TypeScript contracts (`tsc --noEmit`) |
+| `pnpm run lint` | ESLint checks with zero tolerance for warnings |
+| `pnpm run check` | Unified gate: runs typecheck, lint, and production build |
+| `pnpm run test:smoke` | Playwright test verifying the EncounterStrip interaction sequence |
+| `pnpm run test:a11y` | Chrome DevTools Protocol automated accessibility audit |
