@@ -590,55 +590,50 @@ textarea:disabled { cursor: not-allowed; }
 html:not(.sc-ready) [data-sc-cue], html:not(.sc-ready) [data-sc-in] { opacity: 1; transform: none; }
 .btn-accent { color: var(--accent-ink); }
 
-/* Appearance toggle — app menu-orbs parity, scaled ~72% for landing nav chrome. */
-.nav-appearance #appearance-toggle {
-  width: 3.2rem;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
+/* Appearance toggle — icon-only nav control, centered with link baseline. */
+#appearance-toggle {
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-height: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
+  border-radius: 999px;
   background: transparent;
   box-shadow: none;
-  color: var(--muted);
-  font: inherit;
-  font-size: 0.58rem;
-  line-height: 1.2;
-  text-align: center;
   cursor: pointer;
-  transition-property: color, scale;
+  transition-property: scale;
   transition-duration: 150ms;
   transition-timing-function: var(--ease-out);
 }
-.nav-appearance #appearance-toggle:hover,
-.nav-appearance #appearance-toggle:focus-visible {
-  color: var(--ink);
-  box-shadow: none;
-  background: transparent;
+#appearance-toggle:hover,
+#appearance-toggle:focus-visible {
   outline: none;
 }
-.nav-appearance #appearance-toggle:hover .orb-glyph,
-.nav-appearance #appearance-toggle:focus-visible .orb-glyph {
+#appearance-toggle:hover .orb-glyph,
+#appearance-toggle:focus-visible .orb-glyph {
   background: var(--path-hover);
   box-shadow: var(--shadow-border-hover);
 }
-.nav-appearance #appearance-toggle:focus-visible .orb-glyph {
+#appearance-toggle:focus-visible .orb-glyph {
   box-shadow:
     0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent),
     var(--shadow-border-hover);
 }
-.nav-appearance #appearance-toggle:active {
+#appearance-toggle:active {
   scale: 0.96;
 }
-.nav-appearance .orb-glyph {
+#appearance-toggle .orb-glyph {
   position: relative;
-  display: block;
-  width: 1.22rem;
-  height: 1.22rem;
-  padding: 0.62rem;
+  display: grid;
+  place-items: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  padding: 0.475rem;
   box-sizing: content-box;
   border-radius: 999px;
   background: var(--path);
@@ -648,28 +643,24 @@ html:not(.sc-ready) [data-sc-cue], html:not(.sc-ready) [data-sc-in] { opacity: 1
   transition-duration: 150ms;
   transition-timing-function: var(--ease-out);
 }
-.nav-appearance .theme-icon {
+#appearance-toggle .theme-icon {
   display: grid;
   place-items: center;
-  width: 1.22rem;
-  height: 1.22rem;
+  width: 1.05rem;
+  height: 1.05rem;
   transition-property: opacity, filter, scale;
   transition-duration: 300ms;
   transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
-.nav-appearance .theme-icon svg {
-  width: 1.22rem;
-  height: 1.22rem;
-  box-shadow: none;
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
+#appearance-toggle .theme-icon svg {
+  width: 1.05rem;
+  height: 1.05rem;
 }
-.nav-appearance .theme-icon.is-moon {
+#appearance-toggle .theme-icon.is-moon {
   opacity: 0;
   filter: blur(4px);
   position: absolute;
-  inset: 0.62rem;
+  inset: 0.475rem;
   scale: 0.25;
 }
 #appearance-toggle.is-night .theme-icon.is-sun {
@@ -686,11 +677,11 @@ html:not(.sc-ready) [data-sc-cue], html:not(.sc-ready) [data-sc-in] { opacity: 1
   opacity: 0;
 }
 @media (prefers-reduced-motion: reduce) {
-  .nav-appearance #appearance-toggle,
-  .nav-appearance .theme-icon {
+  #appearance-toggle,
+  #appearance-toggle .theme-icon {
     transition: none;
   }
-  .nav-appearance #appearance-toggle:active {
+  #appearance-toggle:active {
     scale: none;
   }
   #appearance-toggle.is-night .theme-icon.is-sun {
