@@ -5,6 +5,11 @@
     "Establishes cold reconstruction",
     "Establishes transfer to novel domains"
   ];
+  var NON_INFERENCES = [
+    "Does not establish durable retention",
+    "Does not establish unprompted reconstruction",
+    "Does not establish transfer to novel domains"
+  ];
   var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   gsap.registerPlugin(ScrollTrigger);
 
@@ -17,7 +22,6 @@
   };
   var ghostCopy = document.getElementById("ghostCopy");
   var ghostVoid = document.getElementById("ghostVoid");
-  var stamp = document.getElementById("stamp");
   var ghostHint = document.getElementById("ghostHint");
   var demoBadge = document.getElementById("demoBadge");
   var inkHint = document.getElementById("inkHint");
@@ -28,6 +32,7 @@
   var contractInk = document.getElementById("contractInk");
   var contractCond = document.getElementById("contractCond");
   var claimLayer = document.getElementById("claimLayer");
+  var nonInferenceList = document.getElementById("nonInferenceList");
   var caret = document.getElementById("simCaret");
 
   var ink = null;
@@ -68,10 +73,12 @@
       contractInk.textContent = "No ink on the slip.";
       contractInk.classList.add("empty");
       contractCond.textContent = "";
+      delete contractInk.dataset.inkKind;
       return;
     }
     contractInk.classList.remove("empty");
     contractInk.textContent = ink.text;
+    contractInk.dataset.inkKind = ink.kind;
     if (ink.kind === "sample") {
       contractCond.textContent = "Sample Trace · demonstration · not visitor evidence";
       setBadge(true, "Sample Trace · not your evidence");
@@ -84,18 +91,59 @@
     }
   }
 
+  function clearNonInferences() {
+    if (!nonInferenceList) return;
+    nonInferenceList.innerHTML = "";
+    nonInferenceList.hidden = true;
+    delete nonInferenceList.dataset.filled;
+  }
+
+  function renderNonInferences() {
+    if (!nonInferenceList || nonInferenceList.dataset.filled) return;
+    nonInferenceList.dataset.filled = "1";
+    nonInferenceList.hidden = false;
+    NON_INFERENCES.forEach(function (text) {
+      var li = document.createElement("li");
+      li.setAttribute("data-non-inference", "1");
+      var x = document.createElement("span");
+      x.className = "x";
+      x.setAttribute("aria-hidden", "true");
+      x.textContent = String.fromCharCode(0x2715);
+      li.appendChild(x);
+      li.appendChild(document.createTextNode(text));
+      nonInferenceList.appendChild(li);
+    });
+  }
+
   function clearClaims() {
     if (!claimLayer) return;
     claimLayer.innerHTML = "";
     claimLayer.classList.remove("is-hot");
+    clearNonInferences();
+  }
+
+  function cancelBoundSchedule() {
+    if (!boundTimer) return;
+    clearTimeout(boundTimer);
+    boundTimer = null;
+  }
+
+  function scheduleBoundRefusal() {
+    if (boundPlayed || boundTimer) return;
+    boundTimer = setTimeout(function () {
+      boundTimer = null;
+      playBoundRefusal();
+    }, reduced ? 60 : 120);
   }
 
   function playBoundRefusal() {
     if (!claimLayer || boundPlayed) return;
     boundPlayed = true;
+    cancelBoundSchedule();
     clearClaims();
     claimLayer.classList.add("is-hot");
     paintContractMeta();
+    renderNonInferences();
 
     CLAIMS.forEach(function (text, i) {
       var el = document.createElement("div");
@@ -103,14 +151,15 @@
       el.innerHTML = "<span class=\"claim-text\">" + text + "</span><span class=\"claim-x\" aria-hidden=\"true\">" + String.fromCharCode(0x2715) + "</span>";
       el.style.setProperty("--i", String(i));
       claimLayer.appendChild(el);
-      // land then refuse
+      var landDelay = reduced ? i * 80 : 220 + i * 420;
+      var refuseDelay = reduced ? 40 : 280;
       requestAnimationFrame(function () {
         setTimeout(function () {
           el.classList.add("is-landed");
           setTimeout(function () {
             el.classList.add("is-refused");
-          }, reduced ? 40 : 280);
-        }, reduced ? i * 80 : 220 + i * 420);
+          }, refuseDelay);
+        }, landDelay);
       });
     });
   }
@@ -149,12 +198,7 @@
 
     ghostVoid.style.opacity = String(g > 0.5 ? Math.min(1, (g - 0.5) / 0.35) : 0);
 
-    var stampP = g >= 0.9 ? Math.min(1, (g - 0.9) / 0.1) : 0;
-    stamp.style.opacity = String(stampP * 0.85);
-    var overshoot = stampP < 1 ? 0.72 + stampP * 0.4 : 1.0;
-    stamp.style.transform = "translate(-50%, -50%) rotate(-13deg) scale(" + overshoot + ")";
-
-    if (g >= 0.9) ghostHint.textContent = "The help is gone. You generated none of it.";
+    if (g >= 0.88) ghostHint.textContent = "The help is gone. You generated none of it.";
     else if (g > 0.35) ghostHint.textContent = "Assisted text is leaving.";
     else ghostHint.textContent = "Assisted text arrives. Keep scrolling.";
   }
@@ -198,13 +242,13 @@
       setBadge(true, "Sample Trace · not your evidence");
     }
     paintContractMeta();
-    if (boundTimer) clearTimeout(boundTimer);
-    boundTimer = setTimeout(playBoundRefusal, reduced ? 60 : 120);
+    scheduleBoundRefusal();
   }
 
   function onProgress(p) {
     if (p < 0.08) {
       boundPlayed = false;
+      cancelBoundSchedule();
       clearClaims();
       ink = null;
       show("cold");
@@ -216,6 +260,7 @@
     } else if (p < 0.34) {
       if (scene === "contract" || scene === "exit") {
         boundPlayed = false;
+        cancelBoundSchedule();
         clearClaims();
       }
       show("ghost");
