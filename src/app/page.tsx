@@ -1,3 +1,4 @@
+import { AnimatedCursor } from "@/components/ui/AnimatedCursor";
 import { EncounterStrip } from "@/components/site/EncounterStrip";
 import { FinalCta } from "@/components/site/FinalCta";
 import { ScrollCraft } from "@/components/site/ScrollCraft";
@@ -9,6 +10,7 @@ import { Orbit } from "@/components/site/Orbit";
 export default function Home() {
   return (
     <>
+      <AnimatedCursor color="58, 169, 159" innerSize={10} outerSize={10} trailingSpeed={0.7} />
       <a href="#main" className="skip-link">
         Skip to content
       </a>

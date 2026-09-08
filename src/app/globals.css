@@ -1079,3 +1079,10 @@ html:not(.sc-ready) .reveal-content { opacity: 1 !important; transform: none !im
 }
 .site-footer-cta:hover { color: var(--tx) !important; }
 .close-act .site-footer { background: transparent; }
+
+@media (pointer: fine) {
+  body.custom-cursor-active,
+  body.custom-cursor-active * {
+    cursor: none !important;
+  }
+}
