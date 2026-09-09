@@ -5,7 +5,9 @@ import { finalCta } from "@/lib/content";
 export function FinalCta() {
   return (
     <section id="takeaway" className="close-act" data-sc-act="flow" aria-labelledby="close-title">
-      <div className="close-horizon" aria-hidden="true" />
+      <div className="close-horizon-wrap" aria-hidden="true">
+        <div className="close-horizon" />
+      </div>
       <div className="content-wrap close-content">
         <h2 id="close-title" className="notebook-display">
           {finalCta.titleSans}<br />{finalCta.titleSerif}
