@@ -158,9 +158,10 @@ vec3 getDisplacedPosition(vec3 _position)
   vec3 displacedPosition = _position;
   displacedPosition += normalize(_position) * perlinStrength * uDisplacementStrength;
   if (uTendril > 0.0) {
-    float ridge = 1.0 - abs(perlin4d(vec4(_position * 3.0 + uOffset * 0.5, uTime * 0.8)));
-    float tendril = smoothstep(0.72, 1.0, ridge) * uTendril;
-    displacedPosition += normalize(_position) * tendril * 0.55;
+    // Elegant viscous fluid tension: smooth ink ripples under pressure instead of sharp alien spikes
+    float fluid = perlin4d(vec4(_position * 2.2 + uOffset * 0.35, uTime * 0.75));
+    float tension = smoothstep(-0.25, 0.85, fluid) * uTendril;
+    displacedPosition += normalize(_position) * (tension * 0.12);
   }
   return displacedPosition;
 }

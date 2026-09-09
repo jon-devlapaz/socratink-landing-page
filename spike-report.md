@@ -32,12 +32,10 @@ Procedural ridged-noise extrusion satisfies the brief with zero new 3D assets, z
 ```glsl
 // Inside getDisplacedPosition (src/lib/sphere/shaders.ts):
 if (uTendril > 0.0) {
-  // 4D Perlin noise with spatial frequency 3.0, drifting offset, and animated time
-  float ridge = 1.0 - abs(perlin4d(vec4(_position * 3.0 + uOffset * 0.5, uTime * 0.8)));
-  // High threshold isolates sharp crests/tendrils rather than uniform ballooning
-  float tendril = smoothstep(0.72, 1.0, ridge) * uTendril;
-  // Radial extrusion along vertex normal
-  displacedPosition += normalize(_position) * (tendril * 0.55);
+  // Fluid harmonic tension: smooth viscous ink ripples under pressure instead of sharp alien spikes
+  float fluid = perlin4d(vec4(_position * 2.2 + uOffset * 0.35, uTime * 0.75));
+  float tension = smoothstep(-0.25, 0.85, fluid) * uTendril;
+  displacedPosition += normalize(_position) * (tension * 0.12);
 }
 ```
 
@@ -46,10 +44,10 @@ if (uTendril > 0.0) {
 | Narrative Stage | Scroll Trigger | `uTendril` Target | Agitation (`level`) | Visual Behavior |
 | :--- | :--- | :--- | :--- | :--- |
 | **Hero / Cold** | `p < 0.08` | `0.00` | `0.00` | Calm resting ink sphere; pristine orb |
-| **Ghost Cost** | `0.08 ≤ p < 0.34` | `0.25` | `0.15` | Small tendril buds emerge across the surface |
-| **Ink Line** | `0.34 ≤ p < 0.58` | `0.50` | `0.35` | Pronounced creeping ridges, organic writhing |
-| **Bound Climax** | `0.58 ≤ p < 0.82` | `1.00` | `0.85` | **Symbiote explosion**: full 55% radial tendrils |
-| **Exit CTA** | `p ≥ 0.82` | `0.00` | `0.00` | Tendrils retract smoothly; settles to calm orb |
+| **Ghost Cost** | `0.08 ≤ p < 0.34` | `0.25` | `0.15` | Subtle surface breathing begins; fine fluid ripples |
+| **Ink Line** | `0.34 ≤ p < 0.58` | `0.50` | `0.35` | Deeper viscous bulging; palpable ink tension |
+| **Bound Climax** | `0.58 ≤ p < 0.82` | `1.00` | `0.85` | **Peak Ink Tension**: dramatic fluid folds & surface ripples |
+| **Exit CTA** | `p ≥ 0.82` | `0.00` | `0.00` | Surface relaxes back to smooth resting orb |
 
 - **Rise Easing Rate**: `18.0 / s` (rapid emergence when crossing into Bound)
 - **Settle Easing Rate**: `5.0 / s` (viscous, slow melting when relaxing)
