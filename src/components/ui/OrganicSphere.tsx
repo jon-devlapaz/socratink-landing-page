@@ -10,8 +10,6 @@ type OrganicSphereProps = {
   size: number;
   /** 0 = resting, 1 = agitated. */
   level?: number;
-  /** 0 = calm orb, 1 = full tendril emergence. */
-  tendril?: number;
   /** Render at extra resolution if the element will be scaled up by a transform. */
   oversample?: number;
   className?: string;
@@ -51,7 +49,7 @@ function sphereGround(theme: Theme): SphereGround {
  * The Socratink ink sphere, as used in the app. WebGL; falls back to a plain
  * exact rendered poster if motion is reduced or the context can't be created.
  */
-export function OrganicSphere({ size, level = 0, tendril = 0, oversample = 1, className = "" }: OrganicSphereProps) {
+export function OrganicSphere({ size, level = 0, oversample = 1, className = "" }: OrganicSphereProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const controller = useRef<OrganicSphereController | null>(null);
   const reduce = useSyncExternalStore(subscribeMotion, () => window.matchMedia(reducedMotionQuery).matches, () => true);
@@ -75,10 +73,6 @@ export function OrganicSphere({ size, level = 0, tendril = 0, oversample = 1, cl
   useEffect(() => {
     controller.current?.setLevel(level);
   }, [level]);
-
-  useEffect(() => {
-    controller.current?.setTendril(tendril);
-  }, [tendril]);
 
   useEffect(() => {
     controller.current?.setStill(Boolean(reduce));

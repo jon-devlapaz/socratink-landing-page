@@ -146,7 +146,6 @@ uniform float uDistortionStrength;
 uniform float uDisplacementFrequency;
 uniform float uDisplacementStrength;
 uniform float uTime;
-uniform float uTendril;
 varying vec3 vNormal;
 varying vec3 vWorldPosition;
 
@@ -157,12 +156,6 @@ vec3 getDisplacedPosition(vec3 _position)
   float perlinStrength = perlin4d(vec4(distoredPosition * uDisplacementFrequency + uOffset, uTime));
   vec3 displacedPosition = _position;
   displacedPosition += normalize(_position) * perlinStrength * uDisplacementStrength;
-  if (uTendril > 0.0) {
-    // Elegant viscous fluid tension: smooth ink ripples under pressure instead of sharp alien spikes
-    float fluid = perlin4d(vec4(_position * 2.2 + uOffset * 0.35, uTime * 0.75));
-    float tension = smoothstep(-0.25, 0.85, fluid) * uTendril;
-    displacedPosition += normalize(_position) * (tension * 0.12);
-  }
   return displacedPosition;
 }
 

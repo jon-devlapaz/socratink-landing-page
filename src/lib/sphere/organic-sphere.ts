@@ -47,8 +47,6 @@ const PRESETS: Record<SphereGround, Preset> = { paper: PAPER, ink: INK };
 export type OrganicSphereController = Readonly<{
   /** 0 = resting breath, 1 = fully agitated (the app maps microphone level here). */
   setLevel(level: number): void;
-  /** 0 = calm orb, 1 = full symbiote tendril emergence. */
-  setTendril(tendril: number): void;
   /** Freeze all motion (used for reduced-motion and hover-still). */
   setStill(still: boolean): void;
   destroy(): void;
@@ -113,7 +111,6 @@ export function mountOrganicSphere(
       uFresnelPower: { value: D2.fresnel.power },
       uBlackCore: { value: D2.blackCore },
       uHotRim: { value: D2.hotRim },
-      uTendril: { value: 0 },
       uTime: { value: Math.random() * 10 },
     },
   });
@@ -123,7 +120,6 @@ export function mountOrganicSphere(
   const offsetUniform = material.uniforms.uOffset!;
   const displacement = material.uniforms.uDisplacementStrength!;
   const distortion = material.uniforms.uDistortionStrength!;
-  const tendrilUniform = material.uniforms.uTendril!;
 
   const resize = () => {
     // Layout size, not the bounding rect: the mount may be under a CSS transform.
@@ -142,8 +138,6 @@ export function mountOrganicSphere(
   let previous = performance.now();
   let level = 0;
   let targetLevel = 0;
-  let tendril = 0;
-  let targetTendril = 0;
   let still = false;
   let visible = true;
   const drift = new THREE.Vector3();
@@ -158,16 +152,11 @@ export function mountOrganicSphere(
     // Rise quickly, settle slowly: the same asymmetry the app uses for voice.
     const levelEase = 1 - Math.exp(-dt * (targetLevel > level ? 18 : 5));
     level += (targetLevel - level) * levelEase;
-
-    const tendrilEase = 1 - Math.exp(-dt * (targetTendril > tendril ? 18 : 5));
-    tendril += (targetTendril - tendril) * tendrilEase;
-
     const frozen = still || mount.classList.contains("is-still");
     const motion = motionForLevel(D2, level);
     const ease = 1 - Math.exp(-dt * 10);
     displacement.value += ((frozen ? 0 : motion.displacement) - displacement.value) * ease;
     distortion.value += ((frozen ? 0 : motion.distortion) - distortion.value) * ease;
-    tendrilUniform.value += ((frozen ? 0 : tendril) - tendrilUniform.value) * ease;
     if (!frozen) {
       timeUniform.value += dt * motion.timeScale;
       const t = timeUniform.value;
@@ -203,9 +192,6 @@ export function mountOrganicSphere(
   return {
     setLevel(next) {
       targetLevel = Math.min(1, Math.max(0, next));
-    },
-    setTendril(next) {
-      targetTendril = Math.min(1, Math.max(0, next));
     },
     setStill(next) {
       still = next;
