@@ -146,34 +146,216 @@ uniform float uDistortionStrength;
 uniform float uDisplacementFrequency;
 uniform float uDisplacementStrength;
 uniform float uTime;
+uniform float uMorphFrom;
+uniform float uMorphTo;
+uniform float uMorphProgress;
+
 varying vec3 vNormal;
 varying vec3 vWorldPosition;
+varying float vIcon;
+
+float distToSegment(vec2 p, vec2 a, vec2 b) {
+  vec2 ba = b - a;
+  vec2 pa = p - a;
+  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * h);
+}
+
+// 1. Checkbox: Smooth superellipse squircle pillow tile with embossed 3D checkmark
+vec4 getCheckboxShape(vec3 p) {
+  float rXY = length(p.xy);
+  vec2 dirXY = p.xy / max(0.0001, rXY);
+  vec2 squircleDir = sign(dirXY) * pow(abs(dirXY), vec2(0.48));
+  vec2 tileXY = squircleDir * clamp(rXY * 1.15, 0.0, 0.95);
+
+  float tileZ = sign(p.z) * pow(abs(p.z), 0.55) * 0.32;
+  vec3 tile = vec3(tileXY, tileZ);
+  float iconIntensity = 0.0;
+
+  if (p.z > 0.05) {
+    vec2 a = vec2(-0.40, 0.06);
+    vec2 b = vec2(-0.12, -0.22);
+    vec2 c = vec2(0.38, 0.40);
+    float dist = min(distToSegment(tile.xy, a, b), distToSegment(tile.xy, b, c));
+    float stroke = smoothstep(0.12, 0.03, dist);
+    float ridgeBevel = smoothstep(0.04, 0.0, dist) * 0.06;
+    tile.z += stroke * 0.22 + ridgeBevel;
+    iconIntensity = stroke;
+  }
+  return vec4(tile, iconIntensity);
+}
+
+// 2. Fingerprint Tile: Concentric biometric fingerprint ridges representing unassisted human thinking
+vec4 getFingerprintShape(vec3 p) {
+  float rXY = length(p.xy);
+  vec2 dirXY = p.xy / max(0.0001, rXY);
+  vec2 squircleDir = sign(dirXY) * pow(abs(dirXY), vec2(0.48));
+  vec2 tileXY = squircleDir * clamp(rXY * 1.15, 0.0, 0.95);
+
+  float tileZ = sign(p.z) * pow(abs(p.z), 0.55) * 0.32;
+  vec3 tile = vec3(tileXY, tileZ);
+  float iconIntensity = 0.0;
+
+  if (p.z > 0.05) {
+    vec2 fp = tile.xy - vec2(0.0, -0.04);
+    fp.y *= 0.82;
+    float angle = atan(fp.y, fp.x);
+    float dist = length(fp) + sin(angle * 2.0 + fp.x * 2.5) * 0.025;
+    float mask = 1.0 - smoothstep(0.42, 0.58, length(tile.xy));
+    float wave = cos(dist * 44.0);
+    float ridges = smoothstep(-0.25, 0.75, wave) * mask;
+    float sharpBevel = pow(max(0.0, wave), 3.0) * mask * 0.05;
+    tile.z += ridges * 0.16 + sharpBevel;
+    iconIntensity = ridges;
+  }
+  return vec4(tile, iconIntensity);
+}
+
+// 3. Socratink "S" Seal: Circular medallion with embossed split "S" crest and double-rim border
+vec4 getSealShape(vec3 p) {
+  float rXY = length(p.xy);
+  vec2 circleXY = (p.xy / max(0.0001, rXY)) * clamp(rXY * 1.1, 0.0, 0.95);
+  float circleZ = sign(p.z) * pow(abs(p.z), 0.60) * 0.30;
+  vec3 medal = vec3(circleXY, circleZ);
+  float iconIntensity = 0.0;
+
+  if (p.z > 0.05) {
+    vec2 c = medal.xy;
+    float outerRim = smoothstep(0.08, 0.02, abs(length(c) - 0.74));
+    float innerRim = smoothstep(0.06, 0.015, abs(length(c) - 0.62));
+
+    float s1 = distToSegment(c, vec2(0.22, 0.38), vec2(-0.22, 0.38));
+    float s2 = distToSegment(c, vec2(-0.22, 0.38), vec2(-0.22, 0.08));
+    float s3 = distToSegment(c, vec2(-0.22, 0.08), vec2(0.22, -0.08));
+    float s4 = distToSegment(c, vec2(0.22, -0.08), vec2(0.22, -0.38));
+    float s5 = distToSegment(c, vec2(0.22, -0.38), vec2(-0.22, -0.38));
+    float sDist = min(min(min(s1, s2), min(s3, s4)), s5);
+    float sStroke = smoothstep(0.11, 0.03, sDist);
+    float sBevel = smoothstep(0.04, 0.0, sDist) * 0.07;
+
+    medal.z += outerRim * 0.16 + innerRim * 0.10 + sStroke * 0.22 + sBevel;
+    iconIntensity = max(outerRim * 0.5, sStroke);
+  }
+  return vec4(medal, iconIntensity);
+}
+
+// 4. Code Brackets: Tactile tablet with embossed < and > code chevrons
+vec4 getCodeBracketsShape(vec3 p) {
+  float rXY = length(p.xy);
+  vec2 dirXY = p.xy / max(0.0001, rXY);
+  vec2 squircleDir = sign(dirXY) * pow(abs(dirXY), vec2(0.50));
+  vec2 baseXY = squircleDir * vec2(1.15, 0.85) * clamp(rXY * 1.1, 0.0, 0.95);
+  float baseZ = sign(p.z) * pow(abs(p.z), 0.55) * 0.30;
+  vec3 tablet = vec3(baseXY, baseZ);
+  float iconIntensity = 0.0;
+
+  if (p.z > 0.05) {
+    vec2 c = tablet.xy;
+    float l1 = distToSegment(c, vec2(-0.18, 0.30), vec2(-0.46, 0.0));
+    float l2 = distToSegment(c, vec2(-0.46, 0.0), vec2(-0.18, -0.30));
+    float leftBracket = min(l1, l2);
+
+    float r1 = distToSegment(c, vec2(0.18, 0.30), vec2(0.46, 0.0));
+    float r2 = distToSegment(c, vec2(0.46, 0.0), vec2(0.18, -0.30));
+    float rightBracket = min(r1, r2);
+
+    float d = min(leftBracket, rightBracket);
+    float stroke = smoothstep(0.10, 0.03, d);
+    float bevel = smoothstep(0.035, 0.0, d) * 0.06;
+    tablet.z += stroke * 0.22 + bevel;
+    iconIntensity = stroke;
+  }
+  return vec4(tablet, iconIntensity);
+}
+
+// 5. Magnifying Glass: Circular scrutiny lens with angled 3D handle
+vec4 getMagnifyingGlassShape(vec3 p) {
+  float rXY = length(p.xy);
+  vec2 dirXY = p.xy / max(0.0001, rXY);
+  vec2 squircleDir = sign(dirXY) * pow(abs(dirXY), vec2(0.48));
+  vec2 tileXY = squircleDir * clamp(rXY * 1.15, 0.0, 0.95);
+
+  float tileZ = sign(p.z) * pow(abs(p.z), 0.55) * 0.32;
+  vec3 tile = vec3(tileXY, tileZ);
+  float iconIntensity = 0.0;
+
+  if (p.z > 0.05) {
+    vec2 c = tile.xy;
+    vec2 lensCenter = vec2(-0.10, 0.10);
+    float r = length(c - lensCenter);
+
+    float rimDist = abs(r - 0.36);
+    float rim = smoothstep(0.09, 0.02, rimDist);
+    float rimBevel = smoothstep(0.03, 0.0, rimDist) * 0.06;
+
+    float innerGlass = smoothstep(0.36, 0.0, r) * 0.10;
+
+    float handleDist = distToSegment(c, vec2(0.16, -0.16), vec2(0.50, -0.50));
+    float handle = smoothstep(0.11, 0.03, handleDist);
+    float handleBevel = smoothstep(0.035, 0.0, handleDist) * 0.06;
+
+    tile.z += rim * 0.22 + rimBevel + innerGlass + handle * 0.24 + handleBevel;
+    iconIntensity = max(rim, handle);
+  }
+  return vec4(tile, iconIntensity);
+}
+
+vec4 getShapeByIndex(float idx, vec3 p) {
+  if (idx < 0.5) return vec4(p, 0.0);              // 0: Sphere
+  if (idx < 1.5) return getCheckboxShape(p);        // 1: Checkbox
+  if (idx < 2.5) return getFingerprintShape(p);     // 2: Fingerprint
+  if (idx < 3.5) return getSealShape(p);            // 3: S-Seal
+  if (idx < 4.5) return getCodeBracketsShape(p);    // 4: Code Brackets
+  return getMagnifyingGlassShape(p);                // 5: Magnifying Glass
+}
+
+vec4 getBaseShape(vec3 p) {
+  if (uMorphFrom < 0.5 && uMorphTo < 0.5) {
+    return vec4(p, 0.0);
+  }
+
+  vec4 pFrom = getShapeByIndex(uMorphFrom, p);
+  vec4 pTo = getShapeByIndex(uMorphTo, p);
+
+  // Smooth S-curve easing for organic liquid feel
+  float t = clamp(uMorphProgress, 0.0, 1.0);
+  float ease = t * t * (3.0 - 2.0 * t);
+  return mix(pFrom, pTo, ease);
+}
 
 vec3 getDisplacedPosition(vec3 _position)
 {
-  vec3 distoredPosition = _position;
+  vec4 base = getBaseShape(_position);
+  vec3 distoredPosition = base.xyz;
   distoredPosition += perlin4d(vec4(distoredPosition * uDistortionFrequency + uOffset, uTime)) * uDistortionStrength;
   float perlinStrength = perlin4d(vec4(distoredPosition * uDisplacementFrequency + uOffset, uTime));
-  vec3 displacedPosition = _position;
-  displacedPosition += normalize(_position) * perlinStrength * uDisplacementStrength;
+  vec3 displacedPosition = base.xyz;
+  vec3 normalDir = normalize(_position);
+  displacedPosition += normalDir * perlinStrength * uDisplacementStrength;
   return displacedPosition;
 }
 
 void main()
 {
+  vec4 base = getBaseShape(position);
+  vIcon = base.w;
+
   vec3 displacedPosition = getDisplacedPosition(position);
   vec4 worldPosition = modelMatrix * vec4(displacedPosition, 1.0);
   vec4 viewPosition = viewMatrix * worldPosition;
   gl_Position = projectionMatrix * viewPosition;
 
-  float distanceA = (M_PI * 2.0) / uSubdivision.x;
-  float distanceB = M_PI / uSubdivision.x;
+  // Symmetric central differences for second-order accurate C1 finite normals
+  float epsA = (M_PI * 1.0) / uSubdivision.x;
+  float epsB = (M_PI * 0.5) / uSubdivision.x;
   vec3 biTangent = cross(normal, tangent.xyz);
-  vec3 positionA = position + tangent.xyz * distanceA;
-  vec3 displacedPositionA = getDisplacedPosition(positionA);
-  vec3 positionB = position + biTangent.xyz * distanceB;
-  vec3 displacedPositionB = getDisplacedPosition(positionB);
-  vec3 computedNormal = cross(displacedPositionA - displacedPosition.xyz, displacedPositionB - displacedPosition.xyz);
+  vec3 posA1 = position + tangent.xyz * epsA;
+  vec3 posA2 = position - tangent.xyz * epsA;
+  vec3 posB1 = position + biTangent.xyz * epsB;
+  vec3 posB2 = position - biTangent.xyz * epsB;
+  vec3 dPosA = getDisplacedPosition(posA1) - getDisplacedPosition(posA2);
+  vec3 dPosB = getDisplacedPosition(posB1) - getDisplacedPosition(posB2);
+  vec3 computedNormal = cross(dPosA, dPosB);
   vNormal = normalize(mat3(modelMatrix) * normalize(computedNormal));
   vWorldPosition = worldPosition.xyz;
 }
@@ -194,6 +376,7 @@ uniform float uHotRim;
 
 varying vec3 vNormal;
 varying vec3 vWorldPosition;
+varying float vIcon;
 
 void main()
 {
@@ -204,11 +387,34 @@ void main()
 
   float lightAIntensity = max(0.0, -dot(normal, normalize(-uLightAPosition))) * uLightAIntensity;
   float lightBIntensity = max(0.0, -dot(normal, normalize(-uLightBPosition))) * uLightBIntensity;
-  vec3 color = vec3(0.0);
-  color = mix(color, uLightAColor, lightAIntensity * fresnel);
-  color = mix(color, uLightBColor, lightBIntensity * fresnel);
-  color = mix(color, vec3(1.0), clamp(pow(max(0.0, fresnel - 0.8), 3.0), 0.0, 1.0) * uHotRim);
+  vec3 inkColor = vec3(0.0);
+  inkColor = mix(inkColor, uLightAColor, lightAIntensity * fresnel);
+  inkColor = mix(inkColor, uLightBColor, lightBIntensity * fresnel);
+  inkColor = mix(inkColor, vec3(1.0), clamp(pow(max(0.0, fresnel - 0.8), 3.0), 0.0, 1.0) * uHotRim);
   float coreKeep = mix(1.0, clamp(fresnel, 0.0, 1.0), uBlackCore);
-  gl_FragColor = vec4(color * coreKeep, 1.0);
+  vec3 bodyColor = inkColor * coreKeep;
+
+  // Surfaced embossed icon in radiant white / warm porcelain
+  // Pops cleanly off the deep black ink body with 3D diffuse & specular lighting
+  float iconMask = clamp(vIcon, 0.0, 1.0);
+  if (iconMask > 0.001) {
+    vec3 lightDir = normalize(-uLightBPosition);
+    float NdotL = max(0.0, dot(normal, lightDir));
+    // Soft ambient wrap + direct illumination
+    float diffuse = 0.60 + 0.40 * NdotL;
+    
+    // Crisp specular glint on the icon surface
+    vec3 halfVec = normalize(lightDir - viewDirection);
+    float spec = pow(max(0.0, dot(normal, halfVec)), 24.0) * 0.5;
+
+    // Luminous warm-white porcelain tone matching Socratink branding
+    vec3 iconBase = vec3(0.97, 0.96, 0.94);
+    vec3 iconShaded = iconBase * diffuse + vec3(1.0) * spec;
+
+    // Blend onto the ink body smoothly
+    bodyColor = mix(bodyColor, iconShaded, iconMask * 0.95);
+  }
+
+  gl_FragColor = vec4(bodyColor, 1.0);
 }
 `;
