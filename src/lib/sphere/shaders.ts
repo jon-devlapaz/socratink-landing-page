@@ -146,6 +146,7 @@ uniform float uDistortionStrength;
 uniform float uDisplacementFrequency;
 uniform float uDisplacementStrength;
 uniform float uTime;
+uniform float uTendril;
 varying vec3 vNormal;
 varying vec3 vWorldPosition;
 
@@ -156,6 +157,11 @@ vec3 getDisplacedPosition(vec3 _position)
   float perlinStrength = perlin4d(vec4(distoredPosition * uDisplacementFrequency + uOffset, uTime));
   vec3 displacedPosition = _position;
   displacedPosition += normalize(_position) * perlinStrength * uDisplacementStrength;
+  if (uTendril > 0.0) {
+    float ridge = 1.0 - abs(perlin4d(vec4(_position * 3.0 + uOffset * 0.5, uTime * 0.8)));
+    float tendril = smoothstep(0.72, 1.0, ridge) * uTendril;
+    displacedPosition += normalize(_position) * tendril * 0.55;
+  }
   return displacedPosition;
 }
 

@@ -16,96 +16,88 @@ function getFinePointerServerSnapshot() {
   return false;
 }
 
-interface AnimatedCursorProps {
-  /** RGB triplet string, e.g. "58, 169, 159" (Socratink Teal) or "237, 17, 100" (Subzero Magenta) */
-  color?: string;
-  /** RGB triplet string when hovering over accent/teal buttons, e.g. "255, 252, 240" (Flexoki Creme) */
-  cremeColor?: string;
-  innerSize?: number;
-  outerSize?: number;
-  innerScale?: number;
-  outerScale?: number;
-  trailingSpeed?: number;
-}
+/**
+ * Authentic Socratink Smooth Cursor, ported from app.socratink.ai.
+ * - In neutral space: organic ink orb matching brand mark (var(--mark-fill)).
+ * - Over text / typography: morphs into an elegant vertical ink caret (1.5px x 18px).
+ * - Over clickable actions: morphs into a responsive ring.
+ */
+export function AnimatedCursor() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const orbRef = useRef<HTMLDivElement>(null);
+  const caretRef = useRef<HTMLDivElement>(null);
 
-export function AnimatedCursor({
-  color = "58, 169, 159", // Default to Socratink Teal
-  cremeColor = "255, 252, 240", // Flexoki Creme / Paper
-  innerSize = 10,
-  outerSize = 10,
-  innerScale = 0.7,
-  outerScale = 3.2,
-  trailingSpeed = 0.7,
-}: AnimatedCursorProps) {
-  const cursorOuterRef = useRef<HTMLDivElement>(null);
-  const cursorInnerRef = useRef<HTMLDivElement>(null);
-
-  const [isActive, setIsActive] = useState(false);
-  const [isActiveClickable, setIsActiveClickable] = useState(false);
-  const [isOverAccent, setIsOverAccent] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-
-  const isClickableRef = useRef(false);
-  const isOverAccentRef = useRef(false);
 
   const isFinePointer = useSyncExternalStore(
     subscribeFinePointer,
     getFinePointerSnapshot,
-    getFinePointerServerSnapshot
+    getFinePointerServerSnapshot,
   );
 
-  const endX = useRef(0);
-  const endY = useRef(0);
   const cursorX = useRef(0);
   const cursorY = useRef(0);
+  const endX = useRef(0);
+  const endY = useRef(0);
+
+  const targetStateRef = useRef<"default" | "text" | "clickable">("default");
 
   useEffect(() => {
     if (!isFinePointer) return;
 
-    // Apply cursor: none to body while active
     document.body.classList.add("custom-cursor-active");
 
-    const checkClickable = (target: HTMLElement | null) => {
-      if (!target) return false;
-      return Boolean(
-        target.closest(
-          'a, button, [role="button"], input, select, textarea, label, [data-cursor-hover], .clickable'
-        )
-      );
-    };
+    const checkState = (target: HTMLElement | null): "default" | "text" | "clickable" => {
+      if (!target) return "default";
 
-    const checkAccentTarget = (target: HTMLElement | null) => {
-      if (!target) return false;
-      // Fast path: explicit class or attribute
+      // 1. Check clickable first
       if (
         target.closest(
-          '.btn-accent, .encounter-cta, .bg-accent, [data-cursor-creme], [data-cursor="creme"], [data-cursor="cream"]'
+          'a, button, [role="button"], [data-cursor="clickable"], .btn-primary, .btn-accent, .btn-ghost',
         )
       ) {
-        return true;
+        return "clickable";
       }
-      // Check if inside a button/anchor with teal background
-      const btn = target.closest('a, button, [role="button"]');
-      if (btn) {
-        const bg = window.getComputedStyle(btn).backgroundColor;
-        if (bg.includes("36, 131, 123") || bg.includes("58, 169, 159")) {
-          return true;
-        }
+
+      // 2. Check text elements
+      if (
+        target.closest(
+          'h1, h2, h3, h4, h5, h6, p, blockquote, figcaption, input, textarea, [data-cursor="text"], .notebook-display, .hero-title, .hero-trust, .encounter-q',
+        )
+      ) {
+        return "text";
       }
-      return false;
+
+      return "default";
     };
 
-    const updateTargets = (target: HTMLElement | null) => {
-      const clickable = checkClickable(target);
-      if (clickable !== isClickableRef.current) {
-        isClickableRef.current = clickable;
-        setIsActiveClickable(clickable);
-      }
+    const applyState = (state: "default" | "text" | "clickable", activePress = false) => {
+      if (!orbRef.current || !caretRef.current) return;
 
-      const accent = checkAccentTarget(target);
-      if (accent !== isOverAccentRef.current) {
-        isOverAccentRef.current = accent;
-        setIsOverAccent(accent);
+      if (state === "text") {
+        orbRef.current.style.opacity = "0";
+        orbRef.current.style.transform = "translate(-50%, -50%) scale(0.25)";
+        orbRef.current.style.filter = "blur(4px)";
+
+        caretRef.current.style.opacity = "1";
+        caretRef.current.style.transform = `translate(-50%, -50%) scale(${activePress ? 0.9 : 1})`;
+        caretRef.current.style.filter = "none";
+      } else if (state === "clickable") {
+        orbRef.current.style.opacity = "1";
+        orbRef.current.style.transform = `translate(-50%, -50%) scale(${activePress ? 1.3 : 1.6})`;
+        orbRef.current.style.filter = "none";
+
+        caretRef.current.style.opacity = "0";
+        caretRef.current.style.transform = "translate(-50%, -50%) scale(0.25)";
+        caretRef.current.style.filter = "blur(4px)";
+      } else {
+        orbRef.current.style.opacity = "1";
+        orbRef.current.style.transform = `translate(-50%, -50%) scale(${activePress ? 0.85 : 1})`;
+        orbRef.current.style.filter = "none";
+
+        caretRef.current.style.opacity = "0";
+        caretRef.current.style.transform = "translate(-50%, -50%) scale(0.25)";
+        caretRef.current.style.filter = "blur(4px)";
       }
     };
 
@@ -115,52 +107,37 @@ export function AnimatedCursor({
 
       if (!isVisible) setIsVisible(true);
 
-      if (cursorInnerRef.current) {
-        cursorInnerRef.current.style.top = `${e.clientY}px`;
-        cursorInnerRef.current.style.left = `${e.clientX}px`;
+      const nextState = checkState(e.target as HTMLElement);
+      if (nextState !== targetStateRef.current) {
+        targetStateRef.current = nextState;
+        applyState(nextState);
       }
-
-      updateTargets(e.target as HTMLElement);
     };
 
-    const onMouseDown = () => setIsActive(true);
-    const onMouseUp = () => setIsActive(false);
+    const onMouseDown = () => applyState(targetStateRef.current, true);
+    const onMouseUp = () => applyState(targetStateRef.current, false);
 
-    const onMouseLeave = () => {
-      isClickableRef.current = false;
-      isOverAccentRef.current = false;
-      setIsActiveClickable(false);
-      setIsOverAccent(false);
-      setIsVisible(false);
-    };
-
+    const onMouseLeave = () => setIsVisible(false);
     const onMouseEnter = () => setIsVisible(true);
-
-    const onMouseOver = (e: MouseEvent) => {
-      updateTargets(e.target as HTMLElement);
-    };
 
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     window.addEventListener("mousedown", onMouseDown, { passive: true });
     window.addEventListener("mouseup", onMouseUp, { passive: true });
     document.addEventListener("mouseleave", onMouseLeave);
     document.addEventListener("mouseenter", onMouseEnter);
-    document.addEventListener("mouseover", onMouseOver, { passive: true });
 
-    // rAF loop for smooth lerp trailing on outer circle (trailingSpeed: 0.7)
-    let animationFrameId: number;
+    let rafId: number;
     const render = () => {
-      cursorX.current += (endX.current - cursorX.current) * trailingSpeed;
-      cursorY.current += (endY.current - cursorY.current) * trailingSpeed;
+      cursorX.current += (endX.current - cursorX.current) * 0.85;
+      cursorY.current += (endY.current - cursorY.current) * 0.85;
 
-      if (cursorOuterRef.current) {
-        cursorOuterRef.current.style.top = `${cursorY.current}px`;
-        cursorOuterRef.current.style.left = `${cursorX.current}px`;
+      if (containerRef.current) {
+        containerRef.current.style.transform = `translate3d(${cursorX.current}px, ${cursorY.current}px, 0)`;
       }
 
-      animationFrameId = requestAnimationFrame(render);
+      rafId = requestAnimationFrame(render);
     };
-    animationFrameId = requestAnimationFrame(render);
+    rafId = requestAnimationFrame(render);
 
     return () => {
       document.body.classList.remove("custom-cursor-active");
@@ -169,68 +146,67 @@ export function AnimatedCursor({
       window.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mouseleave", onMouseLeave);
       document.removeEventListener("mouseenter", onMouseEnter);
-      document.removeEventListener("mouseover", onMouseOver);
-      cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(rafId);
     };
-  }, [isFinePointer, isVisible, trailingSpeed]);
+  }, [isFinePointer, isVisible]);
 
   if (!isFinePointer) return null;
 
-  const activeColor = isOverAccent ? cremeColor : color;
-
   return (
-    <>
-      {/* Outer Halo / Follower (matches Subzero lerp) */}
+    <div
+      ref={containerRef}
+      aria-hidden="true"
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "20px",
+        height: "20px",
+        pointerEvents: "none",
+        zIndex: 999999,
+        opacity: isVisible ? 1 : 0,
+        transition: "opacity 0.15s ease-out",
+        willChange: "transform",
+      }}
+    >
+      {/* Signature Organic Ink Orb (app.socratink.ai parity) */}
       <div
-        ref={cursorOuterRef}
+        ref={orbRef}
         style={{
-          width: `${outerSize}px`,
-          height: `${outerSize}px`,
-          boxSizing: "border-box",
-          backgroundColor: `rgba(${activeColor}, ${
-            isActiveClickable ? (isOverAccent ? 0.22 : 0.15) : 0.4
-          })`,
-          border: isActiveClickable
-            ? `1px solid rgba(${activeColor}, ${isOverAccent ? 0.95 : 0.7})`
-            : "1px solid transparent",
-          boxShadow: isOverAccent
-            ? "0 0 10px rgba(255, 252, 240, 0.45)"
-            : "none",
-          transform: `translate(-50%, -50%) scale(${
-            isActive ? 0.75 : isActiveClickable ? outerScale : 1
-          })`,
-          opacity: isVisible ? 1 : 0,
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: "10px",
+          height: "10px",
+          borderRadius: "48% 52% 49% 51% / 52% 48%",
+          background: "var(--mark-fill)",
+          boxShadow: "inset 0 -1px 2px rgba(255, 255, 255, 0.08), 0 0.5px 2px rgba(16, 15, 15, 0.28)",
+          transformOrigin: "50% 50%",
+          transform: "translate(-50%, -50%) scale(1)",
           transition:
-            "opacity 0.15s ease-in-out, transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease",
-          zIndex: 999999,
-          position: "fixed",
-          borderRadius: "50%",
-          pointerEvents: "none",
+            "transform 0.16s cubic-bezier(0.2, 0, 0, 1), opacity 0.16s cubic-bezier(0.2, 0, 0, 1), filter 0.16s cubic-bezier(0.2, 0, 0, 1)",
         }}
       />
 
-      {/* Inner Dot (1:1 tracking) */}
+      {/* Typography Text Caret (app.socratink.ai parity) */}
       <div
-        ref={cursorInnerRef}
+        ref={caretRef}
         style={{
-          width: `${innerSize}px`,
-          height: `${innerSize}px`,
-          backgroundColor: `rgb(${activeColor})`,
-          boxShadow: isOverAccent
-            ? "0 0 4px rgba(255, 252, 240, 0.7)"
-            : "none",
-          transform: `translate(-50%, -50%) scale(${
-            isActive ? 0.8 : isActiveClickable ? innerScale : 1
-          })`,
-          opacity: isVisible ? 1 : 0,
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: "1.5px",
+          height: "18px",
+          borderRadius: "1px",
+          backgroundColor: "var(--tx)",
+          opacity: 0,
+          filter: "blur(4px)",
+          transformOrigin: "50% 50%",
+          transform: "translate(-50%, -50%) scale(0.25)",
           transition:
-            "opacity 0.15s ease-in-out, transform 0.15s ease-in-out, background-color 0.18s ease, box-shadow 0.18s ease",
-          zIndex: 999999,
-          position: "fixed",
-          borderRadius: "50%",
-          pointerEvents: "none",
+            "transform 0.16s cubic-bezier(0.2, 0, 0, 1), opacity 0.16s cubic-bezier(0.2, 0, 0, 1), filter 0.16s cubic-bezier(0.2, 0, 0, 1)",
         }}
       />
-    </>
+    </div>
   );
 }

@@ -16,16 +16,31 @@ export function Nav() {
           <Wordmark />
 
           <ul className="hidden items-center gap-7 text-sm text-tx-2 md:flex">
-            {nav.links.map((l) => (
-              <li key={l.href}>
-                <a
-                  href={l.href}
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md transition-colors hover:text-tx focus-visible:outline-2 focus-visible:outline-offset-2"
-                >
-                  {l.label}
-                </a>
-              </li>
-            ))}
+            {nav.links.map((l) => {
+              const tipId = `nav-tip-${l.label.toLowerCase()}`;
+              return (
+                <li key={l.href} className="relative group">
+                  <a
+                    href={l.href}
+                    aria-describedby={tipId}
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md transition-colors hover:text-tx focus-visible:outline-2 focus-visible:outline-offset-2"
+                  >
+                    {l.label}
+                  </a>
+                  {"tooltip" in l ? (
+                    <span
+                      id={tipId}
+                      role="tooltip"
+                      className="pointer-events-none absolute left-1/2 top-full -translate-x-1/2 pt-1 opacity-0 transition-all duration-150 ease-out group-hover:opacity-100 group-focus-within:opacity-100 group-hover:translate-y-0 group-focus-within:translate-y-0 -translate-y-1 z-50 whitespace-nowrap"
+                    >
+                      <span className="inline-block rounded-md border border-tx/15 bg-paper-2/95 px-2.5 py-1 text-xs font-normal text-tx-2 shadow-lg backdrop-blur-md">
+                        {l.tooltip}
+                      </span>
+                    </span>
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
 
           <div className="flex items-center gap-2.5 sm:gap-4">

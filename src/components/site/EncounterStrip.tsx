@@ -11,6 +11,8 @@ import {
   type CSSProperties,
 } from "react";
 import { contractSlip } from "@/lib/content";
+import { OrganicSphere } from "@/components/ui/OrganicSphere";
+import { useMorphSpike, STAGE_TARGETS } from "@/lib/sphere/use-morph-spike";
 
 type Beat = "cold" | "ghost" | "ink" | "bound" | "exit";
 type InkKind = "typed" | "sample" | "refuse";
@@ -71,6 +73,7 @@ export function EncounterStrip() {
   const [revealedNonInferences, setRevealedNonInferences] = useState(0);
   const [reduced, setReduced] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const { active: morphActive } = useMorphSpike();
 
   const ghostChars = useMemo(
     () => Array.from(contractSlip.ghostText),
@@ -171,6 +174,7 @@ export function EncounterStrip() {
             playBoundRefusal();
           }
           beatRef.current = nextBeat;
+          window.dispatchEvent(new CustomEvent("encounter-beat", { detail: { beat: nextBeat } }));
         }
         setBeat(nextBeat);
       };
@@ -180,6 +184,9 @@ export function EncounterStrip() {
         costLocked = false;
         belowBoundRef.current = true;
         setPinned(false);
+        if (beatRef.current !== "cold") {
+          window.dispatchEvent(new CustomEvent("encounter-beat", { detail: { beat: "cold" } }));
+        }
         beatRef.current = "cold";
         setBeat("cold");
         setGhostProgress(0);
@@ -338,14 +345,35 @@ export function EncounterStrip() {
     ghostProgress > 0.5 ? Math.min(1, (ghostProgress - 0.5) / 0.35) : 0;
 
   return (
-    <section data-sc-act="flow" id="method" className="relative scroll-mt-24">
-      <div className="encounter-lead" aria-hidden="true" />
+    <section data-sc-act="flow" id="method" className="relative scroll-mt-14">
+      <div className="content-wrap pt-10 pb-8 sm:pt-14 sm:pb-10 max-w-4xl mx-auto text-center">
+        <p className="eyebrow mb-3 text-accent font-medium">{contractSlip.eyebrow}</p>
+        <h2 className="text-[2rem] sm:text-[2.6rem] lg:text-[3rem] leading-[1.08] mb-4">
+          <span className="h-sans">{contractSlip.titleSans} </span>
+          <span className="h-serif">{contractSlip.titleSerif}</span>
+        </h2>
+        <p className="max-w-2xl mx-auto text-sm sm:text-base text-tx-2 leading-relaxed">
+          {contractSlip.lead}
+        </p>
+      </div>
       <div className="encounter-track" ref={trackRef} data-encounter="contract-slip">
         <div
           className={`encounter-shell${pinned ? " is-pinned" : ""}`}
           ref={shellRef}
           data-beat={beat}
         >
+          {morphActive ? (
+            <div className="encounter-morph-companion" aria-hidden="true">
+              <OrganicSphere
+                size={380}
+                level={STAGE_TARGETS[beat]?.level ?? 0}
+                tendril={STAGE_TARGETS[beat]?.tendril ?? 0}
+              />
+              <span className="encounter-morph-caption">
+                Symbiote Morph · {beat.toUpperCase()}
+              </span>
+            </div>
+          ) : null}
           <div className="encounter-rail-stage">
             <p className="encounter-rail-label">{contractSlip.railLabel}</p>
             <article className="encounter-slip" id="slip">
@@ -545,6 +573,18 @@ export function EncounterStrip() {
           />
         ))}
       </div>
+      {morphActive ? (
+        <aside
+          className="symbiote-spike-pill"
+          role="status"
+          aria-label="Symbiote Morph Spike Status"
+        >
+          <span className="symbiote-spike-title">Symbiote Spike (?morph=1)</span>
+          <span>Stage: <strong data-testid="spike-stage">{beat.toUpperCase()}</strong></span>
+          <span>Tendril: <strong data-testid="spike-tendril">{(STAGE_TARGETS[beat]?.tendril ?? 0).toFixed(2)}</strong></span>
+          <span>Level: <strong data-testid="spike-level">{(STAGE_TARGETS[beat]?.level ?? 0).toFixed(2)}</strong></span>
+        </aside>
+      ) : null}
     </section>
   );
 }

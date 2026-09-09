@@ -30,9 +30,21 @@ export const site = {
 
 export const nav = {
   links: [
-    { label: "Method", href: "#method" },
-    { label: "Disciplines", href: "#material" },
-    { label: "Memory", href: "#memory" },
+    {
+      label: "Method",
+      href: "#method",
+      tooltip: "An unassisted attempt · Watch assistance fade",
+    },
+    {
+      label: "Disciplines",
+      href: "#material",
+      tooltip: "10 rigorous syllabi · Where AI fluency diverges from mastery",
+    },
+    {
+      label: "Memory",
+      href: "#memory",
+      tooltip: "Your durable record · Evidence that compounds over time",
+    },
   ],
   login: { label: "Log in", href: `${site.appUrl}login` },
   cta: { label: "Start a free attempt", href: site.appUrl },
@@ -40,6 +52,7 @@ export const nav = {
 
 export const hero = {
   primary: { label: "Start a free attempt", href: site.appUrl },
+  secondary: { label: "See how an attempt works", href: "#method" },
 } as const;
 
 
@@ -230,7 +243,11 @@ export const notebook = {
 
 /** Contract-slip Encounter copy (Method fold). */
 export const contractSlip = {
-  railLabel: "Encounter",
+  eyebrow: "The Socratink Method · Interactive Specimen",
+  titleSans: "One question.",
+  titleSerif: "No safety net.",
+  lead: "AI fluently answers for you. Socratink tests whether you can hold the concept under pressure. Here is how an unassisted attempt works on a classic statistical trap: sampling bias invariance under sample size.",
+  railLabel: "Diagnostic Specimen · Statistics",
   question: "What happens when the draw itself is biased?",
   sampleTraceBadge: "Sample Trace · not your evidence",
   sampleText:

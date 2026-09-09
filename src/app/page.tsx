@@ -10,7 +10,7 @@ import { Orbit } from "@/components/site/Orbit";
 export default function Home() {
   return (
     <>
-      <AnimatedCursor color="58, 169, 159" innerSize={10} outerSize={10} trailingSpeed={0.7} />
+      <AnimatedCursor />
       <a href="#main" className="skip-link">
         Skip to content
       </a>
