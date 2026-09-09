@@ -1,12 +1,31 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { OrganicSphere } from "@/components/ui/OrganicSphere";
+import type { SphereShape } from "@/lib/sphere/organic-sphere";
 import { hero, notebook } from "@/lib/content";
-import { useMorphSpike } from "@/lib/sphere/use-morph-spike";
+
+function subscribeLocation(callback: () => void) {
+  window.addEventListener("popstate", callback);
+  return () => window.removeEventListener("popstate", callback);
+}
+
+function getQueryShape(): SphereShape | undefined {
+  if (typeof window === "undefined") return undefined;
+  const s = new URLSearchParams(window.location.search).get("shape");
+  return s ? (s as SphereShape) : undefined;
+}
+
+function getQueryMorph(): number | undefined {
+  if (typeof window === "undefined") return undefined;
+  const m = new URLSearchParams(window.location.search).get("morph");
+  return m ? parseFloat(m) : undefined;
+}
 
 export function Hero() {
-  const { active, level, tendril } = useMorphSpike();
+  const testShape = useSyncExternalStore(subscribeLocation, getQueryShape, () => undefined);
+  const testMorph = useSyncExternalStore(subscribeLocation, getQueryMorph, () => undefined);
 
   return (
     <section id="top" className="hero-act">
@@ -33,7 +52,12 @@ export function Hero() {
         </div>
         <figure className="hero-scene">
           <div className="hero-subject" aria-hidden="true">
-            <OrganicSphere size={560} level={active ? level : 0} tendril={active ? tendril : 0} />
+            <OrganicSphere
+              size={560}
+              shape={testShape}
+              morph={testMorph}
+              className="cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            />
           </div>
           <figcaption>{notebook.heroNote}</figcaption>
         </figure>
