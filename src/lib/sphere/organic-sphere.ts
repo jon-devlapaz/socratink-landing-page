@@ -1,43 +1,70 @@
 /*
   Port of the Socratink app's organic sphere (src/ui/effects/organic-sphere.ts),
   with the DOM-specific bits (`.alive-anchor`, `is-still` class) replaced by an
-  explicit controller so React can drive it. Tuning constants are the app's D2 preset.
+  explicit controller so React can drive it. Tuning constants are the app's D2 preset,
+  retuned for the reference ink-blob look (pear/kidney silhouette, liquid gloss).
 */
 import * as THREE from "three";
 import { fragmentShader, vertexShader } from "./shaders";
 
-const CAMERA = { fov: 55, z: 3.25 } as const;
+const CAMERA = { fov: 52, z: 3.05 } as const;
+
+type LightPreset = { color: string; intensity: number };
 
 type Preset = {
   blackCore: number;
   hotRim: number;
+  baseColor: string;
+  specularColor: string;
+  specularSoftness: number;
+  specularRim: number;
+  specularFill: number;
   displacementStrength: number;
+  shapeBulb: number;
+  shapeTail: number;
   fresnel: { offset: number; multiplier: number; power: number };
-  lightA: { color: string; intensity: number };
-  lightB: { color: string; intensity: number };
+  lightA: LightPreset;
+  lightB: LightPreset;
+  lightC: LightPreset;
 };
 
-/** The app's D2 preset: ink on light paper. */
+/** Ink on light paper — deep obsidian body with warm paper bounce. */
 const PAPER: Preset = {
-  blackCore: 0.7,
-  hotRim: 0.12,
-  displacementStrength: 0.08,
-  fresnel: { offset: -1.15, multiplier: 3.6, power: 2.1 },
-  lightA: { color: "#0c0c0e", intensity: 2.2 },
-  lightB: { color: "#d2c6b2", intensity: 0.4 },
+  blackCore: 0.84,
+  hotRim: 0.14,
+  baseColor: "#050505",
+  specularColor: "#f5f2ec",
+  specularSoftness: 26,
+  specularRim: 58,
+  specularFill: 14,
+  displacementStrength: 0.072,
+  shapeBulb: 0.2,
+  shapeTail: 0.11,
+  fresnel: { offset: -1.18, multiplier: 3.85, power: 2.15 },
+  lightA: { color: "#08080a", intensity: 2.35 },
+  lightB: { color: "#4a4742", intensity: 0.48 },
+  lightC: { color: "#1a1918", intensity: 0.32 },
 };
 
 /**
- * Same sphere on dark paper. The black core would vanish into the ground, so the
- * warm rim light is stronger and a faint cool fill gives the body some form, so
- * it reads as an eclipse rather than a hole.
+ * Ink on dark ground — glossy liquid obsidian: soft upper-left specular,
+ * elongated right rim, subtle bottom fill. Body stays deep black against charcoal.
  */
 const INK: Preset = {
-  ...PAPER,
-  hotRim: 0.42,
-  fresnel: { offset: -1.05, multiplier: 3.6, power: 2.0 },
-  lightA: { color: "#2a2826", intensity: 1.6 },
-  lightB: { color: "#d2c6b2", intensity: 1.15 },
+  blackCore: 0.92,
+  hotRim: 0.38,
+  baseColor: "#020202",
+  specularColor: "#eceae6",
+  specularSoftness: 20,
+  specularRim: 46,
+  specularFill: 11,
+  displacementStrength: 0.065,
+  shapeBulb: 0.22,
+  shapeTail: 0.13,
+  fresnel: { offset: -0.92, multiplier: 4.15, power: 1.82 },
+  lightA: { color: "#0c0c0e", intensity: 1.85 },
+  lightB: { color: "#d8d6d2", intensity: 0.82 },
+  lightC: { color: "#3a3836", intensity: 0.38 },
 };
 
 export type SphereGround = "paper" | "ink";
@@ -73,6 +100,12 @@ export const SHAPES_ORDER: SphereShape[] = [
 ];
 
 const PRESETS: Record<SphereGround, Preset> = { paper: PAPER, ink: INK };
+
+/** Upper-left key, right rim, bottom fill — matched to reference highlight placement. */
+const LIGHT_A = new THREE.Vector3(-0.78, 0.88, 0.52).normalize();
+const LIGHT_B = new THREE.Vector3(1.12, 0.12, 0.08).normalize();
+const LIGHT_C = new THREE.Vector3(0.12, -0.72, 0.48).normalize();
+const SHAPE_SCALE = new THREE.Vector3(1.14, 0.96, 0.9);
 
 export type OrganicSphereController = Readonly<{
   /** 0 = resting breath, 1 = fully agitated (the app maps microphone level here). */
@@ -132,37 +165,48 @@ export function mountOrganicSphere(
 
   const geometry = new THREE.SphereGeometry(1, 320, 320);
   geometry.computeTangents();
-  const lightAPosition = new THREE.Vector3().setFromSpherical(new THREE.Spherical(1, 0.615, 2.049));
-  const lightBPosition = new THREE.Vector3().setFromSpherical(new THREE.Spherical(1, 2.561, -1.844));
   const material = new THREE.ShaderMaterial({
     defines: { USE_TANGENT: "" },
     vertexShader,
     fragmentShader,
     uniforms: {
       uLightAColor: { value: new THREE.Color(D2.lightA.color) },
-      uLightAPosition: { value: lightAPosition },
+      uLightAPosition: { value: LIGHT_A.clone() },
       uLightAIntensity: { value: D2.lightA.intensity },
       uLightBColor: { value: new THREE.Color(D2.lightB.color) },
-      uLightBPosition: { value: lightBPosition },
+      uLightBPosition: { value: LIGHT_B.clone() },
       uLightBIntensity: { value: D2.lightB.intensity },
+      uLightCColor: { value: new THREE.Color(D2.lightC.color) },
+      uLightCPosition: { value: LIGHT_C.clone() },
+      uLightCIntensity: { value: D2.lightC.intensity },
+      uSpecularColor: { value: new THREE.Color(D2.specularColor) },
+      uSpecularSoftness: { value: D2.specularSoftness },
+      uSpecularRim: { value: D2.specularRim },
+      uSpecularFill: { value: D2.specularFill },
+      uBaseColor: { value: new THREE.Color(D2.baseColor) },
+      uShapeScale: { value: SHAPE_SCALE.clone() },
+      uShapeBulb: { value: D2.shapeBulb },
+      uShapeTail: { value: D2.shapeTail },
       uSubdivision: { value: new THREE.Vector2(320, 320) },
-      uOffset: { value: new THREE.Vector3() },
-      uDistortionFrequency: { value: 1.5 },
-      uDistortionStrength: { value: 0.65 },
-      uDisplacementFrequency: { value: 2.12 },
+      uOffset: { value: new THREE.Vector3(0.18, -0.12, 0.24) },
+      uDistortionFrequency: { value: 1.42 },
+      uDistortionStrength: { value: 0.58 },
+      uDisplacementFrequency: { value: 1.95 },
       uDisplacementStrength: { value: D2.displacementStrength },
       uFresnelOffset: { value: D2.fresnel.offset },
       uFresnelMultiplier: { value: D2.fresnel.multiplier },
       uFresnelPower: { value: D2.fresnel.power },
       uBlackCore: { value: D2.blackCore },
-      uHotRim: { value: D2.hotRim },
-      uTime: { value: Math.random() * 10 },
+      uTime: { value: 2.4 },
       uMorphFrom: { value: 0 },
       uMorphTo: { value: 0 },
       uMorphProgress: { value: 0 },
     },
   });
-  scene.add(new THREE.Mesh(geometry, material));
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.rotation.y = -0.42;
+  mesh.rotation.z = 0.06;
+  scene.add(mesh);
 
   const timeUniform = material.uniforms.uTime!;
   const offsetUniform = material.uniforms.uOffset!;
@@ -255,12 +299,12 @@ export function mountOrganicSphere(
 
     const motion = updateMotionForLevel(D2, level);
     const ease = 1 - Math.exp(-dt * 10);
-    displacement.value += ((frozen ? 0 : motion.displacement) - displacement.value) * ease;
+    displacement.value += ((frozen ? D2.displacementStrength * 0.92 : motion.displacement) - displacement.value) * ease;
     distortion.value += ((frozen ? 0 : motion.distortion) - distortion.value) * ease;
     if (!frozen) {
       timeUniform.value += dt * motion.timeScale;
       const t = timeUniform.value;
-      drift.set(Math.sin(t * 0.13), Math.cos(t * 0.09), Math.sin(t * 0.07)).multiplyScalar(dt * 0.18);
+      drift.set(Math.sin(t * 0.11), Math.cos(t * 0.08), Math.sin(t * 0.06)).multiplyScalar(dt * 0.14);
       offsetUniform.value.add(drift);
     }
     renderer.render(scene, camera);
