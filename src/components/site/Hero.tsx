@@ -1,10 +1,15 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { OrganicSphere } from "@/components/ui/OrganicSphere";
+import dynamic from "next/dynamic";
+import { InkSphere } from "@/components/ink/InkSphere";
+import { LandingInkDirector } from "@/components/site/LandingInkDirector";
 import type { SphereShape } from "@/lib/sphere/organic-sphere";
+import type { InkTool } from "@/lib/ink/tool";
 import { hero, notebook } from "@/lib/content";
+
+const OrganicSphere = dynamic(() => import("@/components/ui/OrganicSphere").then((module) => module.OrganicSphere));
 
 function subscribeLocation(callback: () => void) {
   window.addEventListener("popstate", callback);
@@ -26,11 +31,15 @@ function getQueryMorph(): number | undefined {
 export function Hero() {
   const testShape = useSyncExternalStore(subscribeLocation, getQueryShape, () => undefined);
   const testMorph = useSyncExternalStore(subscribeLocation, getQueryMorph, () => undefined);
+  const [inkTool, setInkTool] = useState<InkTool | null>(null);
 
   return (
     <section id="top" className="hero-act">
       <div className="hero-grid content-wrap">
         <div className="hero-copy">
+          {notebook.heroEyebrow ? (
+            <div className="hero-eyebrow">{notebook.heroEyebrow}</div>
+          ) : null}
           <h1 className="hero-title notebook-display">{notebook.heroTitle}</h1>
           <p>{notebook.heroBody}</p>
           <div className="hero-actions">
@@ -52,14 +61,14 @@ export function Hero() {
         </div>
         <figure className="hero-scene">
           <div className="hero-subject" aria-hidden="true">
-            <OrganicSphere
-              size={560}
-              shape={testShape}
-              morph={testMorph}
-              className="cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]"
-            />
+            {testShape ? (
+              <OrganicSphere size={560} shape={testShape} morph={testMorph} />
+            ) : (
+              <InkSphere onTool={setInkTool} />
+            )}
           </div>
           <figcaption>{notebook.heroNote}</figcaption>
+          {!testShape ? <LandingInkDirector tool={inkTool} /> : null}
         </figure>
       </div>
     </section>

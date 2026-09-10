@@ -20,6 +20,12 @@ importers:
       three:
         specifier: ^0.185.1
         version: 0.185.1
+      three-raymarcher:
+        specifier: 0.4.0
+        version: 0.4.0(three@0.185.1)
+      zod:
+        specifier: ^4.5.4
+        version: 4.5.4
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4
@@ -1930,6 +1936,11 @@ packages:
   tapable@2.3.3:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
+
+  three-raymarcher@0.4.0:
+    resolution: {integrity: sha512-v237e5vZopz8Ld5W361WNxUiKBllw8v5wMS706eqGakQ6UzociiSp+9HYK/n6ftRClDC+jr8xbOsBlfndGSufA==}
+    peerDependencies:
+      three: '>=0.182.0'
 
   three@0.185.1:
     resolution: {integrity: sha512-5aojFCXKwnjBRZvUnt3WFfEcvUJgkN5LlijRFN95hMy8WVkG4I0QNcJE+OuWvuJ0bOdStrbfXn0pkd6/QyiAlg==}
@@ -4072,6 +4083,10 @@ snapshots:
   tailwindcss@4.3.3: {}
 
   tapable@2.3.3: {}
+
+  three-raymarcher@0.4.0(three@0.185.1):
+    dependencies:
+      three: 0.185.1
 
   three@0.185.1: {}
 

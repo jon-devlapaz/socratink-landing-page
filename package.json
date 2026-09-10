@@ -12,13 +12,18 @@
     "check": "tsc --noEmit && eslint && next build",
     "test:smoke": "node scripts/verify-encounter-bound.mjs",
     "test:a11y": "node scripts/a11y-audit.mjs",
-    "test:orb": "node scripts/benchmark-orb-fidelity.mjs"
+    "test:orb": "node scripts/benchmark-orb-fidelity.mjs",
+    "test:ink": "node scripts/verify-ink.mjs",
+    "test:ink-symbols": "node scripts/verify-ink-symbols.mjs",
+    "test:ink-landing": "node scripts/verify-ink-landing.mjs"
   },
   "dependencies": {
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "three": "^0.185.1"
+    "three": "^0.185.1",
+    "three-raymarcher": "0.4.0",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

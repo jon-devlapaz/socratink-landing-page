@@ -174,6 +174,8 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
 
 export const orbit = {
   eyebrow: "For material that has to hold",
+  bridge:
+    "Explore 10 foundational specimens below, or bring your own syllabus, notes, or board outline in the app.",
   titleSans: "Built for the hard stuff.",
   titleSerif: "When the exam, the license, or the job is real.",
   defaultId: "stats" as const satisfies OrbitDisciplineId,
@@ -205,7 +207,7 @@ export const memory = {
     {
       title: "You hold the record.",
       sub: "Inspect, correct, export, delete.",
-      body: "In the app, review how an inference was formed, correct what no longer fits, take your history with you, or erase what you choose.",
+      body: "In the app, review how an inference was formed, correct what no longer fits, export your history, or erase it completely. Socratink never trains public models on your private diagnostic records.",
     },
   ],
 } as const;
@@ -215,7 +217,7 @@ export const finalCta = {
   titleSans: "Know what you",
   titleSerif: "actually know.",
   button: { label: "Start a free attempt", href: site.appUrl },
-  sub: "Instant in-browser · No account required · Free to start",
+  sub: "Free diagnostic session · No sign-up required · Instant in-browser",
 } as const;
 
 export const footer = {
@@ -234,10 +236,11 @@ export const footer = {
 
 /** Approved hero presentation, retained while restoring the original page story. */
 export const notebook = {
+  heroEyebrow: "Socratic evaluation for high-stakes exams",
   heroTitle: "Know what you\nactually know.",
   heroBody:
-    "For medical boards, the bar exam, cloud certs, and hard technical subjects: make the attempt yourself. Socratink keeps unassisted evidence of what you can hold under pressure: your work, not the AI's.",
-  heroTrust: "Instant in-browser · No account required · Free to start",
+    "A diagnostic study engine for medical boards, the bar exam, cloud certs, and hard technical subjects. Answer consequential questions without multiple choice or AI assistance, and prove what you can hold under pressure.",
+  heroTrust: "Free unassisted diagnostic session · No sign-up required · Instant in-browser",
   heroNote: "The thinking stays yours.",
 } as const;
 
@@ -246,7 +249,7 @@ export const contractSlip = {
   eyebrow: "The Socratink Method · Interactive Specimen",
   titleSans: "One question.",
   titleSerif: "No safety net.",
-  lead: "AI fluently answers for you. Socratink tests whether you can hold the concept under pressure. Here is how an unassisted attempt works on a classic statistical trap: sampling bias invariance under sample size.",
+  lead: "AI makes complex subjects feel effortless until exam day. Socratink tests whether you can reconstruct the concept on your own under pressure. Here is how an unassisted diagnostic session works on a classic statistical trap: sampling bias invariance under sample size.",
   railLabel: "Diagnostic Specimen · Statistics",
   question: "What happens when the draw itself is biased?",
   sampleTraceBadge: "Sample Trace · not your evidence",
@@ -286,6 +289,6 @@ export const contractSlip = {
   sampleLabel: "Show a sample",
   refuseLabel: "I don't know yet",
   cta: { label: "Start a free attempt", href: site.appUrl },
-  ctaSub: "Instant in-browser · No account required · Free to start",
+  ctaSub: "Free diagnostic session · No sign-up required · Instant in-browser",
 } as const;
 

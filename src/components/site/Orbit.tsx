@@ -40,6 +40,9 @@ export function Orbit() {
             serif={orbit.titleSerif}
             align="left"
           />
+          <p className="mt-3.5 text-sm sm:text-base text-tx-2 leading-relaxed max-w-2xl">
+            {orbit.bridge}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
