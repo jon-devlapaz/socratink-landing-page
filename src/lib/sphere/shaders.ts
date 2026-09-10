@@ -1,4 +1,5 @@
-// Organic Sphere v0.4 D2 shader. Perlin noise implementation by Stefan Gustavson.
+// Organic Sphere v0.5 — pear/kidney ink blob with liquid-gloss specular.
+// Perlin noise implementation by Stefan Gustavson.
 export const vertexShader = `
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
 vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
@@ -141,6 +142,9 @@ float perlin4d(vec4 P){
 
 uniform vec2 uSubdivision;
 uniform vec3 uOffset;
+uniform vec3 uShapeScale;
+uniform float uShapeBulb;
+uniform float uShapeTail;
 uniform float uDistortionFrequency;
 uniform float uDistortionStrength;
 uniform float uDisplacementFrequency;
@@ -149,13 +153,24 @@ uniform float uTime;
 varying vec3 vNormal;
 varying vec3 vWorldPosition;
 
+vec3 applyShapeBias(vec3 p)
+{
+  vec3 q = p * uShapeScale;
+  float r = length(q);
+  vec3 n = q / max(r, 1e-5);
+  float bulb = 1.0 + uShapeBulb * (n.x + 0.35 * n.x * abs(n.x));
+  float tail = uShapeTail * smoothstep(0.15, -0.9, n.x) * exp(-pow(n.y + 0.22, 2.0) * 5.5) * (0.55 + 0.45 * abs(n.z));
+  return normalize(n) * (bulb + tail);
+}
+
 vec3 getDisplacedPosition(vec3 _position)
 {
-  vec3 distoredPosition = _position;
+  vec3 shaped = applyShapeBias(_position);
+  vec3 distoredPosition = shaped;
   distoredPosition += perlin4d(vec4(distoredPosition * uDistortionFrequency + uOffset, uTime)) * uDistortionStrength;
   float perlinStrength = perlin4d(vec4(distoredPosition * uDisplacementFrequency + uOffset, uTime));
-  vec3 displacedPosition = _position;
-  displacedPosition += normalize(_position) * perlinStrength * uDisplacementStrength;
+  vec3 displacedPosition = shaped;
+  displacedPosition += normalize(shaped) * perlinStrength * uDisplacementStrength;
   return displacedPosition;
 }
 
@@ -186,14 +201,28 @@ uniform float uLightAIntensity;
 uniform vec3 uLightBColor;
 uniform vec3 uLightBPosition;
 uniform float uLightBIntensity;
+uniform vec3 uLightCColor;
+uniform vec3 uLightCPosition;
+uniform float uLightCIntensity;
+uniform vec3 uSpecularColor;
+uniform float uSpecularSoftness;
+uniform float uSpecularRim;
+uniform float uSpecularFill;
 uniform float uFresnelOffset;
 uniform float uFresnelMultiplier;
 uniform float uFresnelPower;
 uniform float uBlackCore;
 uniform float uHotRim;
+uniform vec3 uBaseColor;
 
 varying vec3 vNormal;
 varying vec3 vWorldPosition;
+
+float specularHighlight(vec3 lightDir, vec3 normal, vec3 viewDir, float power)
+{
+  vec3 halfDir = normalize(lightDir + viewDir);
+  return pow(max(0.0, dot(normal, halfDir)), power);
+}
 
 void main()
 {
@@ -202,12 +231,29 @@ void main()
   float fresnel = uFresnelOffset + (1.0 + dot(viewDirection, normal)) * uFresnelMultiplier;
   fresnel = pow(max(0.0, fresnel), uFresnelPower);
 
-  float lightAIntensity = max(0.0, -dot(normal, normalize(-uLightAPosition))) * uLightAIntensity;
-  float lightBIntensity = max(0.0, -dot(normal, normalize(-uLightBPosition))) * uLightBIntensity;
-  vec3 color = vec3(0.0);
-  color = mix(color, uLightAColor, lightAIntensity * fresnel);
+  vec3 lightADir = normalize(-uLightAPosition);
+  vec3 lightBDir = normalize(-uLightBPosition);
+  vec3 lightCDir = normalize(-uLightCPosition);
+
+  float lightAIntensity = max(0.0, dot(normal, lightADir)) * uLightAIntensity;
+  float lightBIntensity = max(0.0, dot(normal, lightBDir)) * uLightBIntensity;
+  float lightCIntensity = max(0.0, dot(normal, lightCDir)) * uLightCIntensity;
+
+  vec3 color = uBaseColor;
+  color = mix(color, uLightAColor, lightAIntensity * fresnel * 0.85);
   color = mix(color, uLightBColor, lightBIntensity * fresnel);
-  color = mix(color, vec3(1.0), clamp(pow(max(0.0, fresnel - 0.8), 3.0), 0.0, 1.0) * uHotRim);
+  color = mix(color, uLightCColor, lightCIntensity * fresnel * 0.55);
+
+  float specA = specularHighlight(lightADir, normal, viewDirection, uSpecularSoftness);
+  float specB = specularHighlight(lightBDir, normal, viewDirection, uSpecularRim);
+  float specC = specularHighlight(lightCDir, normal, viewDirection, uSpecularFill);
+  float keyMask = smoothstep(0.15, 0.72, dot(normal, lightADir));
+  float rimMask = smoothstep(0.08, 0.62, dot(normal, lightBDir));
+  float fillMask = smoothstep(0.05, 0.48, dot(normal, lightCDir));
+  color += uSpecularColor * (specA * 1.2 * keyMask + specB * 1.05 * rimMask + specC * 0.32 * fillMask);
+
+  float hot = clamp(pow(max(0.0, fresnel - 0.74), 2.6), 0.0, 1.0) * uHotRim * rimMask;
+  color = mix(color, vec3(1.0), hot);
   float coreKeep = mix(1.0, clamp(fresnel, 0.0, 1.0), uBlackCore);
   gl_FragColor = vec4(color * coreKeep, 1.0);
 }
