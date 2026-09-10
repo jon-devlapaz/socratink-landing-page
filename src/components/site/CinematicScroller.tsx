@@ -53,22 +53,27 @@ export function CinematicScroller() {
       return;
     }
 
-    // 1. Initialize Lenis Smooth Scrolling
-    const lenis = new Lenis({
-      lerp: 0.085,
-      smoothWheel: true,
-      wheelMultiplier: 0.95,
-      touchMultiplier: 1.2,
-    });
+    // 1. Initialize Lenis Smooth Scrolling (Desktop wheel only - preserve native 120Hz touch on mobile)
+    const isCoarse = window.matchMedia("(pointer: coarse)").matches;
+    let lenis: Lenis | null = null;
+    let tickerCallback: ((time: number) => void) | null = null;
 
-    lenis.on("scroll", ScrollTrigger.update);
+    if (!isCoarse) {
+      lenis = new Lenis({
+        lerp: 0.085,
+        smoothWheel: true,
+        wheelMultiplier: 0.95,
+      });
 
-    const tickerCallback = (time: number) => {
-      lenis.raf(time * 1000);
-    };
+      lenis.on("scroll", ScrollTrigger.update);
 
-    gsap.ticker.add(tickerCallback);
-    gsap.ticker.lagSmoothing(0);
+      tickerCallback = (time: number) => {
+        lenis?.raf(time * 1000);
+      };
+
+      gsap.ticker.add(tickerCallback);
+      gsap.ticker.lagSmoothing(0);
+    }
 
     // 2. Split Word Kinetic Typography
     const splitElements = gsap.utils.toArray<HTMLElement>("[data-split-reveal]");
@@ -181,8 +186,8 @@ export function CinematicScroller() {
     return () => {
       clearTimeout(refreshTimer);
       document.removeEventListener("focusin", revealFocus);
-      gsap.ticker.remove(tickerCallback);
-      lenis.destroy();
+      if (tickerCallback) gsap.ticker.remove(tickerCallback);
+      lenis?.destroy();
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);

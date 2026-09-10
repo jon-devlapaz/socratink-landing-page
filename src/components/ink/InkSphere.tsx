@@ -161,11 +161,13 @@ export function InkSphere({
     >
       <Image
         className="ink-poster"
-        src="/brand/ink-sphere-poster.png"
-        alt=""
-        width={1120}
-        height={1120}
-        unoptimized
+        src="/brand/living-ink-poster.png"
+        alt="Living ink droplet"
+        width={560}
+        height={560}
+        sizes="(max-width: 768px) 280px, 560px"
+        priority
+        fetchPriority="high"
       />
       <div ref={mount} className="ink-render" />
       {error ? (

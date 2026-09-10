@@ -59,7 +59,7 @@ export function Hero() {
           </div>
         </div>
         <figure className="hero-scene">
-          <div className="hero-subject" aria-hidden="true">
+          <div className="hero-subject">
             {testShape ? (
               <OrganicSphere size={560} shape={testShape} morph={testMorph} />
             ) : (
