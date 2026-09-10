@@ -64,7 +64,7 @@ export function mountInk(
   const ink = new Raymarcher({
     envMap: environment.texture,
     envMapIntensity: 1.2,
-    resolution: 0.75,
+    resolution: 1,
   });
   // The library defaults to a 0.05-unit march floor. Our ~2-unit ink forms
   // need finer sampling to avoid stepped highlights on their curved surface.
@@ -108,6 +108,13 @@ export function mountInk(
     requestedCount = targets.length;
     // New parts grow in; removed parts contract into the body before disposal.
     const count = Math.max(entities.length, targets.length);
+    const isCoalescing =
+      recipe.name.includes("Thinking") && next.name.includes("Settled");
+    if (isCoalescing && !reduced) {
+      // Surface tension energy release upon coalescence: capillary rebound wave
+      motion.amplitude = 0.085;
+      motion.speed = 1.05;
+    }
     const priorEntities = entities;
     entities = Array.from({ length: count }, (_, i) => {
       const target = targets[i];
@@ -169,13 +176,50 @@ export function mountInk(
     if (moving) time += dt * motion.speed;
     if (!frozen) pointer.lerp(reduced ? origin : pointerTarget, ease);
     let extent = 1;
+    const isThinking = recipe.name.includes("Thinking");
     entities.forEach((entity, i) => {
       const target = targets[i];
       const phase = i * 2.39996;
       const a = reduced ? 0 : motion.amplitude;
-      const x = target.position.x + Math.sin(time * 0.8 + phase) * a;
-      const y = target.position.y + Math.sin(time * 0.63 + phase * 1.3) * a;
+
+      let x = target.position.x + Math.sin(time * 0.8 + phase) * a;
+      let y = target.position.y + Math.sin(time * 0.63 + phase * 1.3) * a;
       const z = target.position.z + Math.cos(time * 0.7 + phase) * a * 0.6;
+      let scaleMult = 1 + Math.sin(time * 0.9 + phase) * a * 0.12;
+      let scaleOverride: THREE.Vector3 | null = null;
+
+      // Coupled Stokes liquid bridge kinematics for Thinking (cognitive deliberation)
+      if (isThinking && targets.length >= 3) {
+        const tugFreq = time * 1.6;
+        const tugAmp = a * 1.85;
+        if (i === 0) {
+          // Primary left lobe pulls left and oscillates in opposition
+          x = target.position.x - Math.sin(tugFreq) * tugAmp;
+          y = target.position.y + Math.cos(tugFreq * 0.75) * a * 0.5;
+          scaleMult = 1 + Math.sin(tugFreq) * 0.08;
+        } else if (i === 1) {
+          // Secondary right lobe pulls right in opposition
+          x = target.position.x + Math.sin(tugFreq) * tugAmp;
+          y = target.position.y - Math.cos(tugFreq * 0.75) * a * 0.5;
+          scaleMult = 1 - Math.sin(tugFreq) * 0.08;
+        } else if (i === 2) {
+          // Capillary waist bridge: stretches and thins in anti-phase
+          const stretch = Math.sin(tugFreq);
+          const diamFactor = Math.max(0.65, 1 - stretch * 0.22);
+          const lenFactor = Math.max(0.8, 1 + stretch * 0.28);
+          scaleOverride = nextScale.set(
+            target.scale.x * diamFactor,
+            target.scale.y * lenFactor,
+            target.scale.x * diamFactor,
+          );
+        } else if (i === 3) {
+          // Nascent insight micro-droplet: buoyant high-frequency hover
+          x = target.position.x + Math.cos(time * 1.8) * a * 0.8;
+          y = target.position.y + Math.sin(time * 3.2) * a * 1.6;
+          scaleMult = 1 + Math.sin(time * 4) * 0.12;
+        }
+      }
+
       entity.position.lerp(
         nextPosition.set(
           x + pointer.x * motion.pointer * (0.3 + i * 0.15),
@@ -184,12 +228,14 @@ export function mountInk(
         ),
         ease,
       );
-      entity.scale.lerp(
-        nextScale
-          .copy(target.scale)
-          .multiplyScalar(1 + Math.sin(time * 0.9 + phase) * a * 0.12),
-        ease,
-      );
+      if (scaleOverride) {
+        entity.scale.lerp(scaleOverride, ease);
+      } else {
+        entity.scale.lerp(
+          nextScale.copy(target.scale).multiplyScalar(scaleMult),
+          ease,
+        );
+      }
       entity.rotation.slerp(target.rotation, ease);
       entity.color.lerp(target.color, ease);
       if (i < requestedCount)

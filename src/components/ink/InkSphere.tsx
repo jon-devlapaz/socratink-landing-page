@@ -1,24 +1,75 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import { createInkTool, readInitialInk, type InkTool } from "@/lib/ink/tool";
 import { getStoredTheme, resolveTheme, THEME_CHANGE_EVENT } from "@/lib/theme";
+import type { InkExpression } from "@/lib/ink/expressions";
+
+const CYCLE_EXPRESSIONS: InkExpression[] = [
+  "rest",
+  "question",
+  "nib",
+  "connect",
+  "explain",
+];
+
+const DEFAULT_CYCLE_INTERVAL = 4200;
 
 export function InkSphere({
   size = 560,
   onTool,
+  autoCycle = true,
+  cycleInterval = DEFAULT_CYCLE_INTERVAL,
 }: {
   size?: number;
   onTool?: (tool: InkTool | null) => void;
+  autoCycle?: boolean;
+  cycleInterval?: number;
 }) {
   const mount = useRef<HTMLDivElement>(null);
+  const toolRef = useRef<InkTool | null>(null);
+  const cycleIndexRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isHoveredRef = useRef(false);
+  const isReducedRef = useRef(false);
   const [error, setError] = useState("");
+
+  const advance = useCallback(() => {
+    const tool = toolRef.current;
+    if (!tool || isReducedRef.current) return;
+    cycleIndexRef.current =
+      (cycleIndexRef.current + 1) % CYCLE_EXPRESSIONS.length;
+    const nextExpr = CYCLE_EXPRESSIONS[cycleIndexRef.current];
+    tool.call("ink_express", { expression: nextExpr });
+  }, []);
+
+  const startCycle = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (!autoCycle || isHoveredRef.current || isReducedRef.current) return;
+    timerRef.current = setInterval(() => {
+      advance();
+    }, cycleInterval);
+  }, [autoCycle, cycleInterval, advance]);
+
+  const stopCycle = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const handleManualAdvance = () => {
+    advance();
+    startCycle();
+  };
+
   useEffect(() => {
     const element = mount.current;
     if (!element) return;
     let disposed = false;
     let cleanup = () => {};
+
     import("@/lib/ink/renderer")
       .then(({ mountInk }) => {
         if (disposed) return;
@@ -28,22 +79,43 @@ export function InkSphere({
             element.dataset.inkReady = "true";
         });
         const tool = createInkTool(renderer, initial);
+        toolRef.current = tool;
         window.socratinkInk = tool;
         onTool?.(tool);
+
         const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
         const theme = window.matchMedia("(prefers-color-scheme: dark)");
+
         const updateTheme = () =>
           renderer.setTheme(resolveTheme(getStoredTheme()));
-        const updateMotion = () => renderer.setReduced(motion.matches);
+
+        const updateMotion = () => {
+          const reduced = motion.matches;
+          isReducedRef.current = reduced;
+          renderer.setReduced(reduced);
+          if (reduced) {
+            stopCycle();
+            tool.call("ink_express", { expression: "rest" });
+          } else {
+            startCycle();
+          }
+        };
+
         updateTheme();
         updateMotion();
+
         window.addEventListener(THEME_CHANGE_EVENT, updateTheme);
         window.addEventListener("storage", updateTheme);
         theme.addEventListener("change", updateTheme);
         motion.addEventListener("change", updateMotion);
+
+        startCycle();
+
         cleanup = () => {
+          stopCycle();
           renderer.destroy();
           if (window.socratinkInk === tool) delete window.socratinkInk;
+          toolRef.current = null;
           onTool?.(null);
           window.removeEventListener(THEME_CHANGE_EVENT, updateTheme);
           window.removeEventListener("storage", updateTheme);
@@ -57,21 +129,39 @@ export function InkSphere({
             cause instanceof Error ? cause.message : "WebGL unavailable",
           );
       });
+
     return () => {
       disposed = true;
       cleanup();
     };
-  }, [onTool]);
+  }, [onTool, startCycle, stopCycle]);
+
   return (
     <div
       className="sphere ink-sphere"
-      style={{ width: size, height: size }}
-      aria-label="Living ink"
-      role="img"
+      style={{ width: size, height: size, cursor: "pointer" }}
+      aria-label="Living ink orb. Transforms organically, or click to advance."
+      role="button"
+      tabIndex={0}
+      onClick={handleManualAdvance}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleManualAdvance();
+        }
+      }}
+      onMouseEnter={() => {
+        isHoveredRef.current = true;
+        stopCycle();
+      }}
+      onMouseLeave={() => {
+        isHoveredRef.current = false;
+        startCycle();
+      }}
     >
       <Image
         className="ink-poster"
-        src="/brand/living-ink-poster.png"
+        src="/brand/ink-sphere-poster.png"
         alt=""
         width={1120}
         height={1120}

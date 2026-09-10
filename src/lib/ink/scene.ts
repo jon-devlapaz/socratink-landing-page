@@ -32,7 +32,7 @@ export const inkSceneSchema = z.strictObject({
         position: vector(-1.5, 1.5).describe(
           "World coordinates: x right, y up, z toward viewer.",
         ),
-        scale: vector(0.15, 2).describe(
+        scale: vector(0.06, 2.5).describe(
           "Full dimensions. Capsule uses x for diameter and y for length; z must equal x and y must be >= x.",
         ),
         rotation: vector(-180, 180).describe(
@@ -41,9 +41,9 @@ export const inkSceneSchema = z.strictObject({
       }),
     )
     .min(1)
-    .max(8)
+    .max(14)
     .describe(
-      "Ordered smooth CSG operations. The first part must be union. Up to 8 parts.",
+      "Ordered smooth CSG operations. The first part must be union. Up to 14 parts.",
     ),
 });
 export type InkScene = z.infer<typeof inkSceneSchema>;
@@ -82,11 +82,11 @@ export const INK_PRESETS: Record<string, InkScene> = {
   ink: {
     ...base,
     name: "Living ink",
+    blend: 0.35,
+    material: { color: "#060709", roughness: 0.14, metalness: 0.16 },
+    motion: { speed: 0.32, amplitude: 0.024, pointer: 0.15 },
     parts: [
-      part([0, 0, 0], [1.6, 1.75, 1.5]),
-      part([0.55, 0.25, 0.05], [0.9, 0.95, 0.9]),
-      part([-0.4, -0.5, 0.1], [1.1, 0.95, 1]),
-      part([-0.3, 0.55, -0.1], [0.95, 0.85, 1]),
+      part([0, 0, 0], [1.7, 1.7, 1.7]),
     ],
   },
   droplet: {

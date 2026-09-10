@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { InkSphere } from "@/components/ink/InkSphere";
-import { LandingInkDirector } from "@/components/site/LandingInkDirector";
 import type { SphereShape } from "@/lib/sphere/organic-sphere";
-import type { InkTool } from "@/lib/ink/tool";
 import { hero, notebook } from "@/lib/content";
 
 const OrganicSphere = dynamic(() => import("@/components/ui/OrganicSphere").then((module) => module.OrganicSphere));
@@ -31,7 +29,6 @@ function getQueryMorph(): number | undefined {
 export function Hero() {
   const testShape = useSyncExternalStore(subscribeLocation, getQueryShape, () => undefined);
   const testMorph = useSyncExternalStore(subscribeLocation, getQueryMorph, () => undefined);
-  const [inkTool, setInkTool] = useState<InkTool | null>(null);
 
   return (
     <section id="top" className="hero-act">
@@ -40,7 +37,9 @@ export function Hero() {
           {notebook.heroEyebrow ? (
             <div className="hero-eyebrow">{notebook.heroEyebrow}</div>
           ) : null}
-          <h1 className="hero-title notebook-display">{notebook.heroTitle}</h1>
+          <h1 className="hero-title notebook-display" data-split-reveal>
+            {notebook.heroTitle}
+          </h1>
           <p>{notebook.heroBody}</p>
           <div className="hero-actions">
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
@@ -64,11 +63,10 @@ export function Hero() {
             {testShape ? (
               <OrganicSphere size={560} shape={testShape} morph={testMorph} />
             ) : (
-              <InkSphere onTool={setInkTool} />
+              <InkSphere />
             )}
           </div>
           <figcaption>{notebook.heroNote}</figcaption>
-          {!testShape ? <LandingInkDirector tool={inkTool} /> : null}
         </figure>
       </div>
     </section>

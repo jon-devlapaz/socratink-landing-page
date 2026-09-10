@@ -43,7 +43,7 @@ export const nav = {
     {
       label: "Memory",
       href: "#memory",
-      tooltip: "Your durable record · Evidence that compounds over time",
+      tooltip: "Your record of work · Evidence that accumulates over sessions",
     },
   ],
   login: { label: "Log in", href: `${site.appUrl}login` },
@@ -236,7 +236,7 @@ export const footer = {
 
 /** Approved hero presentation, retained while restoring the original page story. */
 export const notebook = {
-  heroEyebrow: "Socratic evaluation for high-stakes exams",
+  heroEyebrow: "Your personal knowledge tutor",
   heroTitle: "Know what you\nactually know.",
   heroBody:
     "A diagnostic study engine for medical boards, the bar exam, cloud certs, and hard technical subjects. Answer consequential questions without multiple choice or AI assistance, and prove what you can hold under pressure.",

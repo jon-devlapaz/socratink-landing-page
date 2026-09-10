@@ -35,8 +35,8 @@ export function SectionHeading({
     <>
       {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
       <h2 className={`${scale} flex flex-col`}>
-        <span className="h-sans">{sans}</span>
-        <span className="h-serif">{serif}</span>
+        <span className="h-sans" data-split-reveal>{sans}</span>
+        <span className="h-serif" data-split-reveal>{serif}</span>
       </h2>
     </>
   );

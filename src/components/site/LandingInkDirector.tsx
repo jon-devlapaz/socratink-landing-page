@@ -6,7 +6,11 @@ import type { InkTool } from "@/lib/ink/tool";
 
 const subscribeNothing = () => () => {};
 const labels: Record<InkExpression, string> = {
-  rest: "Rest", question: "Wonder", connect: "Connect", explain: "Your words",
+  rest: "Rest",
+  question: "Wonder",
+  nib: "In your words",
+  connect: "Connect",
+  explain: "Codex",
 };
 
 /** An explicit symbol preview; selecting a symbol makes no claim about learning. */

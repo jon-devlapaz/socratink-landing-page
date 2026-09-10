@@ -6,12 +6,61 @@ import {
   type InkScene,
 } from "./scene";
 import { INK_EXPRESSIONS, type InkExpression } from "./expressions";
+import { generateRandomInkScene, type InkArchetype } from "./random";
+import {
+  generateSomaticScene,
+  type SomaticState,
+  type SomaticTelemetry,
+} from "./somatic";
+import {
+  compileSculptToScene,
+  SCULPT_CATALOG,
+  type SculptDefinition,
+  type SemanticBead,
+  type SemanticStroke,
+} from "./sculpt";
 import type { InkRenderer } from "./renderer";
 
 const empty = z.strictObject({});
 const schemas = {
+  ink_sculpt: z.strictObject({
+    concept: z.string().describe("Concept name (e.g. 'bike', 'tree', 'bird', 'coffee') or custom title"),
+    strokes: z
+      .array(
+        z.strictObject({
+          from: z.tuple([z.number(), z.number(), z.number()]),
+          to: z.tuple([z.number(), z.number(), z.number()]),
+          radius: z.number().min(0.02).max(0.8),
+          operation: z.enum(["union", "subtract", "intersect"]).optional(),
+          label: z.string().optional(),
+        }),
+      )
+      .optional(),
+    beads: z
+      .array(
+        z.strictObject({
+          center: z.tuple([z.number(), z.number(), z.number()]),
+          radius: z.number().min(0.04).max(1.0),
+          operation: z.enum(["union", "subtract", "intersect"]).optional(),
+          label: z.string().optional(),
+        }),
+      )
+      .optional(),
+    blend: z.number().min(0.08).max(0.45).optional(),
+  }),
+  ink_somatic: z.strictObject({
+    state: z.enum(["settled", "listening", "thinking", "explaining"]),
+    intensity: z.number().min(0).max(1).optional(),
+    conserveVolume: z.boolean().optional(),
+  }),
   ink_express: z.strictObject({
-    expression: z.enum(["rest", "question", "connect", "explain"]),
+    expression: z.enum(["rest", "question", "nib", "connect", "explain"]),
+  }),
+  ink_randomize: z.strictObject({
+    archetype: z
+      .enum(["droplet", "comma", "coalescence", "trilobe", "splash", "pebble"])
+      .optional(),
+    style: z.string().optional(),
   }),
   ink_set_scene: z.strictObject({ scene: inkSceneSchema }),
   ink_get_scene: empty,
@@ -24,8 +73,14 @@ const schemas = {
   ink_capture: empty,
 };
 const descriptions = {
+  ink_sculpt:
+    "Sculpt the living ink into a recognizable semantic concept (e.g. 'bike', 'tree', 'bird', 'coffee') using connected 3D strokes and volume beads. Primitives melt together via liquid surface tension into an obsidian fluid sculpture.",
+  ink_somatic:
+    "Embody an AI cognitive state in fluid liquid ink: settled (rest/synthesis), listening (receptive attention), thinking (deliberation/bifurcation), explaining (articulation). Calculates mass-conserving fluid geometry.",
   ink_express:
     "Express a Socratink learning moment: rest (ink droplet), question (question mark), connect (bridge), explain (open notebook). Choose from interaction context; these are visual cues, not assessments of learning. Replaces the scene with a validated starting recipe. Use ink_set_scene for a custom form.",
+  ink_randomize:
+    "Generate a new procedural organic ink blot, droplet, or bean shape. Smoothly morphs the living ink into a novel random configuration.",
   ink_set_scene:
     "Replace the living ink with a validated scene. Compose up to 8 smooth 3D parts, with material and motion. First part must use union. Capsule scale.y >= scale.x and scale.z === scale.x. Returns accepted scene and render status; capture afterward to inspect appearance.",
   ink_get_scene:
@@ -75,14 +130,62 @@ export function createInkTool(renderer: InkRenderer, initial: InkScene) {
         if (!Object.hasOwn(schemas, name))
           throw new Error(`Unknown tool: ${name}`);
         schemas[name as keyof typeof schemas].parse(args);
-        if (name === "ink_set_scene" || name === "ink_express") {
-          const next = parseInkScene(
-            name === "ink_express"
-              ? INK_EXPRESSIONS[
-                  (args as { expression: InkExpression }).expression
-                ].scene
-              : (args as { scene: unknown }).scene,
-          );
+        let somaticTelemetry: SomaticTelemetry | undefined;
+        if (
+          name === "ink_set_scene" ||
+          name === "ink_express" ||
+          name === "ink_randomize" ||
+          name === "ink_somatic" ||
+          name === "ink_sculpt"
+        ) {
+          let next: InkScene;
+          if (name === "ink_sculpt") {
+            const input = args as {
+              concept: string;
+              strokes?: SemanticStroke[];
+              beads?: SemanticBead[];
+              blend?: number;
+            };
+            const key = input.concept?.toLowerCase().trim();
+            const catalogEntry = SCULPT_CATALOG[key];
+            if (catalogEntry && (!input.strokes || input.strokes.length === 0)) {
+              next = compileSculptToScene({
+                ...catalogEntry.definition,
+                ...(input.blend !== undefined ? { blend: input.blend } : {}),
+              });
+            } else {
+              next = compileSculptToScene(input as SculptDefinition);
+            }
+          } else if (name === "ink_somatic") {
+            const input = args as {
+              state: SomaticState;
+              intensity?: number;
+              conserveVolume?: boolean;
+            };
+            const result = generateSomaticScene(input);
+            next = result.scene;
+            somaticTelemetry = result.telemetry;
+          } else if (name === "ink_randomize") {
+            const input = args as {
+              archetype?: InkArchetype;
+              style?: string;
+            };
+            const choice = (input?.archetype ??
+              (input?.style === "bean"
+                ? "pebble"
+                : input?.style === "blot"
+                ? "trilobe"
+                : input?.style)) as InkArchetype | undefined;
+            next = generateRandomInkScene(choice);
+          } else if (name === "ink_express") {
+            next = parseInkScene(
+              INK_EXPRESSIONS[
+                (args as { expression: InkExpression }).expression
+              ].scene,
+            );
+          } else {
+            next = parseInkScene((args as { scene: unknown }).scene);
+          }
           renderer.setScene(next);
           scene = next;
           revision++;
@@ -100,7 +203,12 @@ export function createInkTool(renderer: InkRenderer, initial: InkScene) {
         const image = name === "ink_capture" ? renderer.capture() : undefined;
         if (name !== "ink_get_scene" && name !== "ink_capture")
           listeners.forEach((listener) => listener());
-        return { ok: true as const, ...inspect(), ...(image ? { image } : {}) };
+        return {
+          ok: true as const,
+          ...inspect(),
+          ...(somaticTelemetry ? { somatic: somaticTelemetry } : {}),
+          ...(image ? { image } : {}),
+        };
       } catch (error) {
         return {
           ok: false as const,

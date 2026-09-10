@@ -36,10 +36,11 @@ const settled = () =>
     () => !window.socratinkInk.call("ink_get_scene").rendering.transitioning,
   );
 const moments = [
-  ["rest", "At rest", "Ink droplet"],
-  ["question", "A question opens", "Question mark"],
-  ["connect", "Ideas connect", "Bridge"],
-  ["explain", "In your own words", "Open notebook"],
+  ["rest", "At rest", "Ink droplet", "Ink droplet"],
+  ["question", "A question opens", "Question mark", "Question mark"],
+  ["nib", "In your own words", "Dipped nib", "Dipped nib"],
+  ["connect", "Ideas connect", "Synaptic bridge", "Bridge"],
+  ["explain", "Proven retention", "Living codex", "Open notebook"],
 ];
 const captures = [];
 async function capture(name) {
@@ -56,9 +57,9 @@ try {
   await ready();
   await settled();
   // Each moment goes through the same model-facing command as its UI button.
-  for (const [id, label, name] of moments) {
+  for (const [id, label, symbol, name] of moments) {
     await page
-      .getByRole("button", { name: label + " " + name, exact: true })
+      .getByRole("button", { name: label + " " + symbol, exact: true })
       .click();
     for (const [delay, suffix] of [
       [150, "early"],
@@ -71,10 +72,10 @@ try {
     await settled();
     const result = await call("ink_get_scene");
     assert.equal(result.scene.name, name);
-    assert.ok(result.scene.parts.length <= 8);
+    assert.ok(result.scene.parts.length <= 14);
     assert.equal(
       await page
-        .getByRole("button", { name: label + " " + name, exact: true })
+        .getByRole("button", { name: label + " " + symbol, exact: true })
         .getAttribute("aria-pressed"),
       "true",
     );

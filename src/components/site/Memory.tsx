@@ -78,7 +78,7 @@ function ModelIndependence() {
         ))}
       </ul>
       <p className="border-t border-tx/10 pt-3 text-tx-2">
-        Your produced work stays labeled with its conditions. Meaning intact when the stack changes.
+        Your produced work stays labeled with its conditions, regardless of which runtime is underneath.
       </p>
     </div>
   );
