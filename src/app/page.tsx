@@ -1,5 +1,4 @@
 import { AnimatedCursor } from "@/components/ui/AnimatedCursor";
-import { EncounterStrip } from "@/components/site/EncounterStrip";
 import { FinalCta } from "@/components/site/FinalCta";
 import { CinematicScroller } from "@/components/site/CinematicScroller";
 import { Preloader } from "@/components/site/Preloader";
@@ -19,7 +18,6 @@ export default function Home() {
       <Nav />
       <main id="main" tabIndex={-1} className="flex-1 outline-none">
         <Hero />
-        <EncounterStrip />
         <div className="folio-section-track folio-track-material" data-story-section>
           <div className="folio-section-shell">
             <Orbit />

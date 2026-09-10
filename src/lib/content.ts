@@ -31,11 +31,6 @@ export const site = {
 export const nav = {
   links: [
     {
-      label: "Method",
-      href: "#method",
-      tooltip: "An unassisted attempt · Watch assistance fade",
-    },
-    {
       label: "Disciplines",
       href: "#material",
       tooltip: "10 rigorous syllabi · Where AI fluency diverges from mastery",
@@ -52,7 +47,7 @@ export const nav = {
 
 export const hero = {
   primary: { label: "Start a free attempt", href: site.appUrl },
-  secondary: { label: "See how an attempt works", href: "#method" },
+  secondary: { label: "Explore disciplines", href: "#material" },
 } as const;
 
 
@@ -225,7 +220,6 @@ export const footer = {
   legalLabel: "Legal",
   attemptLabel: "Attempt",
   index: [
-    { label: "Method", href: "#method" },
     { label: "Disciplines", href: "#material" },
     { label: "Memory", href: "#memory" },
   ],

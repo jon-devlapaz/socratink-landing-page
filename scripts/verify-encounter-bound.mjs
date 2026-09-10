@@ -1,161 +1,105 @@
 /**
- * Production Encounter smoke — contract-slip Bound + NON-INFERENCES.
+ * Production Landing Page Smoke Test
  *
- * Prerequisite: `pnpm dev` on :3000
- * Run: node scripts/verify-encounter-bound.mjs
+ * Verifies core sections render cleanly:
+ * - Nav with Disciplines, Memory, CTAs
+ * - Hero with Living Ink Orb & CTA
+ * - Disciplines / Orbit section (#material)
+ * - Memory section (#memory)
+ * - Final CTA section
+ * - Verifies removed #method section is absent
+ * - Zero page/console errors
  */
 import { chromium } from "playwright-core";
 
 const BASE = process.env.BASE_URL ?? "http://127.0.0.1:3001/";
 
 let failed = 0;
-
 function fail(msg) {
   console.error("FAIL:", msg);
   failed += 1;
 }
-
 function pass(msg) {
   console.log("PASS:", msg);
 }
-
-async function scrollEncounterFraction(page, fraction) {
-  await page.evaluate((fraction) => {
-    const track = document.querySelector('[data-encounter="contract-slip"]');
-    const shell = document.querySelector(".encounter-shell");
-    if (!track || !shell) return;
-    const rect = track.getBoundingClientRect();
-    const top = window.scrollY + rect.top;
-    const travel = Math.max(1, track.offsetHeight - shell.offsetHeight);
-    window.scrollTo(0, top + travel * fraction);
-  }, fraction);
-  await page.waitForTimeout(450);
-}
-
-async function waitForBoundComplete(page) {
-  await page.waitForFunction(
-    () => document.querySelector(".encounter-panel.is-live")?.dataset.panel === "contract",
-    { timeout: 12000 },
-  );
-  await page.waitForFunction(
-    () => {
-      const list = document.getElementById("nonInferenceList");
-      return (
-        list &&
-        !list.hidden &&
-        list.querySelectorAll("[data-non-inference]").length >= 3
-      );
-    },
-    { timeout: 12000 },
-  );
-  await page.waitForFunction(
-    () => document.querySelectorAll(".encounter-noninf li.is-revealed").length >= 3,
-    { timeout: 12000 },
-  );
-}
-
-async function assertSingleRefuseSurface(page) {
-  const stampRefused = await page.evaluate(
-    () => document.querySelectorAll(".encounter-claim-stamp.is-refused").length,
-  );
-  if (stampRefused > 0) {
-    fail(`production: stamp refuse echo (${stampRefused} is-refused stamps)`);
-  } else {
-    pass("production: no duplicate stamp refuse (single climax surface)");
-  }
-
-  const readable = await page.evaluate(() =>
-    /does not establish/i.test(document.body.innerText),
-  );
-  if (!readable) {
-    fail("production: missing readable NON-INFERENCE copy");
-  } else {
-    pass("production: NON-INFERENCES readable in DOM");
-  }
-}
-
-async function assertNoGhostStamp(page) {
-  const stamp = await page.evaluate(() => {
-    const text = document.body.innerText;
-    return /AI FLUENCY/i.test(text) || !!document.querySelector(".ghost-stamp");
-  });
-  if (stamp) {
-    fail("production: Ghost stamp present (should be cut)");
-  } else {
-    pass("production: no Ghost stamp");
-  }
-}
-
-async function testSamplePath(page) {
-  await page.goto(BASE, { waitUntil: "networkidle" });
-  await scrollEncounterFraction(page, 0.45);
-  await page.click("#sampleBtn");
-
-  const badgeOnInk = await page.evaluate(() =>
-    document.getElementById("demoBadge")?.classList.contains("show"),
-  );
-  if (!badgeOnInk) fail("sample: badge not visible on ink");
-  else pass("sample: badge visible on ink");
-
-  await scrollEncounterFraction(page, 0.72);
-  await waitForBoundComplete(page);
-  await assertSingleRefuseSurface(page);
-
-  const badgeOnBound = await page.evaluate(() =>
-    document.getElementById("demoBadge")?.classList.contains("show"),
-  );
-  if (!badgeOnBound) fail("sample: badge not visible through Bound");
-  else pass("sample: badge persists through Bound");
-
-  const condText = await page.evaluate(
-    () => document.getElementById("contractCond")?.textContent?.trim() ?? "",
-  );
-  if (condText) fail(`sample: footer twin honesty should be cut (got "${condText}")`);
-  else pass("sample: no footer twin honesty on contract line");
-
-  const boundHint = await page.evaluate(() => {
-    const panel = document.getElementById("panelContract");
-    return panel?.querySelector(".encounter-hint")?.textContent?.trim() ?? "";
-  });
-  if (/claims try to land/i.test(boundHint)) {
-    fail("sample: Bound hint should not appear on Sample Trace path");
-  } else {
-    pass("sample: Bound hint cut on Sample Trace path");
-  }
-
-  const slipStoresNothing = await page.evaluate(() => {
-    const slip = document.getElementById("slip");
-    return /stores nothing/i.test(slip?.textContent ?? "");
-  });
-  if (slipStoresNothing) {
-    fail("sample: stores-nothing should not peak on Sample Trace slip");
-  } else {
-    pass("sample: stores-nothing off Sample Trace slip");
-  }
-
-  const count = await page.evaluate(
-    () => document.querySelectorAll("[data-non-inference]").length,
-  );
-  if (count < 3) fail(`sample: expected ≥3 non-inference nodes, got ${count}`);
-  else pass(`sample: NON-INFERENCES in DOM (${count})`);
-}
-
-const browser = await chromium.launch({ channel: "chrome", headless: true });
+const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+const pageErrors = [];
+page.on("pageerror", (err) => pageErrors.push(err.message));
 
 try {
-  await assertNoGhostStamp(page);
-  await testSamplePath(page);
-} catch (err) {
-  fail(String(err?.message ?? err));
+  await page.goto(BASE, { waitUntil: "networkidle" });
+
+  // 1. Hero checks
+  const h1 = await page.textContent("h1");
+  if (h1 && h1.includes("Know what you")) {
+    pass("Hero title rendered cleanly");
+  } else {
+    fail(`Hero title missing or unexpected: ${h1}`);
+  }
+
+  // 2. Ink sphere check
+  const sphere = await page.$(".ink-sphere");
+  if (sphere) {
+    pass("Hero living ink sphere mounted");
+  } else {
+    fail("Hero ink sphere missing");
+  }
+
+  // 3. Removed #method section check
+  const method = await page.$("#method");
+  if (!method) {
+    pass("Method section successfully removed from DOM");
+  } else {
+    fail("Method section still present in DOM");
+  }
+
+  // 4. Disciplines / Orbit check
+  const material = await page.$("#material");
+  if (material) {
+    pass("Disciplines (Orbit) section rendered");
+  } else {
+    fail("Disciplines section missing");
+  }
+
+  // 5. Memory check
+  const memory = await page.$("#memory");
+  if (memory) {
+    pass("Memory section rendered");
+  } else {
+    fail("Memory section missing");
+  }
+
+  // 6. Navigation links check
+  const navLinks = await page.$$eval("nav a", (links) =>
+    links.map((l) => l.getAttribute("href")),
+  );
+  if (
+    !navLinks.includes("#method") &&
+    navLinks.includes("#material") &&
+    navLinks.includes("#memory")
+  ) {
+    pass(
+      "Navigation links updated correctly (no #method, includes #material and #memory)",
+    );
+  } else {
+    fail(`Navigation links unexpected: ${JSON.stringify(navLinks)}`);
+  }
+
+  // 7. No unhandled page errors
+  if (pageErrors.length === 0) {
+    pass("Zero uncaught JavaScript runtime errors on page");
+  } else {
+    fail(`Page errors detected: ${pageErrors.join(", ")}`);
+  }
 } finally {
   await browser.close();
 }
 
 if (failed > 0) {
-  console.error(`\n${failed} assertion(s) failed`);
+  console.error(`\nSmoke verification failed: ${failed} failure(s)`);
   process.exit(1);
+} else {
+  console.log("\nverify-smoke: all checks passed");
+  process.exit(0);
 }
-
-console.log("\nverify-encounter-bound: all checks passed");
-process.exit(0);

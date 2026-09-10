@@ -9,9 +9,7 @@ import {
 } from "@/lib/content";
 import { useActProgress } from "@/lib/scroll/use-act-progress";
 
-/** Flowing handoff after EncounterStrip unpin; not a third sticky. */
-const BRIDGE =
-  "One question for one concept. Now across your whole syllabus.";
+const BRIDGE = orbit.eyebrow;
 
 /** The subject field stays legible; orbit labels switch the editorial card in place. */
 export function Orbit() {
