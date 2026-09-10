@@ -37,7 +37,7 @@ export function Hero() {
           {notebook.heroEyebrow ? (
             <div className="hero-eyebrow">{notebook.heroEyebrow}</div>
           ) : null}
-          <h1 className="hero-title notebook-display" data-split-reveal>
+          <h1 className="hero-title notebook-display">
             {notebook.heroTitle}
           </h1>
           <p>{notebook.heroBody}</p>

@@ -59,7 +59,13 @@ export function InkSphere({
     }
   }, []);
 
+  const initRendererRef = useRef<() => void>(() => {});
+
   const handleManualAdvance = () => {
+    if (!toolRef.current) {
+      initRendererRef.current();
+      return;
+    }
     advance();
     startCycle();
   };
@@ -69,69 +75,108 @@ export function InkSphere({
     if (!element) return;
     let disposed = false;
     let cleanup = () => {};
+    let started = false;
 
-    import("@/lib/ink/renderer")
-      .then(({ mountInk }) => {
-        if (disposed) return;
-        const initial = readInitialInk();
-        const renderer = mountInk(element, initial, () => {
-          if (element.dataset.inkReady !== "true")
-            element.dataset.inkReady = "true";
-        });
-        const tool = createInkTool(renderer, initial);
-        toolRef.current = tool;
-        window.socratinkInk = tool;
-        onTool?.(tool);
+    const initRenderer = () => {
+      if (started || disposed) return;
+      started = true;
 
-        const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-        const theme = window.matchMedia("(prefers-color-scheme: dark)");
+      import("@/lib/ink/renderer")
+        .then(({ mountInk }) => {
+          if (disposed) return;
+          const initial = readInitialInk();
+          const renderer = mountInk(element, initial, () => {
+            if (element.dataset.inkReady !== "true")
+              element.dataset.inkReady = "true";
+          });
+          const tool = createInkTool(renderer, initial);
+          toolRef.current = tool;
+          window.socratinkInk = tool;
+          onTool?.(tool);
 
-        const updateTheme = () =>
-          renderer.setTheme(resolveTheme(getStoredTheme()));
+          const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+          const theme = window.matchMedia("(prefers-color-scheme: dark)");
 
-        const updateMotion = () => {
-          const reduced = motion.matches;
-          isReducedRef.current = reduced;
-          renderer.setReduced(reduced);
-          if (reduced) {
+          const updateTheme = () =>
+            renderer.setTheme(resolveTheme(getStoredTheme()));
+
+          const updateMotion = () => {
+            const reduced = motion.matches;
+            isReducedRef.current = reduced;
+            renderer.setReduced(reduced);
+            if (reduced) {
+              stopCycle();
+              tool.call("ink_express", { expression: "rest" });
+            } else {
+              startCycle();
+            }
+          };
+
+          updateTheme();
+          updateMotion();
+
+          window.addEventListener(THEME_CHANGE_EVENT, updateTheme);
+          window.addEventListener("storage", updateTheme);
+          theme.addEventListener("change", updateTheme);
+          motion.addEventListener("change", updateMotion);
+
+          startCycle();
+
+          cleanup = () => {
             stopCycle();
-            tool.call("ink_express", { expression: "rest" });
-          } else {
-            startCycle();
-          }
-        };
+            renderer.destroy();
+            if (window.socratinkInk === tool) delete window.socratinkInk;
+            toolRef.current = null;
+            onTool?.(null);
+            window.removeEventListener(THEME_CHANGE_EVENT, updateTheme);
+            window.removeEventListener("storage", updateTheme);
+            theme.removeEventListener("change", updateTheme);
+            motion.removeEventListener("change", updateMotion);
+          };
+        })
+        .catch((cause) => {
+          if (!disposed)
+            setError(
+              cause instanceof Error ? cause.message : "WebGL unavailable",
+            );
+        });
+    };
 
-        updateTheme();
-        updateMotion();
+    initRendererRef.current = initRenderer;
 
-        window.addEventListener(THEME_CHANGE_EVENT, updateTheme);
-        window.addEventListener("storage", updateTheme);
-        theme.addEventListener("change", updateTheme);
-        motion.addEventListener("change", updateMotion);
+    // Defer heavy WebGL initialization until idle or user interaction
+    let idleId: number | null = null;
+    let timerId: ReturnType<typeof setTimeout> | null = null;
 
-        startCycle();
+    if (typeof window !== "undefined") {
+      const win = window as unknown as {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+      if (typeof win.requestIdleCallback === "function") {
+        idleId = win.requestIdleCallback(initRenderer, { timeout: 1800 });
+      } else {
+        timerId = setTimeout(initRenderer, 1000);
+      }
+    }
 
-        cleanup = () => {
-          stopCycle();
-          renderer.destroy();
-          if (window.socratinkInk === tool) delete window.socratinkInk;
-          toolRef.current = null;
-          onTool?.(null);
-          window.removeEventListener(THEME_CHANGE_EVENT, updateTheme);
-          window.removeEventListener("storage", updateTheme);
-          theme.removeEventListener("change", updateTheme);
-          motion.removeEventListener("change", updateMotion);
-        };
-      })
-      .catch((cause) => {
-        if (!disposed)
-          setError(
-            cause instanceof Error ? cause.message : "WebGL unavailable",
-          );
-      });
+    const triggerImmediate = () => initRenderer();
+    element.addEventListener("pointerenter", triggerImmediate, { once: true, passive: true });
+    element.addEventListener("pointerdown", triggerImmediate, { once: true, passive: true });
+    window.addEventListener("scroll", triggerImmediate, { once: true, passive: true });
 
     return () => {
       disposed = true;
+      const win = window as unknown as {
+        cancelIdleCallback?: (id: number) => void;
+      };
+      if (idleId !== null && typeof win.cancelIdleCallback === "function") {
+        win.cancelIdleCallback(idleId);
+      }
+      if (timerId !== null) clearTimeout(timerId);
+      element.removeEventListener("pointerenter", triggerImmediate);
+      element.removeEventListener("pointerdown", triggerImmediate);
+      window.removeEventListener("scroll", triggerImmediate);
       cleanup();
     };
   }, [onTool, startCycle, stopCycle]);
