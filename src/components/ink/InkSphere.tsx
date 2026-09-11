@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import type { InkTool } from "@/lib/ink/tool";
+import type { InkRenderer } from "@/lib/ink/renderer";
 import { getStoredTheme, resolveTheme, THEME_CHANGE_EVENT } from "@/lib/theme";
 import { INK_EXPRESSIONS, type InkExpression } from "@/lib/ink/expressions";
 
@@ -29,6 +30,7 @@ export function InkSphere({
 }) {
   const mount = useRef<HTMLDivElement>(null);
   const toolRef = useRef<InkTool | null>(null);
+  const rendererRef = useRef<InkRenderer | null>(null);
   const cycleIndexRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isHoveredRef = useRef(false);
@@ -70,6 +72,7 @@ export function InkSphere({
       initRendererRef.current();
       return;
     }
+    rendererRef.current?.triggerImpulse(1.0);
     advance();
     startCycle();
   };
@@ -95,6 +98,7 @@ export function InkSphere({
             if (element.dataset.inkReady !== "true")
               element.dataset.inkReady = "true";
           });
+          rendererRef.current = renderer;
           const tool = createInkTool(renderer, initial);
           toolRef.current = tool;
           window.socratinkInk = tool;
@@ -127,6 +131,19 @@ export function InkSphere({
           theme.addEventListener("change", updateTheme);
           motion.addEventListener("change", updateMotion);
 
+          let lastScrollY = window.scrollY;
+          let lastScrollTime = performance.now();
+          const handleScroll = () => {
+            const now = performance.now();
+            const dt = Math.max(0.008, (now - lastScrollTime) / 1000);
+            lastScrollTime = now;
+            const currentY = window.scrollY;
+            const v = (currentY - lastScrollY) / dt;
+            lastScrollY = currentY;
+            renderer.setScrollVelocity(v);
+          };
+          window.addEventListener("scroll", handleScroll, { passive: true });
+
           const unsubscribeTool = tool.subscribe(() => {
             const status = tool.call("ink_get_scene");
             if (status.ok && status.rendering.paused) {
@@ -139,9 +156,11 @@ export function InkSphere({
           startCycle();
 
           cleanup = () => {
+            window.removeEventListener("scroll", handleScroll);
             unsubscribeTool();
             stopCycle();
             renderer.destroy();
+            rendererRef.current = null;
             if (window.socratinkInk === tool) delete window.socratinkInk;
             toolRef.current = null;
             onTool?.(null);

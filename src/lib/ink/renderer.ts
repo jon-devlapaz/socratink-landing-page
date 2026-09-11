@@ -99,6 +99,12 @@ export function mountInk(
   const nextRotation = new THREE.Quaternion();
   const pointer = new THREE.Vector2();
   const pointerTarget = new THREE.Vector2();
+  const pointerVelocity = new THREE.Vector2();
+  const lastPointerPos = new THREE.Vector2();
+  let lastPointerTime = 0;
+  let splashImpulse = 0;
+  let scrollVelocity = 0;
+  let scrollStretch = 0;
   const frameTimes: number[] = [];
   const motion = { ...recipe.motion };
 
@@ -185,6 +191,29 @@ export function mountInk(
     );
     if (moving) time += dt * motion.speed;
     if (!frozen) pointer.lerp(reduced ? origin : pointerTarget, ease);
+
+    if (reduced || frozen) {
+      pointerVelocity.set(0, 0);
+      splashImpulse = 0;
+      scrollStretch = 0;
+      scrollVelocity = 0;
+    } else {
+      pointerVelocity.multiplyScalar(Math.exp(-dt * 4.5));
+      if (splashImpulse > 0) {
+        splashImpulse = Math.max(0, splashImpulse - dt * 2.8);
+      }
+      scrollStretch = THREE.MathUtils.lerp(
+        scrollStretch,
+        scrollVelocity * 0.0008,
+        1 - Math.exp(-dt * 5),
+      );
+      scrollVelocity = THREE.MathUtils.lerp(
+        scrollVelocity,
+        0,
+        1 - Math.exp(-dt * 3.5),
+      );
+    }
+
     let extent = 1;
     const kinematicKind = resolveKinematicKind(recipe);
     entities.forEach((entity, i) => {
@@ -230,19 +259,51 @@ export function mountInk(
         }
       }
 
+      const dynamic = !frozen && !reduced;
+      // Multi-harmonic microscopic fluid turbulence
+      const harmonicA = dynamic ? Math.sin(time * 1.7 + phase * 1.5) * a * 0.25 : 0;
+      const harmonicB = dynamic ? Math.cos(time * 2.5 + phase * 0.8) * a * 0.15 : 0;
+
+      // Viscous drag / velocity shear
+      const shearX = dynamic ? pointerVelocity.x * 0.024 * (1 + (i % 3) * 0.15) : 0;
+      const shearY = dynamic ? pointerVelocity.y * 0.024 * (1 + (i % 3) * 0.15) : 0;
+
+      // Click splash shockwave
+      const splashWave =
+        dynamic && splashImpulse > 0
+          ? Math.sin(time * 22 + i * 1.4) * splashImpulse * 0.12
+          : 0;
+
+      // Scroll inertial g-force stretch (volume conserving: stretch Y, compress XZ)
+      const gStretchY = dynamic ? THREE.MathUtils.clamp(scrollStretch, -0.22, 0.32) : 0;
+      const gStretchXZ = -gStretchY * 0.45;
+
       entity.position.lerp(
         nextPosition.set(
-          x + pointer.x * motion.pointer * (0.3 + i * 0.15),
-          y + pointer.y * motion.pointer * (0.3 + i * 0.15),
-          z,
+          x + pointer.x * motion.pointer * (0.3 + i * 0.15) + shearX,
+          y + pointer.y * motion.pointer * (0.3 + i * 0.15) + shearY,
+          z + harmonicA,
         ),
         ease,
       );
+      const dynamicScaleMult = scaleMult + splashWave + harmonicB;
       if (scaleOverride) {
-        entity.scale.lerp(scaleOverride, ease);
+        entity.scale.lerp(
+          nextScale
+            .copy(scaleOverride)
+            .multiply(
+              new THREE.Vector3(1 + gStretchXZ, 1 + gStretchY, 1 + gStretchXZ),
+            ),
+          ease,
+        );
       } else {
         entity.scale.lerp(
-          nextScale.copy(target.scale).multiplyScalar(scaleMult),
+          nextScale
+            .copy(target.scale)
+            .multiplyScalar(dynamicScaleMult)
+            .multiply(
+              new THREE.Vector3(1 + gStretchXZ, 1 + gStretchY, 1 + gStretchXZ),
+            ),
           ease,
         );
       }
@@ -309,7 +370,11 @@ export function mountInk(
     if (
       (!frozen &&
         !reduced &&
-        (motion.speed > 0 || pointer.distanceTo(pointerTarget) > 0.001)) ||
+        (motion.speed > 0 ||
+          pointer.distanceTo(pointerTarget) > 0.001 ||
+          pointerVelocity.lengthSq() > 0.0001 ||
+          splashImpulse > 0.01 ||
+          Math.abs(scrollStretch) > 0.001)) ||
       transition > 0
     )
       schedule();
@@ -330,15 +395,39 @@ export function mountInk(
   });
   const pointerMove = (event: PointerEvent) => {
     const rect = mount.getBoundingClientRect();
-    pointerTarget.set(
-      ((event.clientX - rect.left) / rect.width) * 2 - 1,
-      1 - ((event.clientY - rect.top) / rect.height) * 2,
-    );
+    const nextX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const nextY = 1 - ((event.clientY - rect.top) / rect.height) * 2;
+    const now = performance.now();
+    if (lastPointerTime > 0) {
+      const dtSec = Math.max(0.005, (now - lastPointerTime) / 1000);
+      const vx = (nextX - lastPointerPos.x) / dtSec;
+      const vy = (nextY - lastPointerPos.y) / dtSec;
+      pointerVelocity.x = THREE.MathUtils.lerp(
+        pointerVelocity.x,
+        THREE.MathUtils.clamp(vx, -5, 5),
+        0.35,
+      );
+      pointerVelocity.y = THREE.MathUtils.lerp(
+        pointerVelocity.y,
+        THREE.MathUtils.clamp(vy, -5, 5),
+        0.35,
+      );
+    }
+    lastPointerTime = now;
+    lastPointerPos.set(nextX, nextY);
+    pointerTarget.set(nextX, nextY);
     transition = 0.8;
+    schedule();
+  };
+  const pointerDown = () => {
+    if (reduced) return;
+    splashImpulse = 1.0;
+    transition = 1.2;
     schedule();
   };
   const pointerLeave = () => {
     pointerTarget.set(0, 0);
+    pointerVelocity.set(0, 0);
     transition = 1;
     schedule();
   };
@@ -361,6 +450,7 @@ export function mountInk(
   observer.observe(mount);
   intersection.observe(mount);
   mount.addEventListener("pointermove", pointerMove);
+  mount.addEventListener("pointerdown", pointerDown);
   mount.addEventListener("pointerleave", pointerLeave);
   renderer.domElement.addEventListener("webglcontextlost", contextLost);
   renderer.domElement.addEventListener("webglcontextrestored", contextRestored);
@@ -369,6 +459,18 @@ export function mountInk(
   resize();
   return {
     setScene,
+    triggerImpulse(magnitude = 1.0) {
+      if (reduced) return;
+      splashImpulse = magnitude;
+      transition = 1.2;
+      schedule();
+    },
+    setScrollVelocity(v: number) {
+      if (reduced) return;
+      scrollVelocity = THREE.MathUtils.clamp(v, -1500, 1500);
+      transition = 0.8;
+      schedule();
+    },
     setTheme(value: string) {
       theme = value;
       transition = 1;
@@ -381,6 +483,12 @@ export function mountInk(
     },
     setPaused(value: boolean) {
       frozen = value;
+      if (value) {
+        pointerVelocity.set(0, 0);
+        splashImpulse = 0;
+        scrollStretch = 0;
+        scrollVelocity = 0;
+      }
       transition = 1;
       previous = 0;
       schedule();
@@ -422,6 +530,7 @@ export function mountInk(
       observer.disconnect();
       intersection.disconnect();
       mount.removeEventListener("pointermove", pointerMove);
+      mount.removeEventListener("pointerdown", pointerDown);
       mount.removeEventListener("pointerleave", pointerLeave);
       document.removeEventListener("visibilitychange", visibility);
       renderer.domElement.removeEventListener("webglcontextlost", contextLost);

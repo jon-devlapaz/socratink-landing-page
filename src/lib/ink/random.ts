@@ -1,4 +1,5 @@
 import { parseInkScene, type InkPart, type InkScene } from "./scene";
+import { type InkKinematicKind } from "./kinematics";
 
 function rand(min: number, max: number): number {
   return min + Math.random() * (max - min);
@@ -437,4 +438,328 @@ export function generateRandomInkScene(
   };
 
   return parseInkScene(candidate);
+}
+
+/**
+ * Procedural Abstracted Socratic Concepts
+ * Generates unique, organic fluid configurations on every invocation.
+ */
+
+function buildAbstractQuestion(): {
+  name: string;
+  parts: InkPart[];
+  blend: number;
+  kinematics: InkKinematicKind;
+} {
+  const parts: InkPart[] = [];
+  const tilt = rand(-12, 12);
+  const tiltRad = (tilt * Math.PI) / 180;
+
+  const arcDiam = rand(0.18, 0.24);
+  parts.push({
+    shape: "capsule",
+    operation: "union",
+    position: [Math.sin(tiltRad) * 0.1, 0.46 + Math.cos(tiltRad) * 0.05, 0],
+    scale: [arcDiam, Math.max(arcDiam, rand(0.55, 0.68)), arcDiam],
+    rotation: [0, 0, normDeg(tilt + 85)],
+  });
+
+  parts.push({
+    shape: "capsule",
+    operation: "union",
+    position: [0.26, 0.32, 0],
+    scale: [arcDiam * 0.95, Math.max(arcDiam * 0.95, rand(0.42, 0.52)), arcDiam * 0.95],
+    rotation: [0, 0, normDeg(tilt - 25)],
+  });
+
+  parts.push({
+    shape: "capsule",
+    operation: "union",
+    position: [0.06, 0.08, 0],
+    scale: [arcDiam * 0.9, Math.max(arcDiam * 0.9, rand(0.44, 0.54)), arcDiam * 0.9],
+    rotation: [0, 0, normDeg(tilt - 65)],
+  });
+
+  parts.push({
+    shape: "capsule",
+    operation: "union",
+    position: [0.0, -0.16, 0],
+    scale: [arcDiam * 0.95, Math.max(arcDiam * 0.95, rand(0.32, 0.42)), arcDiam * 0.95],
+    rotation: [0, 0, normDeg(tilt)],
+  });
+
+  const dotDiam = rand(0.18, 0.24);
+  parts.push({
+    shape: "sphere",
+    operation: "union",
+    position: [0.0, rand(-0.48, -0.42), 0],
+    scale: [dotDiam, dotDiam, dotDiam],
+    rotation: [0, 0, 0],
+  });
+
+  return {
+    name: "Question mark",
+    parts,
+    blend: Number(rand(0.12, 0.16).toFixed(2)),
+    kinematics: "serpentine",
+  };
+}
+
+function buildAbstractLightbulb(): {
+  name: string;
+  parts: InkPart[];
+  blend: number;
+  kinematics: InkKinematicKind;
+} {
+  const parts: InkPart[] = [];
+  const tilt = rand(-8, 8);
+  const bulbRad = rand(0.30, 0.36);
+
+  // Central insight dome
+  parts.push({
+    shape: "sphere",
+    operation: "union",
+    position: [0, 0.22, 0],
+    scale: [bulbRad * 2, bulbRad * 2, bulbRad * 1.8],
+    rotation: [0, 0, normDeg(tilt)],
+  });
+
+  // Tapering fluid neck
+  const neckDiam = rand(0.24, 0.30);
+  parts.push({
+    shape: "capsule",
+    operation: "union",
+    position: [0, -0.06, 0],
+    scale: [neckDiam, Math.max(neckDiam, rand(0.34, 0.44)), neckDiam],
+    rotation: [0, 0, normDeg(tilt)],
+  });
+
+  // Screw plinth
+  const plinthDiam = rand(0.20, 0.26);
+  parts.push({
+    shape: "capsule",
+    operation: "union",
+    position: [0, -0.28, 0],
+    scale: [plinthDiam, Math.max(plinthDiam, rand(0.32, 0.40)), plinthDiam],
+    rotation: [0, 0, normDeg(tilt + 90)],
+  });
+
+  // 3 Radiant flares/rays shooting outwards
+  const rayDiam = rand(0.08, 0.11);
+  const angles = [rand(80, 100), rand(35, 55), rand(125, 145)];
+  angles.forEach((deg) => {
+    const rad = (deg * Math.PI) / 180;
+    const dist = rand(0.64, 0.74);
+    const len = rand(0.22, 0.32);
+    parts.push({
+      shape: "capsule",
+      operation: "union",
+      position: [Math.cos(rad) * dist, 0.22 + Math.sin(rad) * dist * 0.7, 0],
+      scale: [rayDiam, Math.max(rayDiam, len), rayDiam],
+      rotation: [0, 0, normDeg(deg - 90)],
+    });
+  });
+
+  return {
+    name: "Lightbulb",
+    parts,
+    blend: Number(rand(0.11, 0.15).toFixed(2)),
+    kinematics: "pulse",
+  };
+}
+
+function buildAbstractTarget(): {
+  name: string;
+  parts: InkPart[];
+  blend: number;
+  kinematics: InkKinematicKind;
+} {
+  const parts: InkPart[] = [];
+  const ringR = rand(0.52, 0.58);
+  const ringThick = rand(0.10, 0.14);
+  const segments = 6;
+
+  for (let i = 0; i < segments; i++) {
+    const a1 = (i * 2 * Math.PI) / segments;
+    const a2 = ((i + 1) * 2 * Math.PI) / segments;
+    const x1 = Math.cos(a1) * ringR;
+    const y1 = Math.sin(a1) * ringR;
+    const x2 = Math.cos(a2) * ringR;
+    const y2 = Math.sin(a2) * ringR;
+    const mx = (x1 + x2) * 0.5;
+    const my = (y1 + y2) * 0.5;
+    const chordLen = Math.hypot(x2 - x1, y2 - y1);
+    const angleDeg = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
+
+    parts.push({
+      shape: "capsule",
+      operation: "union",
+      position: [mx, my, 0],
+      scale: [ringThick, Math.max(ringThick, chordLen * 1.05), ringThick],
+      rotation: [0, 0, normDeg(angleDeg + 90)],
+    });
+  }
+
+  const centerDiam = rand(0.32, 0.40);
+  parts.push({
+    shape: "sphere",
+    operation: "union",
+    position: [0, 0, 0],
+    scale: [centerDiam, centerDiam, centerDiam],
+    rotation: [0, 0, 0],
+  });
+
+  const arrowThick = rand(0.08, 0.11);
+  parts.push({
+    shape: "capsule",
+    operation: "union",
+    position: [0.34, 0.34, 0.05],
+    scale: [arrowThick, Math.max(arrowThick, 0.72), arrowThick],
+    rotation: [normDeg(10), normDeg(10), normDeg(-45)],
+  });
+
+  return {
+    name: "Bullseye target",
+    parts,
+    blend: Number(rand(0.10, 0.14).toFixed(2)),
+    kinematics: "vortex",
+  };
+}
+
+function buildAbstractKey(): {
+  name: string;
+  parts: InkPart[];
+  blend: number;
+  kinematics: InkKinematicKind;
+} {
+  const parts: InkPart[] = [];
+  const bowR = rand(0.20, 0.25);
+  const bowThick = rand(0.09, 0.12);
+  const bowY = rand(0.40, 0.46);
+  const segments = 4;
+
+  for (let i = 0; i < segments; i++) {
+    const a1 = (i * 2 * Math.PI) / segments + Math.PI / 4;
+    const a2 = (((i + 1) * 2 * Math.PI) / segments) + Math.PI / 4;
+    const x1 = Math.cos(a1) * bowR;
+    const y1 = bowY + Math.sin(a1) * bowR;
+    const x2 = Math.cos(a2) * bowR;
+    const y2 = bowY + Math.sin(a2) * bowR;
+    const mx = (x1 + x2) * 0.5;
+    const my = (y1 + y2) * 0.5;
+    const chordLen = Math.hypot(x2 - x1, y2 - y1);
+    const angleDeg = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
+
+    parts.push({
+      shape: "capsule",
+      operation: "union",
+      position: [mx, my, 0],
+      scale: [bowThick, Math.max(bowThick, chordLen * 1.08), bowThick],
+      rotation: [0, 0, normDeg(angleDeg + 90)],
+    });
+  }
+
+  const stemDiam = rand(0.12, 0.15);
+  parts.push({
+    shape: "capsule",
+    operation: "union",
+    position: [0, -0.18, 0],
+    scale: [stemDiam, Math.max(stemDiam, rand(0.85, 0.98)), stemDiam],
+    rotation: [0, 0, 0],
+  });
+
+  const toothThick = rand(0.10, 0.12);
+  parts.push({
+    shape: "capsule",
+    operation: "union",
+    position: [0.12, -0.34, 0],
+    scale: [toothThick, Math.max(toothThick, rand(0.24, 0.32)), toothThick],
+    rotation: [0, 0, normDeg(90)],
+  });
+
+  parts.push({
+    shape: "capsule",
+    operation: "union",
+    position: [0.14, -0.52, 0],
+    scale: [toothThick, Math.max(toothThick, rand(0.28, 0.36)), toothThick],
+    rotation: [0, 0, normDeg(90)],
+  });
+
+  return {
+    name: "Socratic key",
+    parts,
+    blend: Number(rand(0.10, 0.14).toFixed(2)),
+    kinematics: "respiration",
+  };
+}
+
+const CONCEPT_BUILDERS = {
+  rest: () => ({ ...buildTeardrop(), name: "Ink droplet", kinematics: "respiration" as InkKinematicKind }),
+  question: buildAbstractQuestion,
+  lightbulb: buildAbstractLightbulb,
+  target: buildAbstractTarget,
+  key: buildAbstractKey,
+};
+
+export type ProceduralConceptKind = keyof typeof CONCEPT_BUILDERS;
+
+/**
+ * Generate a procedural, randomized instance of an abstracted Socratic concept.
+ */
+export function generateProceduralConceptScene(
+  concept: ProceduralConceptKind,
+): InkScene {
+  const builder = CONCEPT_BUILDERS[concept] ?? CONCEPT_BUILDERS.rest;
+  const { name, parts, blend, kinematics } = builder();
+
+  const candidate: InkScene = {
+    version: 1,
+    name,
+    blend,
+    kinematics,
+    material: {
+      color: "#08090b",
+      roughness: Number(rand(0.16, 0.22).toFixed(2)),
+      metalness: Number(rand(0.12, 0.18).toFixed(2)),
+    },
+    motion: {
+      speed: Number(rand(0.32, 0.46).toFixed(2)),
+      amplitude: Number(rand(0.06, 0.12).toFixed(3)),
+      pointer: Number(rand(0.18, 0.32).toFixed(2)),
+    },
+    parts: parts.slice(0, 10),
+  };
+
+  return parseInkScene(candidate);
+}
+
+/**
+ * Generates an alternating emergence sequence:
+ * Pure Generative Fluid (Teardrop, Comma, Fusion, Clover, Splash) <--> Abstracted Concepts.
+ */
+export function generateEmergenceScene(cycleStep: number): InkScene {
+  const concepts: ProceduralConceptKind[] = [
+    "rest",
+    "question",
+    "lightbulb",
+    "target",
+    "key",
+  ];
+  const fluidArchetypes: InkArchetype[] = [
+    "coalescence",
+    "comma",
+    "trilobe",
+    "splash",
+    "pebble",
+  ];
+
+  if (cycleStep % 2 === 0) {
+    // Conceptual phase
+    const conceptIdx = Math.floor(cycleStep / 2) % concepts.length;
+    return generateProceduralConceptScene(concepts[conceptIdx]);
+  } else {
+    // Pure fluid genesis phase
+    const fluidIdx = Math.floor(cycleStep / 2) % fluidArchetypes.length;
+    return generateRandomInkScene(fluidArchetypes[fluidIdx]);
+  }
 }

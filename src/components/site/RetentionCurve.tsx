@@ -168,8 +168,9 @@ export function RetentionCurve() {
 
       // Layout geometry
       const isMobile = width < 640;
-      const padLeft = isMobile ? 38 : 56;
-      const padRight = isMobile ? 80 : 160;
+      const isCompact = width < 420;
+      const padLeft = isCompact ? 30 : isMobile ? 36 : 56;
+      const padRight = isCompact ? 90 : isMobile ? 104 : 160;
       const padTop = 32;
       const padBottom = 42;
 
@@ -429,20 +430,28 @@ export function RetentionCurve() {
         ctx.lineWidth = 0.8;
         ctx.setLineDash([2, 2]);
         ctx.moveTo(crossoverX, crossoverY - 4);
-        ctx.lineTo(crossoverX, crossoverY - 24);
+        ctx.lineTo(crossoverX, crossoverY - (isCompact ? 14 : 24));
         ctx.stroke();
         ctx.setLineDash([]);
 
         // Elegant drafting notation
-        ctx.font = "bold 9.5px monospace";
-        ctx.fillStyle = textPrimary;
-        ctx.textAlign = "left";
-        ctx.textBaseline = "bottom";
-        ctx.fillText("The Crossover · ~Day 2", crossoverX + 6, crossoverY - 14);
+        if (isCompact) {
+          ctx.font = "bold 8.5px monospace";
+          ctx.fillStyle = textPrimary;
+          ctx.textAlign = "left";
+          ctx.textBaseline = "bottom";
+          ctx.fillText("Crossover", crossoverX + 5, crossoverY - 6);
+        } else {
+          ctx.font = "bold 9.5px monospace";
+          ctx.fillStyle = textPrimary;
+          ctx.textAlign = "left";
+          ctx.textBaseline = "bottom";
+          ctx.fillText("The Crossover · ~Day 2", crossoverX + 6, crossoverY - 14);
 
-        ctx.font = "8.5px monospace";
-        ctx.fillStyle = textMuted;
-        ctx.fillText("Passive recognition begins decay", crossoverX + 6, crossoverY - 4);
+          ctx.font = "8.5px monospace";
+          ctx.fillStyle = textMuted;
+          ctx.fillText("Passive recognition begins decay", crossoverX + 6, crossoverY - 4);
+        }
       }
 
       // 6. Direct Curve End Typography (Apple Silicon style on paper)
@@ -453,23 +462,35 @@ export function RetentionCurve() {
 
         ctx.textAlign = "left";
 
-        // Socratink Unaided Curve Label
-        ctx.font = "bold 10px monospace";
-        ctx.fillStyle = accentColor;
-        ctx.fillText("Socratink (80%)", endX + 10, endYUnaided - 2);
+        if (isCompact) {
+          // Compact single-line labels
+          ctx.font = "bold 9px monospace";
+          ctx.fillStyle = accentColor;
+          ctx.textBaseline = "middle";
+          ctx.fillText("Socratink 80%", endX + 6, endYUnaided);
 
-        ctx.font = "9px monospace";
-        ctx.fillStyle = textMuted;
-        ctx.fillText("Solves cold without notes", endX + 10, endYUnaided + 10);
+          ctx.font = "bold 9px monospace";
+          ctx.fillStyle = passiveColor;
+          ctx.fillText("Passive 18%", endX + 6, endYPassive);
+        } else {
+          // Full editorial typography
+          ctx.font = "bold 10px monospace";
+          ctx.fillStyle = accentColor;
+          ctx.textBaseline = "alphabetic";
+          ctx.fillText("Socratink (80%)", endX + 10, endYUnaided - 2);
 
-        // Passive Decay Curve Label
-        ctx.font = "10px monospace";
-        ctx.fillStyle = passiveColor;
-        ctx.fillText("Passive (18%)", endX + 10, endYPassive - 2);
+          ctx.font = "9px monospace";
+          ctx.fillStyle = textMuted;
+          ctx.fillText("Solves cold without notes", endX + 10, endYUnaided + 10);
 
-        ctx.font = "9px monospace";
-        ctx.fillStyle = textMuted;
-        ctx.fillText("Evaporated recall", endX + 10, endYPassive + 10);
+          ctx.font = "10px monospace";
+          ctx.fillStyle = passiveColor;
+          ctx.fillText("Passive (18%)", endX + 10, endYPassive - 2);
+
+          ctx.font = "9px monospace";
+          ctx.fillStyle = textMuted;
+          ctx.fillText("Evaporated recall", endX + 10, endYPassive + 10);
+        }
       }
 
       // 7. Active Drawing Stylus Nib (Follows Active Scroll Travel)
@@ -524,111 +545,112 @@ export function RetentionCurve() {
       id="retention-science"
       ref={containerRef}
       aria-labelledby="retention-title"
-      className="relative z-10 mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
+      className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 scroll-mt-24"
     >
-      {/* Editorial Header */}
-      <div className="mb-10 sm:mb-14">
-        <div className="text-[0.6875rem] font-mono font-semibold uppercase tracking-[0.18em] text-accent mb-3">
-          Cognitive Dynamics
-        </div>
-        <h2
-          id="retention-title"
-          className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-tx leading-[1.08]"
-        >
-          Why unassisted recall holds under pressure
-        </h2>
-        <p className="mt-3 text-base sm:text-lg text-tx-2 max-w-2xl leading-relaxed">
-          Assisted review creates the illusion of mastery while memory decays. Unaided retrieval trains the brain to reconstruct solutions from first principles.
-        </p>
-      </div>
-
-      {/* Living Ink Canvas Surface (Borderless drafting plane sitting directly on paper) */}
-      <div className="relative w-full">
-        {/* Top Annotation Bar */}
-        <div className="flex items-center justify-between border-b border-tx/10 pb-3 mb-2 text-xs font-mono">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
-              <span className="font-medium text-tx">Unaided retrieval (Permanent ink)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full border border-dashed border-tx-3" aria-hidden="true" />
-              <span className="text-tx-2">Passive reading &amp; AI answers (Evaporates)</span>
-            </div>
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12 lg:items-center">
+        {/* Left Column: Narrative Ledger & Editorial Value Proposition (5 cols) */}
+        <div className="lg:col-span-5 flex flex-col justify-center">
+          <div className="text-[0.6875rem] font-mono font-semibold uppercase tracking-[0.18em] text-accent mb-2.5">
+            Cognitive Dynamics
           </div>
-          <span className="hidden sm:inline text-tx-3 text-[0.6875rem]">
-            30-day Ebbinghaus decay model
-          </span>
+          <h2
+            id="retention-title"
+            className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-tx leading-[1.12]"
+          >
+            Why unassisted recall holds under pressure
+          </h2>
+          <p className="mt-2.5 text-sm text-tx-2 leading-relaxed">
+            Assisted review creates the illusion of mastery while memory decays. Unaided retrieval trains the brain to reconstruct solutions from first principles.
+          </p>
+
+          {/* Synchronized Milestone Narrative Ledger */}
+          <div className="mt-5 space-y-2 border-t border-tx/10 pt-4">
+            {MILESTONES.map((m, idx) => {
+              const isActive = activeMilestoneIdx === idx;
+              return (
+                <div
+                  key={m.num}
+                  className={`rounded-lg transition-all duration-300 p-2.5 ${
+                    isActive
+                      ? "bg-accent/8 border-l-2 border-accent pl-3 shadow-xs"
+                      : "opacity-60 hover:opacity-85 border-l-2 border-transparent pl-3"
+                  }`}
+                >
+                  <div className="flex items-center justify-between font-mono text-xs mb-1">
+                    <span className="font-semibold text-accent">{m.num} / {m.day}</span>
+                    {isActive ? (
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-accent font-semibold">
+                        Current epoch
+                      </span>
+                    ) : null}
+                  </div>
+                  <h3 className="font-serif text-sm sm:text-base font-normal text-tx">
+                    {m.headline}
+                  </h3>
+
+                  {/* Active Epoch Reveals Consequential Reality */}
+                  <div
+                    className={`grid transition-[grid-template-rows,opacity] duration-300 ${
+                      isActive ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0"
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="flex flex-col gap-1 font-mono text-[11px] mb-1.5">
+                        <div className="flex items-center gap-1.5 text-tx font-medium">
+                          <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" aria-hidden="true" />
+                          <span>{m.activeOutcome}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-tx-3">
+                          <span className="h-1.5 w-1.5 rounded-full border border-dashed border-tx-3 shrink-0" aria-hidden="true" />
+                          <span>{m.passiveOutcome}</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-tx-2 leading-relaxed">
+                        {m.detail}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* High-DPI Living Canvas */}
-        <div className="w-full aspect-[2/1] min-h-[260px] sm:min-h-[340px]">
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full block select-none"
-            role="img"
-            aria-label="Living ink retention curve: unaided retrieval preserves 80% independent execution over 30 days while passive review fades to 18%."
-          />
-        </div>
-      </div>
-
-      {/* Editorial 3-Column Narrative Ledger (No card boxes; clean architectural layout) */}
-      <div className="mt-14 pt-10 border-t border-tx/10 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-0 md:divide-x md:divide-tx/10">
-        {MILESTONES.map((m, idx) => {
-          const isActive = activeMilestoneIdx === idx;
-          return (
-            <div
-              key={m.num}
-              className={`flex flex-col transition-opacity duration-300 ${
-                idx > 0 ? "md:pl-8 lg:pl-10" : ""
-              } ${idx < 2 ? "md:pr-8 lg:pr-10" : ""} ${
-                isActive ? "opacity-100" : "opacity-75"
-              }`}
-            >
-              {/* Epoch Indicator */}
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2 font-mono text-xs text-tx-3">
-                  <span className="font-semibold text-accent">{m.num}</span>
-                  <span>/</span>
-                  <span className="font-medium text-tx">{m.day}</span>
-                </div>
-                {isActive ? (
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-accent font-semibold">
-                    Current epoch
-                  </span>
-                ) : null}
+        {/* Right Column: Living Ink Canvas Drafting Plane (7 cols) */}
+        <div className="lg:col-span-7 flex flex-col justify-center">
+          {/* Top Annotation Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-tx/10 pb-2.5 mb-2 text-xs font-mono gap-2">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-accent shrink-0" aria-hidden="true" />
+                <span className="font-medium text-tx">Unaided retrieval (Permanent ink)</span>
               </div>
-
-              {/* Title */}
-              <h3 className="font-serif text-lg sm:text-xl font-normal text-tx mb-3">
-                {m.headline}
-              </h3>
-
-              {/* Consequential Contrast */}
-              <div className="flex flex-col gap-1.5 font-mono text-xs mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" aria-hidden="true" />
-                  <span className="text-tx font-medium">{m.activeOutcome}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full border border-dashed border-tx-3 shrink-0" aria-hidden="true" />
-                  <span className="text-tx-3">{m.passiveOutcome}</span>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full border border-dashed border-tx-3 shrink-0" aria-hidden="true" />
+                <span className="text-tx-2">Passive reading (Evaporates)</span>
               </div>
-
-              {/* Factual Editorial Text */}
-              <p className="text-xs sm:text-sm text-tx-2 leading-relaxed flex-1">
-                {m.detail}
-              </p>
             </div>
-          );
-        })}
-      </div>
+            <span className="text-tx-3 text-[0.6875rem]">
+              30-day Ebbinghaus model
+            </span>
+          </div>
 
-      {/* Academic Citation Footer */}
-      <div className="mt-12 flex flex-wrap items-center justify-between gap-3 text-[0.6875rem] text-tx-3 font-mono border-t border-tx/5 pt-4">
-        <span>Empirical basis: Roediger &amp; Karpicke (2006, Science); Karpicke &amp; Blunt (2011)</span>
-        <span>Living ink physics · Natural scroll travel</span>
+          {/* High-DPI Living Canvas */}
+          <div className="w-full aspect-[16/11] min-h-[300px] max-h-[440px]">
+            <canvas
+              ref={canvasRef}
+              className="w-full h-full block select-none"
+              role="img"
+              aria-label="Living ink retention curve: unaided retrieval preserves 80% independent execution over 30 days while passive review fades to 18%."
+            />
+          </div>
+
+          {/* Academic Citation Footer */}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[0.6875rem] text-tx-3 font-mono border-t border-tx/5 pt-2">
+            <span>Empirical basis: Roediger &amp; Karpicke (2006); Karpicke &amp; Blunt (2011)</span>
+            <span>Living ink physics · Natural scroll travel</span>
+          </div>
+        </div>
       </div>
     </section>
   );

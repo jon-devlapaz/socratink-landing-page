@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { INK_EXPRESSIONS, type InkExpression } from "./expressions";
+import { generateProceduralConceptScene, type ProceduralConceptKind } from "./random";
 import { parseInkScene, type InkScene } from "./scene";
 
 export const inkExpressSchema = z.strictObject({
@@ -24,5 +25,16 @@ export const inkExpressDescription =
 export function resolveExpressionScene(args: {
   expression: InkExpression;
 }): InkScene {
+  const proceduralKinds: Record<string, ProceduralConceptKind> = {
+    rest: "rest",
+    question: "question",
+    lightbulb: "lightbulb",
+    target: "target",
+    key: "key",
+  };
+  const kind = proceduralKinds[args.expression];
+  if (kind) {
+    return generateProceduralConceptScene(kind);
+  }
   return parseInkScene(INK_EXPRESSIONS[args.expression].scene);
 }
