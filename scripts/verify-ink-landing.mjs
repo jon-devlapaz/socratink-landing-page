@@ -46,7 +46,7 @@ try {
   );
   assert.equal(secondScene, 'Question mark', 'First advance should morph to Question mark');
 
-  // 4. Test second advance: question -> nib
+  // 4. Test second advance: question -> lightbulb
   await sphere.click();
   await page.waitForFunction(
     () => !window.socratinkInk.call('ink_get_scene').rendering.transitioning
@@ -54,9 +54,9 @@ try {
   const thirdScene = await page.evaluate(
     () => window.socratinkInk.call('ink_get_scene').scene.name
   );
-  assert.equal(thirdScene, 'Dipped nib', 'Second advance should morph to Dipped nib');
+  assert.equal(thirdScene, 'Lightbulb', 'Second advance should morph to Lightbulb');
 
-  // 5. Test third advance: nib -> connect (Bridge)
+  // 5. Test third advance: lightbulb -> target
   await sphere.click();
   await page.waitForFunction(
     () => !window.socratinkInk.call('ink_get_scene').rendering.transitioning
@@ -64,9 +64,9 @@ try {
   const fourthScene = await page.evaluate(
     () => window.socratinkInk.call('ink_get_scene').scene.name
   );
-  assert.equal(fourthScene, 'Bridge', 'Third advance should morph to Bridge');
+  assert.equal(fourthScene, 'Bullseye target', 'Third advance should morph to Bullseye target');
 
-  // 6. Test fourth advance: connect -> explain (Open notebook)
+  // 6. Test fourth advance: target -> key
   await sphere.click();
   await page.waitForFunction(
     () => !window.socratinkInk.call('ink_get_scene').rendering.transitioning
@@ -74,9 +74,9 @@ try {
   const fifthScene = await page.evaluate(
     () => window.socratinkInk.call('ink_get_scene').scene.name
   );
-  assert.equal(fifthScene, 'Open notebook', 'Fourth advance should morph to Open notebook');
+  assert.equal(fifthScene, 'Socratic key', 'Fourth advance should morph to Socratic key');
 
-  // 7. Test fifth advance: explain -> rest (Ink droplet)
+  // 7. Test fifth advance: key -> rest (Ink droplet)
   await sphere.click();
   await page.waitForFunction(
     () => !window.socratinkInk.call('ink_get_scene').rendering.transitioning

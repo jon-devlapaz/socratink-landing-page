@@ -9,9 +9,9 @@ import { INK_EXPRESSIONS, type InkExpression } from "@/lib/ink/expressions";
 const CYCLE_EXPRESSIONS: InkExpression[] = [
   "rest",
   "question",
-  "nib",
-  "connect",
-  "explain",
+  "lightbulb",
+  "target",
+  "key",
 ];
 
 const DEFAULT_CYCLE_INTERVAL = 4200;

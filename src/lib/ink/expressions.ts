@@ -22,6 +22,46 @@ export const INK_EXPRESSIONS = {
       kinematics: "serpentine",
     },
   },
+  lightbulb: {
+    label: "Breakthrough insight",
+    symbol: "Lightbulb",
+    meaning: "The conceptual breakthrough. The realization clicks unassisted.",
+    scene: {
+      ...compileSculptToScene(SCULPT_CATALOG.lightbulb.definition),
+      name: "Lightbulb",
+      kinematics: "pulse",
+    },
+  },
+  target: {
+    label: "On target",
+    symbol: "Bullseye target",
+    meaning: "Precision under pressure. Hitting the crux of the concept unassisted.",
+    scene: {
+      ...compileSculptToScene(SCULPT_CATALOG.target.definition),
+      name: "Bullseye target",
+      kinematics: "vortex",
+    },
+  },
+  key: {
+    label: "Proven retention",
+    symbol: "Socratic key",
+    meaning: "Unlocking retention. The reasoning and mastery stay yours.",
+    scene: {
+      ...compileSculptToScene(SCULPT_CATALOG.key.definition),
+      name: "Socratic key",
+      kinematics: "respiration",
+    },
+  },
+  bolt: {
+    label: "Flash recall",
+    symbol: "Lightning bolt",
+    meaning: "Fast, instinctive retrieval on exam day.",
+    scene: {
+      ...compileSculptToScene(SCULPT_CATALOG.bolt.definition),
+      name: "Lightning bolt",
+      kinematics: "serpentine",
+    },
+  },
   aporia: {
     label: "Productive struggle",
     symbol: "Aporia knot",

@@ -6,6 +6,10 @@ export const inkExpressSchema = z.strictObject({
   expression: z.enum([
     "rest",
     "question",
+    "lightbulb",
+    "target",
+    "key",
+    "bolt",
     "aporia",
     "iris",
     "nib",
@@ -15,7 +19,7 @@ export const inkExpressSchema = z.strictObject({
 });
 
 export const inkExpressDescription =
-  "Express a Socratink learning moment: rest (ink droplet), question (question mark), aporia (aporia knot), iris (maieutic aperture), nib (dipped nib), connect (bridge), explain (open notebook). Choose from interaction context; these are visual cues, not assessments of learning. Replaces the scene with a validated starting recipe. Use ink_set_scene for a custom form.";
+  "Express a Socratink learning moment: rest (ink droplet), question (question mark), lightbulb (insight), target (bullseye), key (retention), bolt (recall), aporia (knot), iris (aperture), nib (pen), connect (bridge), explain (notebook). Choose from interaction context; these are visual cues, not assessments of learning.";
 
 export function resolveExpressionScene(args: {
   expression: InkExpression;

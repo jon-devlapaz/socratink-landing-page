@@ -587,4 +587,120 @@ export const SCULPT_CATALOG: Record<
       ],
     },
   },
+
+  lightbulb: {
+    label: "Incandescent Lightbulb",
+    icon: "💡",
+    description: "Liquid glass incandescent bulb with 3 radiant light rays, tapering neck, and threaded screw plinth.",
+    definition: {
+      concept: "Incandescent Lightbulb",
+      blend: 0.11,
+      kinematics: "pulse",
+      motion: { speed: 0.34, amplitude: 0.016, pointer: 0.14 },
+      strokes: [
+        // 3 Radiant rays shining out of the bulb
+        { from: [0, 0.65, 0], to: [0, 0.82, 0], radius: 0.045, label: "ray-top" },
+        { from: [-0.40, 0.50, 0], to: [-0.55, 0.65, 0], radius: 0.045, label: "ray-tl" },
+        { from: [0.40, 0.50, 0], to: [0.55, 0.65, 0], radius: 0.045, label: "ray-tr" },
+        // Tapering neck
+        { from: [-0.18, 0.02, 0], to: [-0.11, -0.18, 0], radius: 0.075, label: "neck-l" },
+        { from: [0.18, 0.02, 0], to: [0.11, -0.18, 0], radius: 0.075, label: "neck-r" },
+        // Screw plinths
+        { from: [-0.14, -0.24, 0], to: [0.14, -0.24, 0], radius: 0.065, label: "plinth-1" },
+        { from: [-0.11, -0.34, 0], to: [0.11, -0.34, 0], radius: 0.06, label: "plinth-2" },
+      ],
+      beads: [
+        { center: [0, 0.22, 0], radius: 0.33, label: "glass-dome" },
+        { center: [0, -0.44, 0], radius: 0.055, label: "contact" },
+      ],
+    },
+  },
+
+  target: {
+    label: "Bullseye Target",
+    icon: "🎯",
+    description: "Archery target ring with an arrow piercing the exact center bullseye.",
+    definition: {
+      concept: "Bullseye Target",
+      blend: 0.10,
+      kinematics: "vortex",
+      motion: { speed: 0.32, amplitude: 0.016, pointer: 0.15 },
+      strokes: [
+        // 8-segment tangent-continuous circular outer ring
+        { from: [0.56, 0, 0], to: [0.396, 0.396, 0], radius: 0.06, label: "ring-0" },
+        { from: [0.396, 0.396, 0], to: [0, 0.56, 0], radius: 0.06, label: "ring-1" },
+        { from: [0, 0.56, 0], to: [-0.396, 0.396, 0], radius: 0.06, label: "ring-2" },
+        { from: [-0.396, 0.396, 0], to: [-0.56, 0, 0], radius: 0.06, label: "ring-3" },
+        { from: [-0.56, 0, 0], to: [-0.396, -0.396, 0], radius: 0.06, label: "ring-4" },
+        { from: [-0.396, -0.396, 0], to: [0, -0.56, 0], radius: 0.06, label: "ring-5" },
+        { from: [0, -0.56, 0], to: [0.396, -0.396, 0], radius: 0.06, label: "ring-6" },
+        { from: [0.396, -0.396, 0], to: [0.56, 0, 0], radius: 0.06, label: "ring-7" },
+        // Piercing arrow shaft
+        { from: [0.60, 0.60, 0.08], to: [0.08, 0.08, 0.02], radius: 0.042, label: "arrow-shaft" },
+        { from: [0.55, 0.55, 0.08], to: [0.70, 0.62, 0.14], radius: 0.035, label: "arrow-vane1" },
+        { from: [0.55, 0.55, 0.08], to: [0.62, 0.70, 0.14], radius: 0.035, label: "arrow-vane2" },
+      ],
+      beads: [
+        { center: [0, 0, 0], radius: 0.18, label: "bullseye" },
+      ],
+    },
+  },
+
+  bolt: {
+    label: "Lightning Bolt",
+    icon: "⚡",
+    description: "High-voltage electrostatic lightning strike with sharp zig-zag facets and discharging ground spark.",
+    definition: {
+      concept: "Lightning Bolt",
+      blend: 0.08,
+      kinematics: "serpentine",
+      motion: { speed: 0.44, amplitude: 0.022, pointer: 0.16 },
+      strokes: [
+        // Upper wide blade
+        { from: [0.22, 0.70, 0], to: [-0.18, 0.12, 0], radius: 0.10, label: "upper-blade" },
+        // Long horizontal shelf cutting back across
+        { from: [-0.22, 0.12, 0], to: [0.18, 0.12, 0], radius: 0.08, label: "mid-shelf" },
+        // Lower descending spear
+        { from: [0.18, 0.12, 0], to: [-0.14, -0.68, 0], radius: 0.075, label: "lower-blade" },
+        { from: [-0.14, -0.68, 0], to: [-0.18, -0.80, 0], radius: 0.035, label: "spear-tip" },
+      ],
+      beads: [
+        { center: [0.24, 0.74, 0], radius: 0.085, label: "top-crown" },
+        { center: [-0.20, 0.12, 0], radius: 0.09, label: "left-elbow" },
+        { center: [0.18, 0.12, 0], radius: 0.085, label: "right-elbow" },
+      ],
+    },
+  },
+
+  key: {
+    label: "Socratic Key",
+    icon: "🗝️",
+    description: "Classic antique skeleton key with circular bow aperture, straight fluted shank, and stepped bit teeth.",
+    definition: {
+      concept: "Socratic Key",
+      blend: 0.10,
+      kinematics: "respiration",
+      motion: { speed: 0.30, amplitude: 0.014, pointer: 0.14 },
+      strokes: [
+        // 6-segment bow ring at top
+        { from: [0.22, 0.44, 0], to: [0.11, 0.63, 0], radius: 0.055, label: "bow-0" },
+        { from: [0.11, 0.63, 0], to: [-0.11, 0.63, 0], radius: 0.055, label: "bow-1" },
+        { from: [-0.11, 0.63, 0], to: [-0.22, 0.44, 0], radius: 0.055, label: "bow-2" },
+        { from: [-0.22, 0.44, 0], to: [-0.11, 0.25, 0], radius: 0.055, label: "bow-3" },
+        { from: [-0.11, 0.25, 0], to: [0.11, 0.25, 0], radius: 0.055, label: "bow-4" },
+        { from: [0.11, 0.25, 0], to: [0.22, 0.44, 0], radius: 0.055, label: "bow-5" },
+        // Shaft
+        { from: [0, 0.20, 0], to: [0, -0.62, 0], radius: 0.065, label: "shaft" },
+        // Teeth
+        { from: [0, -0.36, 0], to: [0.22, -0.36, 0], radius: 0.055, label: "tooth-1" },
+        { from: [0, -0.54, 0], to: [0.26, -0.54, 0], radius: 0.055, label: "tooth-2" },
+        { from: [0.22, -0.36, 0], to: [0.22, -0.46, 0], radius: 0.05, label: "tooth-link" },
+      ],
+      beads: [
+        { center: [0, 0.18, 0], radius: 0.085, label: "collar" },
+        { center: [0, -0.64, 0], radius: 0.075, label: "tip" },
+        { center: [0.26, -0.54, 0], radius: 0.06, label: "tooth-tip" },
+      ],
+    },
+  },
 };
