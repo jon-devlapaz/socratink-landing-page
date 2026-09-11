@@ -34,18 +34,17 @@ pnpm start
 ## Architectural Guide & Invariants
 
 ### 1. Single Source of Truth: `src/lib/content.ts`
-All marketing copy, value propositions, syllabus learning targets, and Encounter dialogue live in [`src/lib/content.ts`](src/lib/content.ts).
+All marketing copy, value propositions, and syllabus learning targets live in [`src/lib/content.ts`](src/lib/content.ts).
 * **Rule**: UI components render copy; they do not own or hardcode text strings.
 * To add a new subject to the Orbit section, add an entry to `orbitDisciplines`.
 
 ### 2. Page Hierarchy (`src/app/page.tsx`)
 1. **`<Nav />`**: Wordmark (with IPA pronunciation swap on hover), section anchors, and Appearance Toggle.
-2. **`<Hero />`**: Value proposition, primary CTA, and WebGL `<OrganicSphere />`.
-3. **`<EncounterStrip />` (`#method`)**: The primary interactive contract-slip spine (Cold → Ghost Cost → Ink Line → Bound Climax → Exit CTA).
-4. **`<Orbit />` (`#material`)**: 10-discipline interactive syllabus switcher with rotating satellite geometry.
-5. **`<Memory />` (`#memory`)**: Macro-loop continuity record (Accumulation Arc, Model Independence, Agency Keys).
-6. **`<FinalCta />` + `<Footer />`**: Final invitation and 3-band footer.
-7. **`<ScrollCraft />`**: Background engine coordinating scroll flow and accessibility focus.
+2. **`<Hero />`**: Value proposition, primary CTA, and WebGL `<InkSphere />`.
+3. **`<Orbit />` (`#material`)**: 10-discipline interactive syllabus switcher with rotating satellite geometry.
+4. **`<Memory />` (`#memory`)**: Macro-loop continuity record (Accumulation Arc, Model Independence, Agency Keys).
+5. **`<FinalCta />` + `<Footer />`**: Final invitation and 3-band footer.
+6. **`<CinematicScroller />`**: Background engine coordinating scroll flow and accessibility focus.
 
 ### 3. Theme & Appearance
 * Supports **Light** (Cream Paper `#fffcf0`) and **Dark** (`#100f0f`) themes.
@@ -68,5 +67,5 @@ Run these commands before opening a PR or deploying:
 | `pnpm run typecheck` | Validates TypeScript contracts (`tsc --noEmit`) |
 | `pnpm run lint` | ESLint checks with zero tolerance for warnings |
 | `pnpm run check` | Unified gate: runs typecheck, lint, and production build |
-| `pnpm run test:smoke` | Playwright test verifying the EncounterStrip interaction sequence |
+| `pnpm run test:smoke` | Playwright smoke test verifying core sections render and the removed Method section stays absent |
 | `pnpm run test:a11y` | Chrome DevTools Protocol automated accessibility audit |

@@ -218,6 +218,7 @@ export const finalCta = {
 export const footer = {
   indexLabel: "Site index",
   legalLabel: "Legal",
+  quiet: "No newsletter. No social grid.",
   attemptLabel: "Attempt",
   index: [
     { label: "Disciplines", href: "#material" },
@@ -238,51 +239,5 @@ export const notebook = {
   heroNote: "The thinking stays yours.",
 } as const;
 
-/** Contract-slip Encounter copy (Method fold). */
-export const contractSlip = {
-  eyebrow: "The Socratink Method · Interactive Specimen",
-  titleSans: "One question.",
-  titleSerif: "No safety net.",
-  lead: "AI makes complex subjects feel effortless until exam day. Socratink tests whether you can reconstruct the concept on your own under pressure. Here is how an unassisted diagnostic session works on a classic statistical trap: sampling bias invariance under sample size.",
-  railLabel: "Diagnostic Specimen · Statistics",
-  question: "What happens when the draw itself is biased?",
-  sampleTraceBadge: "Sample Trace · not your evidence",
-  sampleText:
-    "Bigger sample from the same bad draw just makes the wrong answer more confident.",
-  ghostText:
-    "Bias is a property of the sampling process, not of sample size. Drawing more observations from the same skewed process reproduces the skew with tighter variance. It does not cancel the systematic error.",
-  refuseText: "I don't know yet.",
-  claims: [
-    "Establishes durable retention",
-    "Establishes cold reconstruction",
-    "Establishes transfer to novel domains",
-  ],
-  nonInferences: [
-    "Does not establish durable retention",
-    "Does not establish unprompted reconstruction",
-    "Does not establish transfer to novel domains",
-  ],
-  hints: {
-    cold: "One question. Evidence begins when you attempt.",
-    coldScroll: "Scroll.",
-    ghostArrive: "Assisted text arrives. Keep scrolling.",
-    ghostLeaving: "Assisted text is leaving.",
-    ghostGone: "That assistance fades. None of those words were yours.",
-    ink: "Your sentence — or a labeled sample. Nothing masquerades.",
-    inkDefault: "Write one sentence — or show a labeled sample.",
-    inkRecorded: "Ink recorded. Keep scrolling.",
-    inkSampleScroll: "Keep scrolling.",
-    inkRefuse: "Refusal recorded. Bound next.",
-    bound: "Bound. Claims try to land.",
-    boundNoInk: "No ink on the slip.",
-    exit: "That observation is bounded. The thinking stays yours.",
-    exitWalkthrough: "This walkthrough stores nothing on the page.",
-  },
-  inkPlaceholder: "Your words on the line…",
-  commitLabel: "Commit ink",
-  sampleLabel: "Show a sample",
-  refuseLabel: "I don't know yet",
-  cta: { label: "Start a free attempt", href: site.appUrl },
-  ctaSub: "Free diagnostic session · No sign-up required · Instant in-browser",
-} as const;
+
 

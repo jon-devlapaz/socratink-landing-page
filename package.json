@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "check": "tsc --noEmit && eslint && next build",
     "test:smoke": "node scripts/verify-encounter-bound.mjs",
+    "test:hygiene": "node scripts/verify-site-hygiene.mjs",
     "test:a11y": "node scripts/a11y-audit.mjs",
     "test:orb": "node scripts/benchmark-orb-fidelity.mjs",
     "test:ink": "node scripts/verify-ink.mjs",

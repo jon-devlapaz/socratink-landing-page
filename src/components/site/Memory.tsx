@@ -4,7 +4,7 @@ import { memory } from "@/lib/content";
 
 /**
  * Macro-loop Memory: six-month trajectory of continuity (DEC-0005 themes in
- * customer language). Deliberately avoids EncounterStrip echoes: no attempt
+ * customer language). Deliberately avoids method-demo echoes: no attempt
  * docket, single-question ledger, or ≠ principle-bar rerun.
  */
 export function Memory() {

@@ -31,17 +31,29 @@ export const metadata: Metadata = {
     url: site.url,
     siteName: site.name,
     type: "website",
+    images: [
+      {
+        url: "/brand/living-ink-poster.png",
+        width: 1120,
+        height: 1120,
+        alt: "Socratink living ink orb",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `${site.name} • ${site.tagline}`,
     description: site.description,
+    images: ["/brand/living-ink-poster.png"],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fffcf0",
-  colorScheme: "light",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fffcf0" },
+    { media: "(prefers-color-scheme: dark)", color: "#100f0f" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

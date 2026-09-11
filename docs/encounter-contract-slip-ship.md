@@ -1,5 +1,9 @@
 # Encounter · Contract-slip spine — ship spec
 
+> **Retired (Sept 2026):** the Method `#method` section was removed from
+> `src/app/page.tsx`; `EncounterStrip.tsx` and `encounter-strip.css` were
+> deleted. This spec is retained as history.
+
 **Status:** **Delta A + B + C done** — ready for trio QC / deploy (Delta D)
 
 **Spike:** `scrollcraft/builds/socratink-contract-slip/` · serve `python3 serve.py` → http://127.0.0.1:4502/

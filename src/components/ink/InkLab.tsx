@@ -123,10 +123,13 @@ export function InkLab() {
     return () => clearTimeout(timer);
   }, [cognitionCycle, tool, paused, triggerSomatic]);
 
-  const randomize = (archetype?: InkArchetype) => {
-    const chosen = archetype ?? (activeArchetype === "any" ? undefined : activeArchetype);
-    tool?.call("ink_randomize", chosen ? { archetype: chosen } : {});
-  };
+  const randomize = useCallback(
+    (archetype?: InkArchetype) => {
+      const chosen = archetype ?? (activeArchetype === "any" ? undefined : activeArchetype);
+      tool?.call("ink_randomize", chosen ? { archetype: chosen } : {});
+    },
+    [tool, activeArchetype],
+  );
 
   useEffect(() => {
     if (!autoMorph || !tool || paused) return;
@@ -134,7 +137,7 @@ export function InkLab() {
       randomize();
     }, 3800);
     return () => clearInterval(interval);
-  }, [autoMorph, tool, paused, activeArchetype]);
+  }, [autoMorph, tool, paused, randomize]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -164,7 +167,7 @@ export function InkLab() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [tool, triggerSomatic, activeArchetype]);
+  }, [triggerSomatic, randomize]);
 
   const expression = Object.values(INK_EXPRESSIONS).find(
     (entry) => entry.scene.name === sceneName,

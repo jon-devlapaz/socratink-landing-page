@@ -28,7 +28,7 @@ export function Footer() {
             <p className="site-footer-kicker">{footer.legalLabel}</p>
             <ul>
               <li>
-                <span className="site-footer-quiet">No newsletter. No social grid.</span>
+                <span className="site-footer-quiet">{footer.quiet}</span>
               </li>
             </ul>
           </div>

@@ -7,7 +7,10 @@ import { InkSphere } from "@/components/ink/InkSphere";
 import type { SphereShape } from "@/lib/sphere/organic-sphere";
 import { hero, notebook } from "@/lib/content";
 
-const OrganicSphere = dynamic(() => import("@/components/ui/OrganicSphere").then((module) => module.OrganicSphere));
+const OrganicSphere = dynamic(
+  () => import("@/components/ui/OrganicSphere").then((module) => module.OrganicSphere),
+  { ssr: false },
+);
 
 function subscribeLocation(callback: () => void) {
   window.addEventListener("popstate", callback);
