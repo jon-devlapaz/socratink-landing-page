@@ -168,11 +168,11 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
 ] as const;
 
 export const orbit = {
-  eyebrow: "For material that has to hold",
+  eyebrow: "Supported subjects",
   bridge:
-    "Explore 10 foundational specimens below, or bring your own syllabus, notes, or board outline in the app.",
-  titleSans: "Built for the hard stuff.",
-  titleSerif: "When the exam, the license, or the job is real.",
+    "Try sample prompts from 10 technical fields below, or paste your own study outline in the app.",
+  titleSans: "Built for subjects",
+  titleSerif: "where guessing is not an option.",
   defaultId: "stats" as const satisfies OrbitDisciplineId,
   cta: {
     label: "Try the free diagnostic",
@@ -185,34 +185,34 @@ export const orbit = {
 } as const;
 
 export const memory = {
-  eyebrow: "Built for continuity",
-  titleSans: "When you start in the app,",
-  titleSerif: "attempts can stack into a record.",
+  eyebrow: "Long-term review",
+  titleSans: "Build a clear record",
+  titleSerif: "of what you actually know.",
   cards: [
     {
-      title: "Work accumulates over time.",
-      sub: "A persistent record of your reasoning.",
-      body: "Each session adds to a readable history of what you produced unaided. It records actual work, not an abstract score.",
+      title: "Track progress over time.",
+      sub: "A clear log of what you produced cold.",
+      body: "Every session saves what you wrote from memory. Instead of a vague score, you have an exact record of which concepts you could explain without notes.",
     },
     {
-      title: "Independent of the model.",
-      sub: "The meaning of your work survives updates.",
-      body: "Even if the underlying model changes, what you wrote remains stamped with the exact assistance conditions at the time.",
+      title: "Permanent and portable.",
+      sub: "Your study records stay in plain text.",
+      body: "Your explanations and diagnostic evaluations belong to you. They stay saved in clean, readable text so you can review them whenever you want, on any device.",
     },
     {
-      title: "You control your history.",
-      sub: "Inspect, export, or delete anytime.",
-      body: "Review diagnostic inferences, export data, or delete records entirely. Socratink never uses private sessions to train public models.",
+      title: "Complete privacy and export.",
+      sub: "Export, edit, or delete anytime.",
+      body: "Export your study logs as Markdown or JSON, or delete your history whenever you choose. Socratink never uses private sessions to train public models.",
     },
   ],
 } as const;
 
 
 export const finalCta = {
-  titleSans: "Know what you",
-  titleSerif: "actually know.",
-  button: { label: "Try the free diagnostic", href: site.appUrl },
-  sub: "Free diagnostic session · No sign-up required · Instant in-browser",
+  titleSans: "Know what you actually know",
+  titleSerif: "before the exam begins.",
+  button: { label: "Start a 5-minute diagnostic", href: site.appUrl },
+  sub: "Free · No credit card or account needed · Opens instantly in your browser",
 } as const;
 
 export const footer = {
@@ -231,12 +231,12 @@ export const footer = {
 
 /** Approved hero presentation, retained while restoring the original page story. */
 export const notebook = {
-  heroEyebrow: "Diagnostic study engine",
-  heroTitle: "Practice hard material\nwithout outsourcing the thinking.",
+  heroEyebrow: "Self-test engine",
+  heroTitle: "Practice hard material.\nKnow what you actually know before test day.",
   heroBody:
-    "Socratink gives you a free, unassisted diagnostic for exams, certifications, and technical subjects. Answer one consequential prompt without AI or multiple choice, then see where your reasoning holds up.",
-  heroTrust: "Free unassisted diagnostic session · No sign-up required · Instant in-browser",
-  heroNote: "The thinking stays yours.",
+    "Answer one realistic exam prompt from memory. No multiple choice, no notes, and no AI autocomplete. You will immediately see which parts of your reasoning hold up and where the gaps are.",
+  heroTrust: "Free diagnostic · No sign-up required · Works directly in your browser",
+  heroNote: "5-minute diagnostic · No account required",
 } as const;
 
 

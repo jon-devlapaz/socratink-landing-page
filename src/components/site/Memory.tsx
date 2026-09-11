@@ -61,24 +61,24 @@ function AccumulationArc() {
   );
 }
 
-/** Evidence meaning survives LLM / runtime change; no efficacy claim. */
+/** Open data formats and portability. */
 function ModelIndependence() {
-  const runtimes = ["Default", "Chain", "Next"];
+  const formats = ["Markdown", "Plain text", "JSON"];
   return (
     <div className="flex flex-col gap-4 text-[0.8125rem]">
-      <p className="text-[0.75rem] uppercase tracking-[0.15em] text-tx-2">Runtime underneath</p>
+      <p className="text-[0.75rem] uppercase tracking-[0.15em] text-tx-2">Open formats</p>
       <ul className="flex flex-wrap gap-2">
-        {runtimes.map((name, i) => (
+        {formats.map((name, i) => (
           <li
             key={name}
-            className={`tile px-3 py-1.5 ${i === runtimes.length - 1 ? "border border-dashed border-tx/25 text-tx-2" : "text-tx"}`}
+            className={`tile px-3 py-1.5 ${i === formats.length - 1 ? "border border-dashed border-tx/25 text-tx-2" : "text-tx"}`}
           >
             {name}
           </li>
         ))}
       </ul>
       <p className="border-t border-tx/10 pt-3 text-tx-2">
-        Your produced work stays labeled with its conditions, regardless of which runtime is underneath.
+        Your notes and diagnostic evaluations stay stored in open formats so your study history is never locked into a closed platform.
       </p>
     </div>
   );
@@ -87,10 +87,10 @@ function ModelIndependence() {
 /** Learner agency: inspect, correct, export, delete. */
 function AgencyKeys() {
   const actions = [
-    { verb: "Inspect", note: "How an inference was formed" },
-    { verb: "Correct", note: "What no longer fits" },
-    { verb: "Export", note: "Take the history with you" },
-    { verb: "Delete", note: "Erase what you choose" },
+    { verb: "Inspect", note: "Review past explanations" },
+    { verb: "Correct", note: "Update as your recall grows" },
+    { verb: "Export", note: "Download study logs anytime" },
+    { verb: "Delete", note: "Erase records in one click" },
   ];
   return (
     <ul className="divide-y divide-tx/10 text-sm">

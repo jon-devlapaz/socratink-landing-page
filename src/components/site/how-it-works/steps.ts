@@ -11,20 +11,20 @@ export const steps: readonly StepItem[] = [
   {
     id: "target",
     stepNumber: "01",
-    title: "Pick one target",
-    description: "Choose a concept from medical boards, bar outlines, technical certifications, or your own notes.",
+    title: "Pick your topic",
+    description: "Choose a concept from medical boards, bar outlines, cloud certifications, or paste your own syllabus.",
   },
   {
     id: "explain",
     stepNumber: "02",
-    title: "Explain it unaided",
-    description: "Answer in your own words. No multiple choice, no autocomplete, and no hints.",
+    title: "Explain it from memory",
+    description: "Write out the mechanism in your own words. There are no hints, no multiple choice options to guess between, and no autocomplete.",
   },
   {
     id: "inspect",
     stepNumber: "03",
-    title: "Inspect what holds",
-    description: "See where your reasoning held up, where gaps appeared, and what needs review later.",
+    title: "See where the gaps are",
+    description: "Compare your explanation against the benchmark. You will see exactly which parts of your reasoning were solid and what needs review before test day.",
   },
 ] as const;
 
@@ -61,8 +61,8 @@ export const previewData = {
       detail: "Did not specify why bulky bases favor Hofmann orientation over Zaitsev products.",
     },
     schedule: {
-      label: "Continuity probe",
-      detail: "Follow-up verification queued for review in 14 days.",
+      label: "Follow-up check",
+      detail: "Verification scheduled for review in 14 days.",
     },
   },
 } as const;

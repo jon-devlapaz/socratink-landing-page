@@ -15,29 +15,29 @@ const MILESTONES: MilestoneData[] = [
   {
     num: "01",
     day: "Day 1",
-    headline: "The Fluency Trap",
+    headline: "The Recognition Illusion",
     activeOutcome: "Builds recall pathways",
     passiveOutcome: "Feels easy with notes open",
     detail:
-      "Assisted review feels easy because the answer is already in front of you. Unaided diagnostic retrieval requires upfront effort, constructing the neural scaffolding that preserves memory.",
+      "Reading notes feels fast because your eyes recognize the words. Writing the answer from memory feels slower, but it builds the recall paths you will rely on during the exam.",
   },
   {
     num: "02",
     day: "Day 7",
-    headline: "The Forgetting Cliff",
+    headline: "One Week In",
     activeOutcome: "Recall holds without hints",
     passiveOutcome: "Blank-page panic begins",
     detail:
-      "Passive recognition collapses within days once prompts disappear. A single unassisted diagnostic session maintains rapid conceptual recall without notes.",
+      "If you only reread notes, most of the detail disappears within days. One prompt solved entirely from memory keeps the core concept intact.",
   },
   {
     num: "03",
     day: "Day 30",
-    headline: "Independent Recall",
+    headline: "One Month Later",
     activeOutcome: "Solves cold under pressure",
     passiveOutcome: "Cannot execute unaided",
     detail:
-      "When exams or technical problems demand independent execution, passive review retains under a fifth. Unaided practice locks in 80% direct recall.",
+      "When you have to solve a problem cold under exam conditions, passive review leaves you with roughly 18% recall. Practicing unassisted retrieval preserves over 80%.",
   },
 ];
 
@@ -69,7 +69,8 @@ function cubicBezier(
 }
 
 export function RetentionCurve() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -79,12 +80,12 @@ export function RetentionCurve() {
     getReducedMotionServerSnapshot,
   );
 
-  // Scroll tracking to drive ink drawing progress
+  // Scroll tracking to drive ink drawing progress across pinned stage
   useEffect(() => {
     if (isReducedMotion) return;
 
-    const container = containerRef.current;
-    if (!container) return;
+    const track = trackRef.current;
+    if (!track) return;
 
     let targetP = 0;
     let currentP = 0;
@@ -92,7 +93,7 @@ export function RetentionCurve() {
     let isRunning = false;
 
     const tick = () => {
-      currentP += (targetP - currentP) * 0.12;
+      currentP += (targetP - currentP) * 0.14;
       if (Math.abs(targetP - currentP) < 0.001) {
         currentP = targetP;
         isRunning = false;
@@ -104,13 +105,19 @@ export function RetentionCurve() {
     };
 
     const handleScroll = () => {
-      const rect = container.getBoundingClientRect();
+      const rect = track.getBoundingClientRect();
+      const stickyTop = window.innerWidth >= 768 ? 80 : 64;
       const vh = window.innerHeight;
-      const start = vh * 0.55;
-      const end = -vh * 0.15;
-      const travel = start - end;
-      const raw = (start - rect.top) / travel;
-      targetP = Math.max(0, Math.min(1, raw));
+      const stickyHeight = stickyRef.current ? stickyRef.current.offsetHeight : vh - stickyTop;
+      const totalTravel = rect.height - stickyHeight;
+
+      if (totalTravel <= 0) {
+        targetP = 1;
+      } else {
+        const scrolled = stickyTop - rect.top;
+        const raw = scrolled / totalTravel;
+        targetP = Math.max(0, Math.min(1, raw));
+      }
 
       if (!isRunning) {
         isRunning = true;
@@ -424,33 +431,69 @@ export function RetentionCurve() {
         ctx.fillStyle = accentColor;
         ctx.fill();
 
-        // Fine vertical dashed leader line
+        // Anchor elevation: strictly in the clear negative space above the curve peak (84.5%)
+        // and below the 100% grid line (padTop). On all viewports, this guarantees
+        // ~25px+ clearance above any curve spline and ~6-10px below the 100% grid line.
+        const targetCalloutY = isCompact ? valToY(0.93) : isMobile ? valToY(0.94) : valToY(0.95);
+        const shoulderLength = isCompact ? 8 : 12;
+        const textStartX = crossoverX + shoulderLength + 4;
+
+        // Architectural drafting leader: vertical dashed stem + horizontal shoulder divider
         ctx.beginPath();
         ctx.strokeStyle = accentColor;
         ctx.lineWidth = 0.8;
         ctx.setLineDash([2, 2]);
         ctx.moveTo(crossoverX, crossoverY - 4);
-        ctx.lineTo(crossoverX, crossoverY - (isCompact ? 14 : 24));
+        ctx.lineTo(crossoverX, targetCalloutY);
+        ctx.lineTo(crossoverX + shoulderLength, targetCalloutY);
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Elegant drafting notation
+        // Small drafting node at shoulder elbow
+        ctx.beginPath();
+        ctx.arc(crossoverX, targetCalloutY, 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = accentColor;
+        ctx.fill();
+
+        ctx.textAlign = "left";
+
         if (isCompact) {
+          const label = "The Crossover · Day 2";
           ctx.font = "bold 8.5px monospace";
+          const textMetrics = ctx.measureText(label);
+
+          // Drafting paper wipe mask ensures 100% contrast and prevents grid collision
+          ctx.fillStyle = isDark ? "rgba(16, 15, 15, 0.85)" : "rgba(255, 252, 240, 0.90)";
+          ctx.fillRect(textStartX - 2, targetCalloutY - 6.5, textMetrics.width + 4, 13);
+
           ctx.fillStyle = textPrimary;
-          ctx.textAlign = "left";
-          ctx.textBaseline = "bottom";
-          ctx.fillText("Crossover", crossoverX + 5, crossoverY - 6);
+          ctx.textBaseline = "middle";
+          ctx.fillText(label, textStartX, targetCalloutY);
         } else {
+          const title = "The Crossover · ~Day 2";
+          const subtitle = isMobile ? "Passive decay begins" : "Passive recognition begins decay";
+
+          ctx.font = "bold 9.5px monospace";
+          const titleMetrics = ctx.measureText(title);
+          ctx.font = "8.5px monospace";
+          const subMetrics = ctx.measureText(subtitle);
+          const blockWidth = Math.max(titleMetrics.width, subMetrics.width);
+
+          // Drafting paper wipe mask
+          ctx.fillStyle = isDark ? "rgba(16, 15, 15, 0.85)" : "rgba(255, 252, 240, 0.90)";
+          ctx.fillRect(textStartX - 3, targetCalloutY - 13, blockWidth + 6, 24);
+
+          // Line 1: Primary Title (anchored cleanly above shoulder divider)
           ctx.font = "bold 9.5px monospace";
           ctx.fillStyle = textPrimary;
-          ctx.textAlign = "left";
           ctx.textBaseline = "bottom";
-          ctx.fillText("The Crossover · ~Day 2", crossoverX + 6, crossoverY - 14);
+          ctx.fillText(title, textStartX, targetCalloutY - 1.5);
 
+          // Line 2: Secondary Descriptor (anchored cleanly below shoulder divider)
           ctx.font = "8.5px monospace";
           ctx.fillStyle = textMuted;
-          ctx.fillText("Passive recognition begins decay", crossoverX + 6, crossoverY - 4);
+          ctx.textBaseline = "top";
+          ctx.fillText(subtitle, textStartX, targetCalloutY + 2.5);
         }
       }
 
@@ -538,117 +581,158 @@ export function RetentionCurve() {
   }, [scrollProgress, isReducedMotion]);
 
   // Active milestone index based on scroll
-  const activeMilestoneIdx = scrollProgress < 0.33 ? 0 : scrollProgress < 0.68 ? 1 : 2;
+  const effectiveProgress = isReducedMotion ? 1 : scrollProgress;
+  const activeMilestoneIdx = effectiveProgress < 0.33 ? 0 : effectiveProgress < 0.68 ? 1 : 2;
+
+  const scrollToMilestone = (idx: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const rect = track.getBoundingClientRect();
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const stickyTop = window.innerWidth >= 768 ? 80 : 64;
+    const vh = window.innerHeight;
+    const stickyHeight = stickyRef.current ? stickyRef.current.offsetHeight : vh - stickyTop;
+    const totalTravel = rect.height - stickyHeight;
+
+    const targets = [0.08, 0.50, 0.95];
+    const targetRatio = targets[idx] ?? 0;
+
+    const targetScrollY = scrollTop + rect.top - stickyTop + targetRatio * totalTravel;
+    window.scrollTo({ top: targetScrollY, behavior: "smooth" });
+  };
 
   return (
     <section
       id="retention-science"
-      ref={containerRef}
+      ref={trackRef}
       aria-labelledby="retention-title"
-      className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 scroll-mt-24"
+      className={`relative w-full ${
+        isReducedMotion ? "h-auto py-12 sm:py-16" : "h-[260vh] min-h-[1800px]"
+      }`}
     >
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12 lg:items-center">
-        {/* Left Column: Narrative Ledger & Editorial Value Proposition (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col justify-center">
-          <div className="text-[0.6875rem] font-mono font-semibold uppercase tracking-[0.18em] text-accent mb-2.5">
-            Cognitive Dynamics
-          </div>
-          <h2
-            id="retention-title"
-            className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-tx leading-[1.12]"
-          >
-            Why unassisted recall holds under pressure
-          </h2>
-          <p className="mt-2.5 text-sm text-tx-2 leading-relaxed">
-            Assisted review creates the illusion of mastery while memory decays. Unaided retrieval trains the brain to reconstruct solutions from first principles.
-          </p>
+      {/* Pinned Sticky Stage: Locks in viewport while scroll scrubs through Day 1 -> Day 30 */}
+      <div
+        ref={stickyRef}
+        className={`w-full ${
+          isReducedMotion
+            ? "relative py-12 sm:py-16"
+            : "sticky top-16 md:top-20 pt-3 pb-8 sm:pt-4 sm:pb-10 flex flex-col justify-start"
+        }`}
+      >
+        <div className="mx-auto max-w-6xl w-full px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12 lg:items-center">
+            {/* Left Column: Narrative Ledger & Editorial Value Proposition (5 cols) */}
+            <div className="lg:col-span-5 flex flex-col justify-center">
+              <div className="text-[0.6875rem] font-mono font-semibold uppercase tracking-[0.18em] text-accent mb-2.5">
+                Memory retention
+              </div>
+              <h2
+                id="retention-title"
+                className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-tx leading-[1.12]"
+              >
+                Why studying without notes sticks under pressure
+              </h2>
+              <p className="mt-2.5 text-sm text-tx-2 leading-relaxed">
+                Reading through an answer key feels easy because the solution is already in front of you. Reconstructing the answer from memory takes effort, but that effort is what keeps the concept in your head weeks later.
+              </p>
 
-          {/* Synchronized Milestone Narrative Ledger */}
-          <div className="mt-5 space-y-2 border-t border-tx/10 pt-4">
-            {MILESTONES.map((m, idx) => {
-              const isActive = activeMilestoneIdx === idx;
-              return (
-                <div
-                  key={m.num}
-                  className={`rounded-lg transition-all duration-300 p-2.5 ${
-                    isActive
-                      ? "bg-accent/8 border-l-2 border-accent pl-3 shadow-xs"
-                      : "opacity-60 hover:opacity-85 border-l-2 border-transparent pl-3"
-                  }`}
-                >
-                  <div className="flex items-center justify-between font-mono text-xs mb-1">
-                    <span className="font-semibold text-accent">{m.num} / {m.day}</span>
-                    {isActive ? (
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-accent font-semibold">
-                        Current epoch
-                      </span>
-                    ) : null}
-                  </div>
-                  <h3 className="font-serif text-sm sm:text-base font-normal text-tx">
-                    {m.headline}
-                  </h3>
+              {/* Synchronized Milestone Narrative Ledger */}
+              <div className="mt-5 space-y-2 border-t border-tx/10 pt-4" role="tablist" aria-label="Retention milestones">
+                {MILESTONES.map((m, idx) => {
+                  const isActive = activeMilestoneIdx === idx;
+                  return (
+                    <button
+                      key={m.num}
+                      type="button"
+                      onClick={() => scrollToMilestone(idx)}
+                      className={`w-full text-left rounded-lg transition-all duration-300 p-2.5 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
+                        isActive
+                          ? "bg-accent/8 border-l-2 border-accent pl-3 shadow-xs"
+                          : "opacity-60 hover:opacity-85 border-l-2 border-transparent pl-3"
+                      }`}
+                      aria-current={isActive ? "step" : undefined}
+                    >
+                      <div className="flex items-center justify-between font-mono text-xs mb-1">
+                        <span className="font-semibold text-accent">{m.num} / {m.day}</span>
+                        {isActive ? (
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-accent font-semibold">
+                            Active stage
+                          </span>
+                        ) : null}
+                      </div>
+                      <h3 className="font-serif text-sm sm:text-base font-normal text-tx">
+                        {m.headline}
+                      </h3>
 
-                  {/* Active Epoch Reveals Consequential Reality */}
-                  <div
-                    className={`grid transition-[grid-template-rows,opacity] duration-300 ${
-                      isActive ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0"
-                    }`}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="flex flex-col gap-1 font-mono text-[11px] mb-1.5">
-                        <div className="flex items-center gap-1.5 text-tx font-medium">
-                          <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" aria-hidden="true" />
-                          <span>{m.activeOutcome}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-tx-3">
-                          <span className="h-1.5 w-1.5 rounded-full border border-dashed border-tx-3 shrink-0" aria-hidden="true" />
-                          <span>{m.passiveOutcome}</span>
+                      {/* Active Epoch Reveals Consequential Reality */}
+                      <div
+                        className={`grid transition-[grid-template-rows,opacity] duration-300 ${
+                          isActive ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0"
+                        }`}
+                      >
+                        <div className="overflow-hidden">
+                          <div className="flex flex-col gap-1 font-mono text-[11px] mb-1.5">
+                            <div className="flex items-center gap-1.5 text-tx font-medium">
+                              <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" aria-hidden="true" />
+                              <span>{m.activeOutcome}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-tx-3">
+                              <span className="h-1.5 w-1.5 rounded-full border border-dashed border-tx-3 shrink-0" aria-hidden="true" />
+                              <span>{m.passiveOutcome}</span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-tx-2 leading-relaxed">
+                            {m.detail}
+                          </p>
                         </div>
                       </div>
-                      <p className="text-xs text-tx-2 leading-relaxed">
-                        {m.detail}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right Column: Living Ink Canvas Drafting Plane (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col justify-center">
-          {/* Top Annotation Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-tx/10 pb-2.5 mb-2 text-xs font-mono gap-2">
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-accent shrink-0" aria-hidden="true" />
-                <span className="font-medium text-tx">Unaided retrieval (Permanent ink)</span>
+                    </button>
+                  );
+                })}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full border border-dashed border-tx-3 shrink-0" aria-hidden="true" />
-                <span className="text-tx-2">Passive reading (Evaporates)</span>
+
+              {/* Scroll Timeline Cue */}
+              <div className="mt-3 flex items-center gap-2 text-[0.6875rem] font-mono text-tx-3">
+                <span className="inline-block animate-bounce text-accent" aria-hidden="true">↓</span>
+                <span>Scroll to scrub 30-day retention curve</span>
               </div>
             </div>
-            <span className="text-tx-3 text-[0.6875rem]">
-              30-day Ebbinghaus model
-            </span>
-          </div>
 
-          {/* High-DPI Living Canvas */}
-          <div className="w-full aspect-[16/11] min-h-[300px] max-h-[440px]">
-            <canvas
-              ref={canvasRef}
-              className="w-full h-full block select-none"
-              role="img"
-              aria-label="Living ink retention curve: unaided retrieval preserves 80% independent execution over 30 days while passive review fades to 18%."
-            />
-          </div>
+            {/* Right Column: Living Ink Canvas Drafting Plane (7 cols) */}
+            <div className="lg:col-span-7 flex flex-col justify-center">
+              {/* Top Annotation Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-tx/10 pb-2.5 mb-2 text-xs font-mono gap-2">
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-accent shrink-0" aria-hidden="true" />
+                    <span className="font-medium text-tx">Unaided retrieval (Permanent ink)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full border border-dashed border-tx-3 shrink-0" aria-hidden="true" />
+                    <span className="text-tx-2">Passive reading (Evaporates)</span>
+                  </div>
+                </div>
+                <span className="text-tx-3 text-[0.6875rem]">
+                  30-day Ebbinghaus model
+                </span>
+              </div>
 
-          {/* Academic Citation Footer */}
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[0.6875rem] text-tx-3 font-mono border-t border-tx/5 pt-2">
-            <span>Empirical basis: Roediger &amp; Karpicke (2006); Karpicke &amp; Blunt (2011)</span>
-            <span>Living ink physics · Natural scroll travel</span>
+              {/* High-DPI Living Canvas */}
+              <div className="w-full aspect-[16/11] min-h-[280px] max-h-[440px]">
+                <canvas
+                  ref={canvasRef}
+                  className="w-full h-full block select-none"
+                  role="img"
+                  aria-label="Living ink retention curve: unaided retrieval preserves 80% independent execution over 30 days while passive review fades to 18%."
+                />
+              </div>
+
+              {/* Academic Citation Footer */}
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[0.6875rem] text-tx-3 font-mono border-t border-tx/5 pt-2">
+                <span>Empirical basis: Roediger &amp; Karpicke (2006); Karpicke &amp; Blunt (2011)</span>
+                <span>Living ink physics · Pinned scroll stage</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -77,10 +77,10 @@ function DossierCard({ active }: { active: OrbitDiscipline }) {
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
           <figcaption className="text-xs font-semibold uppercase tracking-wider text-tx-2">
-            Curriculum Specimen · {active.label}
+            Sample prompt · {active.label}
           </figcaption>
         </div>
-        <span className="text-xs font-mono text-tx-3">DIAGNOSTIC PROBE</span>
+        <span className="text-xs font-mono text-tx-3">DIAGNOSTIC PROMPT</span>
       </div>
 
       <h3 className="font-serif text-xl sm:text-2xl text-tx font-medium leading-snug mb-6">
@@ -88,14 +88,14 @@ function DossierCard({ active }: { active: OrbitDiscipline }) {
       </h3>
 
       <div className="space-y-4 mb-8">
-        {/* AI Trap */}
+        {/* Common trap */}
         <div className="rounded-xl border border-error/20 bg-error/5 p-4 transition-colors">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[0.7rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded bg-error/15 text-error">
-              The AI Trap
+              Common trap
             </span>
             <span className="text-xs text-tx-3">
-              What you can explain unaided
+              What notes or AI summaries miss
             </span>
           </div>
           <p className="text-xs sm:text-sm text-tx-2 leading-relaxed italic">
@@ -103,14 +103,14 @@ function DossierCard({ active }: { active: OrbitDiscipline }) {
           </p>
         </div>
 
-        {/* Unassisted Ask */}
+        {/* Exam prompt */}
         <div className="rounded-xl border border-accent/25 bg-accent/5 p-4 transition-colors">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[0.7rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded bg-accent/20 text-accent font-semibold">
-              Unassisted Ask
+              Exam prompt
             </span>
             <span className="text-xs text-tx-3">
-              Tested without assistance
+              Answered from memory
             </span>
           </div>
           <p className="text-xs sm:text-sm text-tx leading-relaxed">

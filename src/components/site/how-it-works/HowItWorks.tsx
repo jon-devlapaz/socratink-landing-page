@@ -43,7 +43,7 @@ export function HowItWorks() {
           How a session works
         </h2>
         <p className="mt-2 text-sm sm:text-base text-tx-2 max-w-xl leading-relaxed">
-          Three steps. The thinking stays yours.
+          Three quick steps to test what you actually know.
         </p>
       </div>
 

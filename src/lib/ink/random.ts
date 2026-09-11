@@ -1,5 +1,6 @@
 import { parseInkScene, type InkPart, type InkScene } from "./scene";
 import { type InkKinematicKind } from "./kinematics";
+import * as THREE from "three";
 
 function rand(min: number, max: number): number {
   return min + Math.random() * (max - min);
@@ -445,6 +446,43 @@ export function generateRandomInkScene(
  * Generates unique, organic fluid configurations on every invocation.
  */
 
+function compileSegment(
+  from: [number, number, number],
+  to: [number, number, number],
+  radius: number,
+): InkPart {
+  const p1 = new THREE.Vector3(...from);
+  const p2 = new THREE.Vector3(...to);
+  const mid = p1.clone().add(p2).multiplyScalar(0.5);
+  const dir = p2.clone().sub(p1);
+  const length = dir.length();
+  const quat = new THREE.Quaternion().setFromUnitVectors(
+    new THREE.Vector3(0, 1, 0),
+    dir.clone().normalize(),
+  );
+  const euler = new THREE.Euler().setFromQuaternion(quat, "XYZ");
+  const totalLength = Math.max(radius * 2, length + radius * 2);
+  return {
+    shape: "capsule",
+    operation: "union",
+    position: [
+      Number(mid.x.toFixed(3)),
+      Number(mid.y.toFixed(3)),
+      Number(mid.z.toFixed(3)),
+    ],
+    scale: [
+      Number((radius * 2).toFixed(3)),
+      Number(totalLength.toFixed(3)),
+      Number((radius * 2).toFixed(3)),
+    ],
+    rotation: [
+      normDeg(THREE.MathUtils.radToDeg(euler.x)),
+      normDeg(THREE.MathUtils.radToDeg(euler.y)),
+      normDeg(THREE.MathUtils.radToDeg(euler.z)),
+    ],
+  };
+}
+
 function buildAbstractQuestion(): {
   name: string;
   parts: InkPart[];
@@ -452,56 +490,52 @@ function buildAbstractQuestion(): {
   kinematics: InkKinematicKind;
 } {
   const parts: InkPart[] = [];
-  const tilt = rand(-12, 12);
-  const tiltRad = (tilt * Math.PI) / 180;
+  const tiltDeg = rand(-5, 5);
+  const tiltRad = (tiltDeg * Math.PI) / 180;
+  const rot = (x: number, y: number): [number, number, number] => [
+    Number((Math.cos(tiltRad) * x - Math.sin(tiltRad) * y).toFixed(3)),
+    Number((Math.sin(tiltRad) * x + Math.cos(tiltRad) * y).toFixed(3)),
+    0,
+  ];
+  const r = rand(0.065, 0.075);
 
-  const arcDiam = rand(0.18, 0.24);
-  parts.push({
-    shape: "capsule",
-    operation: "union",
-    position: [Math.sin(tiltRad) * 0.1, 0.46 + Math.cos(tiltRad) * 0.05, 0],
-    scale: [arcDiam, Math.max(arcDiam, rand(0.55, 0.68)), arcDiam],
-    rotation: [0, 0, normDeg(tilt + 85)],
-  });
+  // 6 continuous segments tracing the calligraphic loop and stem
+  const spine: [number, number][] = [
+    [-0.26, 0.22], // left hook entry
+    [-0.15, 0.44], // left-top shoulder
+    [0.10, 0.48],  // apex crest
+    [0.28, 0.32],  // right outer crest
+    [0.14, 0.12],  // inward curl
+    [0.0, -0.02],  // center neck
+    [0.0, -0.20],  // vertical stem bottom
+  ];
 
-  parts.push({
-    shape: "capsule",
-    operation: "union",
-    position: [0.26, 0.32, 0],
-    scale: [arcDiam * 0.95, Math.max(arcDiam * 0.95, rand(0.42, 0.52)), arcDiam * 0.95],
-    rotation: [0, 0, normDeg(tilt - 25)],
-  });
+  for (let i = 0; i < spine.length - 1; i++) {
+    const from = rot(spine[i][0], spine[i][1]);
+    const to = rot(spine[i + 1][0], spine[i + 1][1]);
+    parts.push(compileSegment(from, to, r));
+  }
 
-  parts.push({
-    shape: "capsule",
-    operation: "union",
-    position: [0.06, 0.08, 0],
-    scale: [arcDiam * 0.9, Math.max(arcDiam * 0.9, rand(0.44, 0.54)), arcDiam * 0.9],
-    rotation: [0, 0, normDeg(tilt - 65)],
-  });
-
-  parts.push({
-    shape: "capsule",
-    operation: "union",
-    position: [0.0, -0.16, 0],
-    scale: [arcDiam * 0.95, Math.max(arcDiam * 0.95, rand(0.32, 0.42)), arcDiam * 0.95],
-    rotation: [0, 0, normDeg(tilt)],
-  });
-
-  const dotDiam = rand(0.18, 0.24);
+  // Floating question dot
+  const dotP = rot(0.0, -0.42);
+  const dotR = rand(0.09, 0.11);
   parts.push({
     shape: "sphere",
     operation: "union",
-    position: [0.0, rand(-0.48, -0.42), 0],
-    scale: [dotDiam, dotDiam, dotDiam],
+    position: dotP,
+    scale: [
+      Number((dotR * 2).toFixed(3)),
+      Number((dotR * 2).toFixed(3)),
+      Number((dotR * 2).toFixed(3)),
+    ],
     rotation: [0, 0, 0],
   });
 
   return {
     name: "Question mark",
     parts,
-    blend: Number(rand(0.12, 0.16).toFixed(2)),
-    kinematics: "serpentine",
+    blend: Number(rand(0.08, 0.10).toFixed(2)),
+    kinematics: "none",
   };
 }
 
@@ -575,54 +609,47 @@ function buildAbstractTarget(): {
   kinematics: InkKinematicKind;
 } {
   const parts: InkPart[] = [];
-  const ringR = rand(0.52, 0.58);
-  const ringThick = rand(0.10, 0.14);
-  const segments = 6;
-
-  for (let i = 0; i < segments; i++) {
-    const a1 = (i * 2 * Math.PI) / segments;
-    const a2 = ((i + 1) * 2 * Math.PI) / segments;
-    const x1 = Math.cos(a1) * ringR;
-    const y1 = Math.sin(a1) * ringR;
-    const x2 = Math.cos(a2) * ringR;
-    const y2 = Math.sin(a2) * ringR;
-    const mx = (x1 + x2) * 0.5;
-    const my = (y1 + y2) * 0.5;
-    const chordLen = Math.hypot(x2 - x1, y2 - y1);
-    const angleDeg = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
-
-    parts.push({
-      shape: "capsule",
-      operation: "union",
-      position: [mx, my, 0],
-      scale: [ringThick, Math.max(ringThick, chordLen * 1.05), ringThick],
-      rotation: [0, 0, normDeg(angleDeg + 90)],
-    });
-  }
-
-  const centerDiam = rand(0.32, 0.40);
+  // 1. Bullseye core bead at origin
+  const coreR = rand(0.16, 0.20);
   parts.push({
     shape: "sphere",
     operation: "union",
     position: [0, 0, 0],
-    scale: [centerDiam, centerDiam, centerDiam],
+    scale: [
+      Number((coreR * 2).toFixed(3)),
+      Number((coreR * 2).toFixed(3)),
+      Number((coreR * 2).toFixed(3)),
+    ],
     rotation: [0, 0, 0],
   });
 
-  const arrowThick = rand(0.08, 0.11);
-  parts.push({
-    shape: "capsule",
-    operation: "union",
-    position: [0.34, 0.34, 0.05],
-    scale: [arrowThick, Math.max(arrowThick, 0.72), arrowThick],
-    rotation: [normDeg(10), normDeg(10), normDeg(-45)],
-  });
+  // 2. 8-segment tangent-continuous circular perimeter
+  const ringR = rand(0.52, 0.56);
+  const ringThick = rand(0.055, 0.065);
+  const segments = 8;
+  const pts: [number, number, number][] = [];
+  for (let i = 0; i < segments; i++) {
+    const a = (i * 2 * Math.PI) / segments;
+    pts.push([
+      Number((Math.cos(a) * ringR).toFixed(3)),
+      Number((Math.sin(a) * ringR).toFixed(3)),
+      0,
+    ]);
+  }
+  for (let i = 0; i < segments; i++) {
+    const from = pts[i];
+    const to = pts[(i + 1) % segments];
+    parts.push(compileSegment(from, to, ringThick));
+  }
+
+  // 3. Piercing arrow stylus
+  parts.push(compileSegment([0.55, 0.55, 0.08], [0.08, 0.08, 0.02], 0.042));
 
   return {
     name: "Bullseye target",
     parts,
-    blend: Number(rand(0.10, 0.14).toFixed(2)),
-    kinematics: "vortex",
+    blend: Number(rand(0.10, 0.13).toFixed(2)),
+    kinematics: "none",
   };
 }
 
@@ -723,9 +750,14 @@ export function generateProceduralConceptScene(
       metalness: Number(rand(0.12, 0.18).toFixed(2)),
     },
     motion: {
-      speed: Number(rand(0.32, 0.46).toFixed(2)),
-      amplitude: Number(rand(0.06, 0.12).toFixed(3)),
-      pointer: Number(rand(0.18, 0.32).toFixed(2)),
+      speed: Number(rand(0.30, 0.42).toFixed(2)),
+      amplitude:
+        concept === "target"
+          ? Number(rand(0.012, 0.020).toFixed(3))
+          : concept === "question"
+            ? Number(rand(0.025, 0.040).toFixed(3))
+            : Number(rand(0.05, 0.09).toFixed(3)),
+      pointer: Number(rand(0.18, 0.28).toFixed(2)),
     },
     parts: parts.slice(0, 10),
   };

@@ -139,8 +139,8 @@ export function mountInk(
         targets.push({
           ...prior,
           operation: 0,
-          position: targets[0].position.clone(),
-          scale: new THREE.Vector3(0.001, 0.001, 0.001),
+          position: new THREE.Vector3(0, 0, -20),
+          scale: new THREE.Vector3(0.0001, 0.0001, 0.0001),
           rotation: prior.rotation.clone(),
           color: targets[0].color.clone(),
         });
@@ -159,7 +159,7 @@ export function mountInk(
       };
     });
     ink.userData.layers = [entities];
-    transition = 1.6;
+    transition = 0.85;
     schedule();
   }
   function resize() {
@@ -219,7 +219,7 @@ export function mountInk(
     entities.forEach((entity, i) => {
       const target = targets[i];
       const phase = i * 2.39996;
-      const a = reduced ? 0 : motion.amplitude;
+      const a = (reduced || i >= requestedCount) ? 0 : motion.amplitude;
 
       let x = target.position.x + Math.sin(time * 0.8 + phase) * a;
       let y = target.position.y + Math.sin(time * 0.63 + phase * 1.3) * a;
@@ -229,7 +229,7 @@ export function mountInk(
 
       let sample: ReturnType<typeof sampleKinematics> = null;
       // Coupled multi-part kinematics evaluated through the isolated driver.
-      if (kinematicKind !== NO_KINEMATICS) {
+      if (kinematicKind !== NO_KINEMATICS && i < requestedCount) {
         sample = sampleKinematics(kinematicKind, {
           time,
           amplitude: a,
