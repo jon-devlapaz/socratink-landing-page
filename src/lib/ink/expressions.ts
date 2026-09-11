@@ -9,6 +9,7 @@ export const INK_EXPRESSIONS = {
     scene: {
       ...structuredClone(INK_PRESETS.ink),
       name: "Ink droplet",
+      kinematics: "respiration",
     },
   },
   question: {
@@ -18,6 +19,27 @@ export const INK_EXPRESSIONS = {
     scene: {
       ...compileSculptToScene(SCULPT_CATALOG.question_aperture.definition),
       name: "Question mark",
+      kinematics: "serpentine",
+    },
+  },
+  aporia: {
+    label: "Productive struggle",
+    symbol: "Aporia knot",
+    meaning: "Epistemic friction. Reconstructing the concept under pressure.",
+    scene: {
+      ...compileSculptToScene(SCULPT_CATALOG.aporia.definition),
+      name: "Aporia knot",
+      kinematics: "pulse",
+    },
+  },
+  iris: {
+    label: "Maieutic inquiry",
+    symbol: "Maieutic iris",
+    meaning: "The aperture dilates: unassisted inquiry begins.",
+    scene: {
+      ...compileSculptToScene(SCULPT_CATALOG.maieutic_iris.definition),
+      name: "Maieutic iris",
+      kinematics: "vortex",
     },
   },
   nib: {
@@ -27,6 +49,7 @@ export const INK_EXPRESSIONS = {
     scene: {
       ...compileSculptToScene(SCULPT_CATALOG.quill.definition),
       name: "Dipped nib",
+      kinematics: "serpentine",
     },
   },
   connect: {
@@ -36,6 +59,7 @@ export const INK_EXPRESSIONS = {
     scene: {
       ...compileSculptToScene(SCULPT_CATALOG.synaptic_bridge.definition),
       name: "Bridge",
+      kinematics: "stokes-bridge",
     },
   },
   explain: {
@@ -45,6 +69,7 @@ export const INK_EXPRESSIONS = {
     scene: {
       ...compileSculptToScene(SCULPT_CATALOG.codex.definition),
       name: "Open notebook",
+      kinematics: "respiration",
     },
   },
 } satisfies Record<

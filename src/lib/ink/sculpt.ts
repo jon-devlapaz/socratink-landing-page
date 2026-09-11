@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import type { InkKinematicKind } from "./kinematics";
 import { INK_PRESETS, type InkPart, type InkScene } from "./scene";
 
 export interface SemanticStroke {
@@ -22,6 +23,7 @@ export interface SculptDefinition {
   beads?: SemanticBead[];
   blend?: number;
   motion?: { speed?: number; amplitude?: number; pointer?: number };
+  kinematics?: InkKinematicKind;
 }
 
 function normDeg(deg: number): number {
@@ -122,6 +124,7 @@ export function compileSculptToScene(sculpt: SculptDefinition): InkScene {
     ...structuredClone(INK_PRESETS.ink),
     name: `Sculpt: ${sculpt.concept}`,
     blend: Number((sculpt.blend ?? 0.18).toFixed(3)),
+    kinematics: sculpt.kinematics,
     motion: {
       speed: Number((sculpt.motion?.speed ?? 0.35).toFixed(3)),
       amplitude: Number((sculpt.motion?.amplitude ?? 0.016).toFixed(3)),
@@ -173,6 +176,7 @@ export const SCULPT_CATALOG: Record<
     definition: {
       concept: "Question Aperture",
       blend: 0.19,
+      kinematics: "serpentine",
       motion: { speed: 0.30, amplitude: 0.016, pointer: 0.15 },
       strokes: [
         { from: [-0.300, 0.380, -0.040], to: [-0.224, 0.562, -0.007], radius: 0.095, label: "entry-flourish" },
@@ -199,6 +203,7 @@ export const SCULPT_CATALOG: Record<
     definition: {
       concept: "Maieutic Aperture",
       blend: 0.20,
+      kinematics: "vortex",
       motion: { speed: 0.36, amplitude: 0.02, pointer: 0.14 },
       strokes: [
         { from: [-0.32, 0.46, 0.06], to: [0.32, 0.46, 0.06], radius: 0.11, label: "iris-top" },
@@ -246,6 +251,7 @@ export const SCULPT_CATALOG: Record<
     definition: {
       concept: "Dipped Nib",
       blend: 0.17,
+      kinematics: "serpentine",
       motion: { speed: 0.30, amplitude: 0.014, pointer: 0.14 },
       strokes: [
         // Upper shank/barrel
@@ -279,6 +285,7 @@ export const SCULPT_CATALOG: Record<
     definition: {
       concept: "Synaptic Bridge",
       blend: 0.18,
+      kinematics: "stokes-bridge",
       motion: { speed: 0.32, amplitude: 0.016, pointer: 0.15 },
       strokes: [
         // Left pier / shore foundation
@@ -335,6 +342,7 @@ export const SCULPT_CATALOG: Record<
     definition: {
       concept: "Aporia Knot",
       blend: 0.24,
+      kinematics: "pulse",
       motion: { speed: 0.44, amplitude: 0.026, pointer: 0.16 },
       strokes: [
         { from: [-0.38, -0.15, 0.18], to: [0, 0.36, -0.1], radius: 0.13, label: "loop-upper-l" },
@@ -358,6 +366,7 @@ export const SCULPT_CATALOG: Record<
     definition: {
       concept: "Living Codex",
       blend: 0.16,
+      kinematics: "respiration",
       motion: { speed: 0.28, amplitude: 0.012, pointer: 0.12 },
       strokes: [
         // Central binding spine

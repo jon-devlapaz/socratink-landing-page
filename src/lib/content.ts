@@ -33,7 +33,7 @@ export const nav = {
     {
       label: "Disciplines",
       href: "#material",
-      tooltip: "10 rigorous syllabi · Where AI fluency diverges from mastery",
+      tooltip: "10 rigorous syllabi · Where fluent answers can hide gaps",
     },
     {
       label: "Memory",
@@ -42,11 +42,11 @@ export const nav = {
     },
   ],
   login: { label: "Log in", href: `${site.appUrl}login` },
-  cta: { label: "Start a free attempt", href: site.appUrl },
+  cta: { label: "Try the free diagnostic", href: site.appUrl },
 } as const;
 
 export const hero = {
-  primary: { label: "Start a free attempt", href: site.appUrl },
+  primary: { label: "Try the free diagnostic", href: site.appUrl },
   secondary: { label: "Explore disciplines", href: "#material" },
 } as const;
 
@@ -175,7 +175,7 @@ export const orbit = {
   titleSerif: "When the exam, the license, or the job is real.",
   defaultId: "stats" as const satisfies OrbitDisciplineId,
   cta: {
-    label: "Start a free attempt",
+    label: "Try the free diagnostic",
     href: site.appUrl,
   },
   /** Ordered to match the decorative orbit ring (prior nodes list). */
@@ -190,19 +190,19 @@ export const memory = {
   titleSerif: "attempts can stack into a record.",
   cards: [
     {
-      title: "Attempts can accumulate.",
-      sub: "Into a list you can open later.",
-      body: "In Socratink, each session can stand alone and stack over weeks into a readable record of what you produced — not a score, your work. This landing walkthrough does not save yours.",
+      title: "Work accumulates over time.",
+      sub: "A persistent record of your reasoning.",
+      body: "Each session adds to a readable history of what you produced unaided. It records actual work, not an abstract score.",
     },
     {
-      title: "The model can change.",
-      sub: "The meaning of your work does not.",
-      body: "Swap the runtime underneath (Default, Chain, or whatever comes next). What you produced is still labeled with its conditions.",
+      title: "Independent of the model.",
+      sub: "The meaning of your work survives updates.",
+      body: "Even if the underlying model changes, what you wrote remains stamped with the exact assistance conditions at the time.",
     },
     {
-      title: "You hold the record.",
-      sub: "Inspect, correct, export, delete.",
-      body: "In the app, review how an inference was formed, correct what no longer fits, export your history, or erase it completely. Socratink never trains public models on your private diagnostic records.",
+      title: "You control your history.",
+      sub: "Inspect, export, or delete anytime.",
+      body: "Review diagnostic inferences, export data, or delete records entirely. Socratink never uses private sessions to train public models.",
     },
   ],
 } as const;
@@ -211,30 +211,30 @@ export const memory = {
 export const finalCta = {
   titleSans: "Know what you",
   titleSerif: "actually know.",
-  button: { label: "Start a free attempt", href: site.appUrl },
+  button: { label: "Try the free diagnostic", href: site.appUrl },
   sub: "Free diagnostic session · No sign-up required · Instant in-browser",
 } as const;
 
 export const footer = {
   indexLabel: "Site index",
-  legalLabel: "Legal",
+  legalLabel: "Elsewhere",
   quiet: "No newsletter. No social grid.",
-  attemptLabel: "Attempt",
+  attemptLabel: "Diagnostic",
   index: [
     { label: "Disciplines", href: "#material" },
     { label: "Memory", href: "#memory" },
   ],
-  attempt: { label: "Start a free attempt", href: site.appUrl },
+  attempt: { label: "Try the free diagnostic", href: site.appUrl },
   legalNote: "All rights reserved.",
 } as const;
 
 
 /** Approved hero presentation, retained while restoring the original page story. */
 export const notebook = {
-  heroEyebrow: "Your personal knowledge tutor",
-  heroTitle: "Know what you\nactually know.",
+  heroEyebrow: "Diagnostic study engine",
+  heroTitle: "Practice hard material\nwithout outsourcing the thinking.",
   heroBody:
-    "A diagnostic study engine for medical boards, the bar exam, cloud certs, and hard technical subjects. Answer consequential questions without multiple choice or AI assistance, and prove what you can hold under pressure.",
+    "Socratink gives you a free, unassisted diagnostic for exams, certifications, and technical subjects. Answer one consequential prompt without AI or multiple choice, then see where your reasoning holds up.",
   heroTrust: "Free unassisted diagnostic session · No sign-up required · Instant in-browser",
   heroNote: "The thinking stays yours.",
 } as const;

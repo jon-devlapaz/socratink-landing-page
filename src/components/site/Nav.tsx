@@ -11,7 +11,7 @@ export function Nav() {
       <div className="border-b border-tx/5 bg-paper/80 backdrop-blur-xl">
         <nav
           aria-label="Primary"
-          className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-8"
+          className="mx-auto flex h-14 max-w-6xl items-center justify-between px-3 sm:px-8"
         >
           <Wordmark />
 
@@ -48,7 +48,10 @@ export function Nav() {
             <Link href={nav.login.href} className="btn-ghost hidden sm:inline-flex">
               {nav.login.label}
             </Link>
-            <Link href={nav.cta.href} className="btn-primary shrink-0">
+            <Link
+              href={nav.cta.href}
+              className="btn-primary shrink-0 px-2.5 sm:px-3.5 text-xs sm:text-[0.8125rem]"
+            >
               {nav.cta.label}
             </Link>
           </div>

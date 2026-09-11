@@ -1,4 +1,5 @@
 import { INK_PRESETS, type InkPart, type InkScene } from "./scene";
+import { STOKES_BRIDGE_KINEMATICS } from "./kinematics";
 
 export type SomaticState = "settled" | "listening" | "thinking" | "explaining";
 
@@ -230,6 +231,9 @@ export function generateSomaticScene(config: SomaticConfig): {
   const scene: InkScene = {
     ...structuredClone(INK_PRESETS.ink),
     name: sceneName,
+    ...(state === "thinking"
+      ? { kinematics: STOKES_BRIDGE_KINEMATICS }
+      : {}),
     blend: Number(blend.toFixed(3)),
     motion: {
       speed: Number(speed.toFixed(3)),

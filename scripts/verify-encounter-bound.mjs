@@ -32,7 +32,7 @@ try {
 
   // 1. Hero checks
   const h1 = await page.textContent("h1");
-  if (h1 && h1.includes("Know what you")) {
+  if (h1 && h1.includes("Practice hard material")) {
     pass("Hero title rendered cleanly");
   } else {
     fail(`Hero title missing or unexpected: ${h1}`);
@@ -60,6 +60,22 @@ try {
     pass("Disciplines (Orbit) section rendered");
   } else {
     fail("Disciplines section missing");
+  }
+
+  // 4b. How It Works check
+  const howItWorks = await page.$("#how-it-works");
+  if (howItWorks) {
+    pass("How It Works walkthrough section rendered");
+  } else {
+    fail("How It Works section missing");
+  }
+
+  // 4c. Retention Science check
+  const retentionScience = await page.$("#retention-science");
+  if (retentionScience) {
+    pass("Retention Science curve section rendered");
+  } else {
+    fail("Retention Science section missing");
   }
 
   // 5. Memory check

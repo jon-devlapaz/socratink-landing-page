@@ -1,6 +1,13 @@
 import * as THREE from "three";
 import Raymarcher, { type Entity } from "three-raymarcher";
 import { type InkScene } from "./scene";
+import {
+  COALESCENCE_IMPULSE,
+  isCoalescenceTransition,
+  NO_KINEMATICS,
+  resolveKinematicKind,
+  sampleKinematics,
+} from "./kinematics";
 
 const operation = { union: 0, subtract: 1, intersect: 2 };
 const rotation = (v: number[]) =>
@@ -89,12 +96,14 @@ export function mountInk(
   const origin = new THREE.Vector2();
   const nextPosition = new THREE.Vector3();
   const nextScale = new THREE.Vector3();
+  const nextRotation = new THREE.Quaternion();
   const pointer = new THREE.Vector2();
   const pointerTarget = new THREE.Vector2();
   const frameTimes: number[] = [];
   const motion = { ...recipe.motion };
 
   function setScene(next: InkScene) {
+    const prevKind = resolveKinematicKind(recipe);
     recipe = structuredClone(next);
     frameTimes.length = 0;
     targets = next.parts.map((p) => ({
@@ -108,12 +117,13 @@ export function mountInk(
     requestedCount = targets.length;
     // New parts grow in; removed parts contract into the body before disposal.
     const count = Math.max(entities.length, targets.length);
-    const isCoalescing =
-      recipe.name.includes("Thinking") && next.name.includes("Settled");
-    if (isCoalescing && !reduced) {
+    if (
+      isCoalescenceTransition(prevKind, resolveKinematicKind(next)) &&
+      !reduced
+    ) {
       // Surface tension energy release upon coalescence: capillary rebound wave
-      motion.amplitude = 0.085;
-      motion.speed = 1.05;
+      motion.amplitude = COALESCENCE_IMPULSE.amplitude;
+      motion.speed = COALESCENCE_IMPULSE.speed;
     }
     const priorEntities = entities;
     entities = Array.from({ length: count }, (_, i) => {
@@ -176,7 +186,7 @@ export function mountInk(
     if (moving) time += dt * motion.speed;
     if (!frozen) pointer.lerp(reduced ? origin : pointerTarget, ease);
     let extent = 1;
-    const isThinking = recipe.name.includes("Thinking");
+    const kinematicKind = resolveKinematicKind(recipe);
     entities.forEach((entity, i) => {
       const target = targets[i];
       const phase = i * 2.39996;
@@ -184,39 +194,39 @@ export function mountInk(
 
       let x = target.position.x + Math.sin(time * 0.8 + phase) * a;
       let y = target.position.y + Math.sin(time * 0.63 + phase * 1.3) * a;
-      const z = target.position.z + Math.cos(time * 0.7 + phase) * a * 0.6;
+      let z = target.position.z + Math.cos(time * 0.7 + phase) * a * 0.6;
       let scaleMult = 1 + Math.sin(time * 0.9 + phase) * a * 0.12;
       let scaleOverride: THREE.Vector3 | null = null;
 
-      // Coupled Stokes liquid bridge kinematics for Thinking (cognitive deliberation)
-      if (isThinking && targets.length >= 3) {
-        const tugFreq = time * 1.6;
-        const tugAmp = a * 1.85;
-        if (i === 0) {
-          // Primary left lobe pulls left and oscillates in opposition
-          x = target.position.x - Math.sin(tugFreq) * tugAmp;
-          y = target.position.y + Math.cos(tugFreq * 0.75) * a * 0.5;
-          scaleMult = 1 + Math.sin(tugFreq) * 0.08;
-        } else if (i === 1) {
-          // Secondary right lobe pulls right in opposition
-          x = target.position.x + Math.sin(tugFreq) * tugAmp;
-          y = target.position.y - Math.cos(tugFreq * 0.75) * a * 0.5;
-          scaleMult = 1 - Math.sin(tugFreq) * 0.08;
-        } else if (i === 2) {
-          // Capillary waist bridge: stretches and thins in anti-phase
-          const stretch = Math.sin(tugFreq);
-          const diamFactor = Math.max(0.65, 1 - stretch * 0.22);
-          const lenFactor = Math.max(0.8, 1 + stretch * 0.28);
-          scaleOverride = nextScale.set(
-            target.scale.x * diamFactor,
-            target.scale.y * lenFactor,
-            target.scale.x * diamFactor,
-          );
-        } else if (i === 3) {
-          // Nascent insight micro-droplet: buoyant high-frequency hover
-          x = target.position.x + Math.cos(time * 1.8) * a * 0.8;
-          y = target.position.y + Math.sin(time * 3.2) * a * 1.6;
-          scaleMult = 1 + Math.sin(time * 4) * 0.12;
+      let sample: ReturnType<typeof sampleKinematics> = null;
+      // Coupled multi-part kinematics evaluated through the isolated driver.
+      if (kinematicKind !== NO_KINEMATICS) {
+        sample = sampleKinematics(kinematicKind, {
+          time,
+          amplitude: a,
+          index: i,
+          partCount: targets.length,
+          targetX: target.position.x,
+          targetY: target.position.y,
+          targetZ: target.position.z,
+          targetScaleX: target.scale.x,
+          targetScaleY: target.scale.y,
+          targetScaleZ: target.scale.z,
+          baseX: x,
+          baseY: y,
+          baseZ: z,
+          baseScaleMult: scaleMult,
+          pointerX: pointer.x,
+          pointerY: pointer.y,
+        });
+        if (sample) {
+          x = sample.x;
+          y = sample.y;
+          z = sample.z;
+          scaleMult = sample.scaleMult;
+          if (sample.scaleOverride) {
+            scaleOverride = nextScale.set(...sample.scaleOverride);
+          }
         }
       }
 
@@ -236,7 +246,18 @@ export function mountInk(
           ease,
         );
       }
-      entity.rotation.slerp(target.rotation, ease);
+      let rotTarget = target.rotation;
+      if (sample?.rotationDeg) {
+        rotTarget = nextRotation.setFromEuler(
+          new THREE.Euler(
+            THREE.MathUtils.degToRad(sample.rotationDeg[0]),
+            THREE.MathUtils.degToRad(sample.rotationDeg[1]),
+            THREE.MathUtils.degToRad(sample.rotationDeg[2]),
+            "XYZ",
+          ),
+        );
+      }
+      entity.rotation.slerp(rotTarget, ease);
       entity.color.lerp(target.color, ease);
       if (i < requestedCount)
         extent = Math.max(

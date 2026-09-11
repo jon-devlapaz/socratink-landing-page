@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
-import { createInkTool, readInitialInk, type InkTool } from "@/lib/ink/tool";
+import type { InkTool } from "@/lib/ink/tool";
 import { getStoredTheme, resolveTheme, THEME_CHANGE_EVENT } from "@/lib/theme";
-import type { InkExpression } from "@/lib/ink/expressions";
+import { INK_EXPRESSIONS, type InkExpression } from "@/lib/ink/expressions";
 
 const CYCLE_EXPRESSIONS: InkExpression[] = [
   "rest",
@@ -34,13 +34,17 @@ export function InkSphere({
   const isHoveredRef = useRef(false);
   const isReducedRef = useRef(false);
   const [error, setError] = useState("");
+  const [currentExpr, setCurrentExpr] = useState<InkExpression>("rest");
 
   const advance = useCallback(() => {
     const tool = toolRef.current;
     if (!tool || isReducedRef.current) return;
+    const status = tool.call("ink_get_scene");
+    if (status.ok && status.rendering.paused) return;
     cycleIndexRef.current =
       (cycleIndexRef.current + 1) % CYCLE_EXPRESSIONS.length;
     const nextExpr = CYCLE_EXPRESSIONS[cycleIndexRef.current];
+    setCurrentExpr(nextExpr);
     tool.call("ink_express", { expression: nextExpr });
   }, []);
 
@@ -81,8 +85,10 @@ export function InkSphere({
       if (started || disposed) return;
       started = true;
 
-      import("@/lib/ink/renderer")
-        .then(({ mountInk }) => {
+      // The heavy ink runtime (renderer + tool subsystems including the
+      // sculpt catalog) loads lazily so the landing hero stays lightweight.
+      Promise.all([import("@/lib/ink/renderer"), import("@/lib/ink/tool")])
+        .then(([{ mountInk }, { createInkTool, readInitialInk }]) => {
           if (disposed) return;
           const initial = readInitialInk();
           const renderer = mountInk(element, initial, () => {
@@ -106,6 +112,7 @@ export function InkSphere({
             renderer.setReduced(reduced);
             if (reduced) {
               stopCycle();
+              setCurrentExpr("rest");
               tool.call("ink_express", { expression: "rest" });
             } else {
               startCycle();
@@ -120,9 +127,19 @@ export function InkSphere({
           theme.addEventListener("change", updateTheme);
           motion.addEventListener("change", updateMotion);
 
+          const unsubscribeTool = tool.subscribe(() => {
+            const status = tool.call("ink_get_scene");
+            if (status.ok && status.rendering.paused) {
+              stopCycle();
+            } else if (!isHoveredRef.current && !isReducedRef.current) {
+              startCycle();
+            }
+          });
+
           startCycle();
 
           cleanup = () => {
+            unsubscribeTool();
             stopCycle();
             renderer.destroy();
             if (window.socratinkInk === tool) delete window.socratinkInk;
@@ -185,7 +202,7 @@ export function InkSphere({
     <div
       className="sphere ink-sphere"
       style={{ width: size, height: size, cursor: "pointer" }}
-      aria-label="Living ink orb. Transforms organically, or click to advance."
+      aria-label={`Living ink orb: ${INK_EXPRESSIONS[currentExpr]?.label ?? "At rest"} (${INK_EXPRESSIONS[currentExpr]?.symbol ?? "Ink droplet"}). Click to advance.`}
       role="button"
       tabIndex={0}
       onClick={handleManualAdvance}
@@ -204,6 +221,9 @@ export function InkSphere({
         startCycle();
       }}
     >
+      <span className="sr-only" aria-live="polite">
+        {INK_EXPRESSIONS[currentExpr]?.meaning}
+      </span>
       <Image
         className="ink-poster"
         src="/brand/living-ink-poster.png"

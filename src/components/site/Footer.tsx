@@ -3,7 +3,7 @@ import { footer, site } from "@/lib/content";
 
 export function Footer() {
   return (
-    <footer className="site-footer" aria-label="Site footer">
+    <footer className="site-footer">
       <div className="site-footer-rail">
         <div className="site-footer-brand">
           <Wordmark />

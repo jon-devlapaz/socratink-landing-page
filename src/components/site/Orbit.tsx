@@ -67,7 +67,7 @@ function DossierCard({ active }: { active: OrbitDiscipline }) {
       aria-labelledby={`orbit-tab-${active.id}`}
       tabIndex={0}
       aria-live="polite"
-      className="rounded-2xl border border-tx/15 bg-paper-2/60 backdrop-blur-md p-6 sm:p-8 shadow-2xl transition-all duration-300 relative overflow-hidden focus:outline-none"
+      className="rounded-2xl border border-tx/15 bg-paper-2/60 backdrop-blur-md p-6 sm:p-8 shadow-2xl transition-all duration-300 relative overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       style={{
         boxShadow:
           "0 20px 40px -15px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.05) inset",
@@ -95,7 +95,7 @@ function DossierCard({ active }: { active: OrbitDiscipline }) {
               The AI Trap
             </span>
             <span className="text-xs text-tx-3">
-              Where unassisted mastery diverges
+              What you can explain unaided
             </span>
           </div>
           <p className="text-xs sm:text-sm text-tx-2 leading-relaxed italic">
@@ -110,7 +110,7 @@ function DossierCard({ active }: { active: OrbitDiscipline }) {
               Unassisted Ask
             </span>
             <span className="text-xs text-tx-3">
-              Proved under test conditions
+              Tested without assistance
             </span>
           </div>
           <p className="text-xs sm:text-sm text-tx leading-relaxed">
@@ -125,7 +125,7 @@ function DossierCard({ active }: { active: OrbitDiscipline }) {
         </span>
         <a
           href={orbit.cta.href}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-accent text-accent-ink font-medium text-xs sm:text-sm shadow-md hover:brightness-105 active:scale-98 transition-all"
+          className="btn-accent rounded-full px-5 py-2.5 font-medium text-xs sm:text-sm shadow-md transition-all"
         >
           {orbit.cta.label}
           <span aria-hidden="true">→</span>
@@ -185,8 +185,9 @@ function SubjectOrbit({
   return (
     <div
       ref={containerRef}
-      className="orbit-phone orbit-container relative flex items-center justify-center scale-85 sm:scale-100 transition-transform"
+      role="region"
       aria-label="Discipline selector orbit"
+      className="orbit-phone orbit-container relative flex items-center justify-center scale-[0.70] xs:scale-85 sm:scale-100 transition-transform"
     >
       {/* Subtle Orbital Path Guides */}
       <svg
