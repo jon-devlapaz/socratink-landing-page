@@ -221,33 +221,10 @@ main {
     color: var(--tx);
   }
 
-  .card {
-    background: color-mix(in srgb, var(--paper-2) 72%, var(--paper));
-    border: 1px solid color-mix(in srgb, var(--tx) 7%, transparent);
-    border-radius: 1.25rem;
-    box-shadow: var(--card-shadow);
-  }
-
   .tile {
     background: color-mix(in srgb, var(--ui) 70%, var(--paper));
     border: 1px solid color-mix(in srgb, var(--tx) 6%, transparent);
     border-radius: 0.875rem;
-  }
-
-  .kbd {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.25rem;
-    height: 1.25rem;
-    padding: 0 0.35rem;
-    border-radius: 0.3rem;
-    font-size: 0.75rem;
-    font-family: var(--font-sans);
-    color: var(--tx-2);
-    background: color-mix(in srgb, var(--ui-2) 90%, transparent);
-    border: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
-    box-shadow: 0 1px 0 rgba(16, 15, 15, 0.06);
   }
 
   .btn-primary {
@@ -1283,33 +1260,33 @@ html:not(.sc-ready) .reveal-content { opacity: 1 !important; transform: none !im
   align-self: start;
 }
 .ink-lab-stage .sphere { width: 100% !important; height: auto !important; aspect-ratio: 1; max-width: 560px; }
-.ink-lab-stage > p { margin: 0 0 2rem; font-size: .85rem; }
+.ink-lab-stage > p { margin: 0 0 2rem; font-size: 0.85rem; }
 .ink-lab-controls { display: grid; gap: .85rem; align-content: start; min-width: 0; }
 .ink-lab-button { border: 1px solid color-mix(in srgb, var(--tx) 20%, transparent); border-radius: 999px; padding: .6rem 1rem; min-height: 44px; font: inherit; cursor: pointer; }
 .ink-lab-button:hover { background: color-mix(in srgb, var(--tx) 6%, transparent); }
 .ink-lab-button:disabled { opacity: .5; cursor: wait; }
 .ink-lab-button:focus-visible, .ink-lab textarea:focus-visible, .ink-lab select:focus-visible, .ink-lab summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.ink-lab textarea { width: 100%; height: 300px; padding: 1rem; border: 1px solid color-mix(in srgb, var(--tx) 20%, transparent); border-radius: .75rem; font: 12px/1.6 monospace; background: var(--paper); color: var(--tx); resize: vertical; }
+.ink-lab textarea { width: 100%; height: 300px; padding: 1rem; border: 1px solid color-mix(in srgb, var(--tx) 20%, transparent); border-radius: 0.75rem; font: 12px/1.6 monospace; background: var(--paper); color: var(--tx); resize: vertical; }
 .ink-lab-apply { background: var(--tx); color: var(--paper); }
 .ink-lab-apply:hover { background: color-mix(in srgb, var(--tx) 90%, var(--paper)); }
-.ink-lab-status { font-size: .85rem; overflow-wrap: anywhere; white-space: pre-wrap; max-height: 8rem; overflow: auto; }
-.ink-lab select { margin-left: .5rem; background: var(--paper); color: var(--tx); padding: .5rem; border-radius: .5rem; }
-.ink-lab details { font-size: .85rem; max-width: 100%; min-width: 0; }
+.ink-lab-status { font-size: 0.85rem; overflow-wrap: anywhere; white-space: pre-wrap; max-height: 8rem; overflow: auto; }
+.ink-lab select { margin-left: 0.5rem; background: var(--paper); color: var(--tx); padding: 0.5rem; border-radius: 0.5rem; }
+.ink-lab details { font-size: 0.85rem; max-width: 100%; min-width: 0; }
 .ink-lab summary { cursor: pointer; padding: .5rem 0; }
 .ink-lab pre { overflow: auto; max-height: 300px; margin-top: 1rem; font-size: 11px; max-width: 100%; min-width: 0; }
 .ink-lab-controls > * { max-width: 100%; min-width: 0; }
 @media (max-width: 760px) { .ink-lab { padding: 1.25rem; } .ink-lab-grid { grid-template-columns: 1fr; gap: 1.5rem; } .ink-lab-heading { margin-top: 2rem; } }
 
 .ink-lab-moments { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
-.ink-lab-moments legend { margin-bottom: .85rem; font-size: .85rem; color: var(--tx-2); }
-.ink-lab-moment { text-align: left; padding: .85rem 1rem; border: 1px solid color-mix(in srgb, var(--tx) 18%, transparent); border-radius: .8rem; cursor: pointer; }
+.ink-lab-moments legend { margin-bottom: 0.85rem; font-size: 0.85rem; color: var(--tx-2); }
+.ink-lab-moment { text-align: left; padding: 0.85rem 1rem; border: 1px solid color-mix(in srgb, var(--tx) 18%, transparent); border-radius: 0.8rem; cursor: pointer; }
 .ink-lab-moment small { display: block; margin-top: .25rem; color: var(--tx-2); font-size: .75rem; }
 .ink-lab-moment[aria-pressed="true"] { background: color-mix(in srgb, var(--tx) 7%, transparent); border-color: var(--tx); }
 .ink-lab-moment:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .ink-lab-moment:disabled { opacity: .5; cursor: wait; }
 .ink-lab-caption { text-align: center; padding: 0 1.5rem 1.5rem; min-height: 6rem; max-width: 28rem; }
 .ink-lab-caption strong { font-weight: 500; }
-.ink-lab-caption p { color: var(--tx-2); font-size: .85rem; margin-top: .4rem; }
+.ink-lab-caption p { color: var(--tx-2); font-size: 0.85rem; margin-top: 0.4rem; }
 
 .hero-ink-cues { display: flex; justify-content: center; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
 .hero-ink-cues button { min-height: 44px; padding: .4rem .7rem; color: var(--tx-2); font: inherit; font-size: .75rem; border-radius: 999px; cursor: pointer; }

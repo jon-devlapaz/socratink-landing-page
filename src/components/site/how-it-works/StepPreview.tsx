@@ -7,12 +7,13 @@ interface StepPreviewProps {
   isReducedMotion: boolean;
 }
 
-export function StepPreview({ activeStep }: StepPreviewProps) {
+export function StepPreview({ activeStep, isReducedMotion }: StepPreviewProps) {
   return (
     <div
-      className="how-window-mock"
+      className={`how-window-mock ${isReducedMotion ? "is-reduced-motion" : ""}`}
+      data-active-step={activeStep}
       role="region"
-      aria-label="Diagnostic session preview"
+      aria-label="Illustrative diagnostic session preview"
     >
       {/* Window Header / Mac-style Ink Dots */}
       <div className="how-window-header">
@@ -23,7 +24,7 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
         </div>
         <div className="how-window-title">
           <span className="how-window-indicator" aria-hidden="true" />
-          <span>Socratink Session · Diagnostic Specimen</span>
+          <span>Socratink · Example session</span>
         </div>
         <div className="w-12" aria-hidden="true" />
       </div>
@@ -34,7 +35,8 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
         <div
           id="panel-target"
           role="tabpanel"
-          tabIndex={0}
+          tabIndex={activeStep === "target" ? 0 : -1}
+          aria-hidden={activeStep !== "target"}
           aria-labelledby="tab-target"
           className={`how-panel ${activeStep === "target" ? "is-active" : "is-hidden"}`}
         >
@@ -96,7 +98,8 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
         <div
           id="panel-explain"
           role="tabpanel"
-          tabIndex={0}
+          tabIndex={activeStep === "explain" ? 0 : -1}
+          aria-hidden={activeStep !== "explain"}
           aria-labelledby="tab-explain"
           className={`how-panel ${activeStep === "explain" ? "is-active" : "is-hidden"}`}
         >
@@ -147,7 +150,8 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
         <div
           id="panel-inspect"
           role="tabpanel"
-          tabIndex={0}
+          tabIndex={activeStep === "inspect" ? 0 : -1}
+          aria-hidden={activeStep !== "inspect"}
           aria-labelledby="tab-inspect"
           className={`how-panel ${activeStep === "inspect" ? "is-active" : "is-hidden"}`}
         >

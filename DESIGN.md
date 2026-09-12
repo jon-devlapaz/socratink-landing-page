@@ -226,7 +226,7 @@ Refined and restrained: controls answer every press in 180ms with a 0.96 scale s
 ### Retention ledger and chart (signature)
 
 - **Ledger:** a milestone timeline on a 1px rail — mono day tags that ignite to semibold Verdigris when active, serif headlines that grow from graphite small to ink large, and accordion disclosures (grid-rows, zero layout shift) pairing each summary with solid-accent "unaided" and dashed-outline "passive" data points.
-- **Chart:** a high-DPI canvas drafting plane — 0.5px coordinate grid, monospace axis labels, a three-pass Verdigris ink stroke (aura, saturated core, fine spine) for unaided retrieval against a dashed graphite decay curve that sheds evaporating particles past the crossover. A dashed drafting leader calls out "The Crossover · ~Day 2"; end labels, a mono legend bar, and an academic citation footer complete the instrument. Scroll scrubs the drawing on a pinned stage; reduced-motion renders the finished chart statically.
+- **Chart:** a high-DPI canvas drafting plane — 0.5px coordinate grid, monospace axis labels, a three-pass Verdigris ink stroke (aura, saturated core, fine spine) for unaided retrieval against a dashed graphite decay curve that sheds evaporating particles past the crossover. A dashed drafting leader calls out "The Crossover · ~Day 2"; end labels, a mono legend bar (0.8125rem semibold lead with Verdigris state mark, 0.6875rem receded passive, ticked model note), and an academic citation footer complete the instrument. Scroll scrubs the drawing on a pinned stage; reduced-motion renders the finished chart statically.
 
 ### How-it-works tabs and window
 
