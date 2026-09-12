@@ -36,13 +36,14 @@ function AccumulationArc() {
     { t: "Over time", label: "A record you can read", marks: 9 },
   ];
   return (
-    <ol className="relative flex flex-col gap-5 border-s border-tx/10 ps-5 text-[0.8125rem]">
+    <ol className="relative flex flex-col gap-5 ps-5 text-[0.8125rem]">
+      <span aria-hidden="true" className="absolute inset-y-1 start-0 w-px bg-gradient-to-b from-tx/25 via-tx/10 to-transparent" />
       {points.map((p, idx) => (
         <li key={p.t} className="relative">
           <span
             aria-hidden
             className={`absolute -start-5 top-1.5 h-[7px] w-[7px] rounded-full ${
-              idx === points.length - 1 ? "bg-accent" : "bg-tx-3"
+              idx === points.length - 1 ? "bg-accent ring-4 ring-accent/20" : "bg-tx-3"
             }`}
           />
           <p className="text-[0.75rem] uppercase tracking-[0.15em] text-tx-2">{p.t}</p>
@@ -63,17 +64,21 @@ function AccumulationArc() {
 
 /** Open data formats and portability. */
 function ModelIndependence() {
-  const formats = ["Markdown", "Plain text", "JSON"];
+  const formats = [
+    { name: "Markdown", ext: ".md" },
+    { name: "Plain text", ext: ".txt" },
+    { name: "JSON", ext: ".json" },
+  ];
   return (
     <div className="flex flex-col gap-4 text-[0.8125rem]">
       <p className="text-[0.75rem] uppercase tracking-[0.15em] text-tx-2">Open formats</p>
       <ul className="flex flex-wrap gap-2">
-        {formats.map((name, i) => (
+        {formats.map((f, i) => (
           <li
-            key={name}
+            key={f.name}
             className={`tile px-3 py-1.5 ${i === formats.length - 1 ? "border border-dashed border-tx/25 text-tx-2" : "text-tx"}`}
           >
-            {name}
+            {f.name} <span className="font-mono text-[0.65rem] text-tx-3">{f.ext}</span>
           </li>
         ))}
       </ul>
@@ -95,9 +100,10 @@ function AgencyKeys() {
   return (
     <ul className="divide-y divide-tx/10 text-sm">
       {actions.map((a) => (
-        <li key={a.verb} className="flex items-baseline justify-between gap-3 py-3">
-          <span className="text-tx">{a.verb}</span>
-          <span className="text-end text-[0.75rem] text-tx-2">{a.note}</span>
+        <li key={a.verb} className="flex items-baseline gap-3 py-3">
+          <span className="shrink-0 text-tx">{a.verb}</span>
+          <span className="mb-1 flex-1 border-b border-dotted border-tx/20" aria-hidden="true" />
+          <span className="shrink-0 text-end text-[0.75rem] text-tx-2">{a.note}</span>
         </li>
       ))}
     </ul>

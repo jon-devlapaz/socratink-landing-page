@@ -93,11 +93,10 @@ export function CinematicScroller() {
 
           gsap.fromTo(
             words,
-            { yPercent: 105, autoAlpha: 0, filter: "blur(6px)" },
+            { yPercent: 105, autoAlpha: 0 },
             {
               yPercent: 0,
               autoAlpha: 1,
-              filter: "blur(0px)",
               duration: 0.95,
               ease: "power4.out",
               stagger: 0.042,
@@ -118,11 +117,10 @@ export function CinematicScroller() {
 
           gsap.fromTo(
             targets,
-            { y: 32, autoAlpha: 0, filter: "blur(6px)" },
+            { y: 32, autoAlpha: 0 },
             {
               y: 0,
               autoAlpha: 1,
-              filter: "blur(0px)",
               duration: 1,
               ease: "power4.out",
               stagger: 0.07,

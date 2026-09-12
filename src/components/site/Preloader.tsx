@@ -20,7 +20,7 @@ export function Preloader() {
     >
       <div
         data-preloader-bar
-        className="h-full w-full bg-accent origin-left shadow-[0_0_8px_var(--color-accent)] animate-preloader-bar"
+        className="h-full w-full bg-accent origin-left animate-preloader-bar"
       />
     </div>
   );

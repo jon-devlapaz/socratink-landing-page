@@ -41,21 +41,21 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2 border-b border-tx/10 pb-3">
               <div>
-                <span className="text-[0.6875rem] font-mono uppercase tracking-wider text-tx-2">
+                <span className="text-xs font-mono uppercase tracking-wider text-tx-2">
                   Target Curriculum
                 </span>
                 <p className="text-sm font-semibold text-tx">
                   {previewData.target.category}
                 </p>
               </div>
-              <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-[0.6875rem] font-medium text-accent">
+              <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent">
                 Active Selection
               </span>
             </div>
 
-            <div className="rounded-xl border border-accent/40 bg-accent/5 p-4 shadow-sm">
+            <div className="border-l-2 border-accent pl-3.5 py-1">
               <div className="flex items-start gap-2.5">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-paper">
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-paper">
                   ✓
                 </span>
                 <div>
@@ -70,16 +70,16 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
             </div>
 
             <div className="space-y-1.5 pt-1">
-              <span className="text-[0.6875rem] font-mono text-tx-2">
+              <span className="text-xs font-mono text-tx-2">
                 Other syllabus targets
               </span>
               <div className="grid gap-2 sm:grid-cols-2">
                 {previewData.target.otherTargets.map((t) => (
                   <div
                     key={t.name}
-                    className="rounded-lg border border-tx/10 bg-paper-2/40 p-2.5 text-xs text-tx-2 opacity-75"
+                    className="border-l border-tx/20 pl-2.5 py-1 text-xs text-tx-2"
                   >
-                    <span className="block text-[0.625rem] font-mono text-tx-3">
+                    <span className="block text-xs font-mono text-tx-3">
                       {t.subject}
                     </span>
                     <span className="line-clamp-1 font-medium text-tx">
@@ -102,14 +102,14 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
         >
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-tx/10 pb-3">
-              <span className="text-[0.6875rem] font-mono uppercase tracking-wider text-tx-2">
+              <span className="text-xs font-mono uppercase tracking-wider text-tx-2">
                 Unassisted Free Response
               </span>
               <div className="flex items-center gap-1.5">
                 {previewData.explain.badges.map((b) => (
                   <span
                     key={b}
-                    className="rounded-md border border-tx/15 bg-paper-2 px-2 py-0.5 text-[0.625rem] font-medium text-tx-2"
+                    className="rounded-md border border-tx/15 bg-paper-2 px-2 py-0.5 text-xs font-medium text-tx-2"
                   >
                     {b}
                   </span>
@@ -118,7 +118,7 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
             </div>
 
             {/* Simulated Prompt */}
-            <div className="rounded-lg border border-tx/10 bg-paper-2/60 p-3.5">
+            <div className="border-l-2 border-tx/25 pl-3.5 py-1">
               <p className="text-xs font-semibold uppercase tracking-wider text-tx-2 mb-1">
                 Prompt
               </p>
@@ -128,11 +128,11 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
             </div>
 
             {/* Simulated Student Response Box (Read-only demonstrative preview) */}
-            <div className="rounded-lg border border-accent/30 bg-paper p-3.5 shadow-inner">
-              <div className="flex items-center justify-between text-[0.6875rem] text-tx-2 mb-1.5">
+            <div className="border-l-2 border-accent pl-3.5 py-1">
+              <div className="flex items-center justify-between text-xs text-tx-2 mb-1.5">
                 <span className="font-mono">Learner Submission</span>
-                <span className="inline-flex items-center gap-1 text-[0.6875rem] text-accent font-medium">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                <span className="inline-flex items-center gap-1 text-xs text-accent font-medium">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
                   Recorded
                 </span>
               </div>
@@ -153,18 +153,18 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
         >
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-tx/10 pb-3">
-              <span className="text-[0.6875rem] font-mono uppercase tracking-wider text-tx-2">
+              <span className="text-xs font-mono uppercase tracking-wider text-tx-2">
                 {previewData.inspect.subject}
               </span>
-              <span className="rounded-full border border-tx/15 bg-paper-2 px-2.5 py-0.5 text-[0.6875rem] font-medium text-tx-2">
+              <span className="rounded-full border border-tx/15 bg-paper-2 px-2.5 py-0.5 text-xs font-medium text-tx-2">
                 Session Complete
               </span>
             </div>
 
             {/* Held Concept */}
-            <div className="rounded-xl border border-accent/30 bg-accent/5 p-3.5">
+            <div className="border-l-2 border-accent pl-3.5 py-1">
               <div className="flex items-start gap-2.5">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-paper" aria-hidden="true">
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-paper" aria-hidden="true">
                   ✓
                 </span>
                 <div>
@@ -179,9 +179,9 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
             </div>
 
             {/* Identified Gap */}
-            <div className="rounded-xl border border-amber-600/30 bg-amber-500/5 p-3.5">
+            <div className="border-l-2 border-amber-600 pl-3.5 py-1">
               <div className="flex items-start gap-2.5">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-600 text-[10px] font-bold text-paper" aria-hidden="true">
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-600 text-xs font-bold text-paper" aria-hidden="true">
                   !
                 </span>
                 <div>
@@ -196,7 +196,7 @@ export function StepPreview({ activeStep }: StepPreviewProps) {
             </div>
 
             {/* Continuity Probe */}
-            <div className="rounded-xl border border-tx/15 bg-paper-2/60 p-3">
+            <div className="border-t border-tx/10 pt-3">
               <div className="flex items-center gap-2 text-xs text-tx-2">
                 <span className="text-sm font-mono text-accent" aria-hidden="true">◷</span>
                 <span className="font-semibold text-tx">{previewData.inspect.schedule.label}:</span>

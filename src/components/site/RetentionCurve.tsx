@@ -3,41 +3,37 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 interface MilestoneData {
-  num: string;
   day: string;
   headline: string;
-  activeOutcome: string;
-  passiveOutcome: string;
-  detail: string;
+  summary: string;
+  unaided: string;
+  passive: string;
 }
 
 const MILESTONES: MilestoneData[] = [
   {
-    num: "01",
     day: "Day 1",
     headline: "The Recognition Illusion",
-    activeOutcome: "Builds recall pathways",
-    passiveOutcome: "Feels easy with notes open",
-    detail:
-      "Reading notes feels fast because your eyes recognize the words. Writing the answer from memory feels slower, but it builds the recall paths you will rely on during the exam.",
+    summary:
+      "Reading an answer key feels easy because the solution is in front of you. Reconstructing it from memory takes effort—and that effort is what makes it stick.",
+    unaided: "Unaided: permanent pathways form",
+    passive: "Passive: fades within 48 hours",
   },
   {
-    num: "02",
     day: "Day 7",
-    headline: "One Week In",
-    activeOutcome: "Recall holds without hints",
-    passiveOutcome: "Blank-page panic begins",
-    detail:
-      "If you only reread notes, most of the detail disappears within days. One prompt solved entirely from memory keeps the core concept intact.",
+    headline: "The Forgetting Cliff",
+    summary:
+      "By day seven, passive reading has collapsed to 45%. A single unassisted retrieval session holds recall above 80%.",
+    unaided: "Unaided: 82% recall holds strong",
+    passive: "Passive: blank-page panic begins",
   },
   {
-    num: "03",
     day: "Day 30",
-    headline: "One Month Later",
-    activeOutcome: "Solves cold under pressure",
-    passiveOutcome: "Cannot execute unaided",
-    detail:
-      "When you have to solve a problem cold under exam conditions, passive review leaves you with roughly 18% recall. Practicing unassisted retrieval preserves over 80%.",
+    headline: "Permanent Retention",
+    summary:
+      "On test day, passive review leaves you with roughly 18% recall. Unaided retrieval preserves over 80% independent execution.",
+    unaided: "Unaided: 80% exam-ready execution",
+    passive: "Passive: 18% near-total memory loss",
   },
 ];
 
@@ -498,10 +494,16 @@ export function RetentionCurve() {
       }
 
       // 6. Direct Curve End Typography (Apple Silicon style on paper)
-      if (activeProgress >= 0.95) {
+      if (activeProgress >= 0.90) {
         const endX = timeToX(1.0);
         const endYUnaided = getUnaidedY(1.0);
         const endYPassive = getPassiveY(1.0);
+
+        // Clamp end labels inside the canvas: long sub-labels must not bleed past the edge.
+        const endLabelX = (text: string, dx = 10) => {
+          const w = ctx.measureText(text).width;
+          return Math.min(endX + dx, width - w - 8);
+        };
 
         ctx.textAlign = "left";
 
@@ -510,29 +512,29 @@ export function RetentionCurve() {
           ctx.font = "bold 9px monospace";
           ctx.fillStyle = accentColor;
           ctx.textBaseline = "middle";
-          ctx.fillText("Socratink 80%", endX + 6, endYUnaided);
+          ctx.fillText("Socratink 80%", endLabelX("Socratink 80%", 6), endYUnaided);
 
           ctx.font = "bold 9px monospace";
           ctx.fillStyle = passiveColor;
-          ctx.fillText("Passive 18%", endX + 6, endYPassive);
+          ctx.fillText("Passive 18%", endLabelX("Passive 18%", 6), endYPassive);
         } else {
           // Full editorial typography
           ctx.font = "bold 10px monospace";
           ctx.fillStyle = accentColor;
           ctx.textBaseline = "alphabetic";
-          ctx.fillText("Socratink (80%)", endX + 10, endYUnaided - 2);
+          ctx.fillText("Socratink (80%)", endLabelX("Socratink (80%)"), endYUnaided - 2);
 
           ctx.font = "9px monospace";
           ctx.fillStyle = textMuted;
-          ctx.fillText("Solves cold without notes", endX + 10, endYUnaided + 10);
+          ctx.fillText("Solves cold without notes", endLabelX("Solves cold without notes"), endYUnaided + 10);
 
           ctx.font = "10px monospace";
           ctx.fillStyle = passiveColor;
-          ctx.fillText("Passive (18%)", endX + 10, endYPassive - 2);
+          ctx.fillText("Passive (18%)", endLabelX("Passive (18%)"), endYPassive - 2);
 
           ctx.font = "9px monospace";
           ctx.fillStyle = textMuted;
-          ctx.fillText("Evaporated recall", endX + 10, endYPassive + 10);
+          ctx.fillText("Evaporated recall", endLabelX("Evaporated recall"), endYPassive + 10);
         }
       }
 
@@ -594,7 +596,7 @@ export function RetentionCurve() {
     const stickyHeight = stickyRef.current ? stickyRef.current.offsetHeight : vh - stickyTop;
     const totalTravel = rect.height - stickyHeight;
 
-    const targets = [0.08, 0.50, 0.95];
+    const targets = [0.08, 0.50, 0.98];
     const targetRatio = targets[idx] ?? 0;
 
     const targetScrollY = scrollTop + rect.top - stickyTop + targetRatio * totalTravel;
@@ -623,9 +625,6 @@ export function RetentionCurve() {
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12 lg:items-center">
             {/* Left Column: Narrative Ledger & Editorial Value Proposition (5 cols) */}
             <div className="lg:col-span-5 flex flex-col justify-center">
-              <div className="text-[0.6875rem] font-mono font-semibold uppercase tracking-[0.18em] text-accent mb-2.5">
-                Memory retention
-              </div>
               <h2
                 id="retention-title"
                 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-tx leading-[1.12]"
@@ -637,63 +636,92 @@ export function RetentionCurve() {
               </p>
 
               {/* Synchronized Milestone Narrative Ledger */}
-              <div className="mt-5 space-y-2 border-t border-tx/10 pt-4" role="tablist" aria-label="Retention milestones">
+              <div
+                className="mt-5 relative pl-7 sm:pl-8 space-y-3.5 border-t border-tx/10 pt-4"
+                role="tablist"
+                aria-label="Retention milestones"
+              >
+                {/* Continuous 1px Timeline Axis Rail */}
+                <div
+                  className="absolute left-2.5 top-4 bottom-3 w-px bg-tx/15 pointer-events-none"
+                  aria-hidden="true"
+                />
+
                 {MILESTONES.map((m, idx) => {
                   const isActive = activeMilestoneIdx === idx;
                   return (
-                    <button
-                      key={m.num}
-                      type="button"
-                      onClick={() => scrollToMilestone(idx)}
-                      className={`w-full text-left rounded-lg transition-all duration-300 p-2.5 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
-                        isActive
-                          ? "bg-accent/8 border-l-2 border-accent pl-3 shadow-xs"
-                          : "opacity-60 hover:opacity-85 border-l-2 border-transparent pl-3"
-                      }`}
-                      aria-current={isActive ? "step" : undefined}
-                    >
-                      <div className="flex items-center justify-between font-mono text-xs mb-1">
-                        <span className="font-semibold text-accent">{m.num} / {m.day}</span>
-                        {isActive ? (
-                          <span className="text-[10px] font-mono uppercase tracking-wider text-accent font-semibold">
-                            Active stage
-                          </span>
-                        ) : null}
-                      </div>
-                      <h3 className="font-serif text-sm sm:text-base font-normal text-tx">
-                        {m.headline}
-                      </h3>
-
-                      {/* Active Epoch Reveals Consequential Reality */}
+                    <div key={m.day} className="relative group">
+                      {/* Baseline-Anchored Rail Node (impossible to misalign) */}
                       <div
-                        className={`grid transition-[grid-template-rows,opacity] duration-300 ${
-                          isActive ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0"
-                        }`}
+                        className="absolute -left-7 sm:-left-8 top-3 flex items-center justify-center pointer-events-none"
+                        aria-hidden="true"
                       >
-                        <div className="overflow-hidden">
-                          <div className="flex flex-col gap-1 font-mono text-[11px] mb-1.5">
-                            <div className="flex items-center gap-1.5 text-tx font-medium">
-                              <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" aria-hidden="true" />
-                              <span>{m.activeOutcome}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-tx-3">
-                              <span className="h-1.5 w-1.5 rounded-full border border-dashed border-tx-3 shrink-0" aria-hidden="true" />
-                              <span>{m.passiveOutcome}</span>
+                        {isActive ? (
+                          <span className="h-2.5 w-2.5 rounded-full bg-accent shadow-xs transition-transform duration-200 scale-100" />
+                        ) : (
+                          <span className="w-2 h-px bg-tx/25 group-hover:bg-accent group-hover:w-3 transition-all duration-150" />
+                        )}
+                      </div>
+
+                      {/* Accessible 44px+ Touch Target Button */}
+                      <button
+                        type="button"
+                        onClick={() => scrollToMilestone(idx)}
+                        className="w-full text-left min-h-[44px] py-1.5 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-sm transition-all"
+                        aria-current={isActive ? "step" : undefined}
+                      >
+                        {/* Temporal Tag */}
+                        <div
+                          className={`font-mono text-xs transition-colors ${
+                            isActive ? "text-accent font-semibold" : "text-tx-2"
+                          }`}
+                        >
+                          {m.day}
+                        </div>
+
+                        {/* Headline */}
+                        <h3
+                          className={`font-serif transition-all duration-200 ${
+                            isActive
+                              ? "text-lg sm:text-xl font-medium text-tx mt-0.5 leading-snug"
+                              : "text-sm sm:text-base font-normal text-tx-2 group-hover:text-tx group-hover:translate-x-0.5 mt-0.5"
+                          }`}
+                        >
+                          {m.headline}
+                        </h3>
+
+                        {/* Smooth Accordion Disclosure (Zero Layout Shift) */}
+                        <div
+                          className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+                            isActive ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0"
+                          }`}
+                        >
+                          <div className="overflow-hidden">
+                            <p className="text-xs sm:text-sm text-tx-2 leading-relaxed max-w-[54ch]">
+                              {m.summary}
+                            </p>
+                            {/* High-Contrast Immediate Data Contrast */}
+                            <div className="mt-2.5 flex flex-wrap items-center gap-x-5 gap-y-1.5 font-mono text-xs">
+                              <div className="flex items-center gap-1.5 text-tx font-medium">
+                                <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" aria-hidden="true" />
+                                <span>{m.unaided}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-tx-2">
+                                <span className="h-1.5 w-1.5 rounded-full border border-dashed border-tx-2 shrink-0" aria-hidden="true" />
+                                <span>{m.passive}</span>
+                              </div>
                             </div>
                           </div>
-                          <p className="text-xs text-tx-2 leading-relaxed">
-                            {m.detail}
-                          </p>
                         </div>
-                      </div>
-                    </button>
+                      </button>
+                    </div>
                   );
                 })}
               </div>
 
               {/* Scroll Timeline Cue */}
-              <div className="mt-3 flex items-center gap-2 text-[0.6875rem] font-mono text-tx-3">
-                <span className="inline-block animate-bounce text-accent" aria-hidden="true">↓</span>
+              <div className="mt-3 flex items-center gap-2 text-xs font-mono text-tx-3">
+                <span className="inline-block text-accent" aria-hidden="true">↓</span>
                 <span>Scroll to scrub 30-day retention curve</span>
               </div>
             </div>
@@ -701,18 +729,19 @@ export function RetentionCurve() {
             {/* Right Column: Living Ink Canvas Drafting Plane (7 cols) */}
             <div className="lg:col-span-7 flex flex-col justify-center">
               {/* Top Annotation Bar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-tx/10 pb-2.5 mb-2 text-xs font-mono gap-2">
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-tx/10 pb-2.5 mb-2 font-mono gap-2">
+                <div className="flex flex-wrap items-end gap-x-6 gap-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-accent shrink-0" aria-hidden="true" />
-                    <span className="font-medium text-tx">Unaided retrieval (Permanent ink)</span>
+                    <span className="h-2.5 w-2.5 rounded-full bg-accent shrink-0" aria-hidden="true" />
+                    <span className="text-[0.8125rem] font-semibold text-tx">Unaided retrieval <span className="font-medium text-accent">(Permanent ink)</span></span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full border border-dashed border-tx-3 shrink-0" aria-hidden="true" />
-                    <span className="text-tx-2">Passive reading (Evaporates)</span>
+                  <div className="flex items-center gap-2 opacity-80">
+                    <span className="h-1.5 w-1.5 rounded-full border border-dashed border-tx-3 shrink-0" aria-hidden="true" />
+                    <span className="text-[0.6875rem] text-tx-2">Passive reading (Evaporates)</span>
                   </div>
                 </div>
-                <span className="text-tx-3 text-[0.6875rem]">
+                <span className="flex items-center gap-1.5 text-[0.6875rem] text-tx-3 sm:pb-0.5">
+                  <span className="h-px w-3 bg-tx/25" aria-hidden="true" />
                   30-day Ebbinghaus model
                 </span>
               </div>
@@ -728,7 +757,7 @@ export function RetentionCurve() {
               </div>
 
               {/* Academic Citation Footer */}
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[0.6875rem] text-tx-3 font-mono border-t border-tx/5 pt-2">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-tx-3 font-mono border-t border-tx/5 pt-2">
                 <span>Empirical basis: Roediger &amp; Karpicke (2006); Karpicke &amp; Blunt (2011)</span>
                 <span>Living ink physics · Pinned scroll stage</span>
               </div>

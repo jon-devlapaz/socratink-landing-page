@@ -9,7 +9,6 @@ import {
 } from "@/lib/content";
 import { useActProgress } from "@/lib/scroll/use-act-progress";
 
-const BRIDGE = orbit.eyebrow;
 
 /** The subject field stays legible; orbit labels switch the editorial card in place. */
 export function Orbit() {
@@ -30,9 +29,6 @@ export function Orbit() {
     >
       <div className="content-wrap w-full">
         <div className="max-w-3xl mb-6 sm:mb-10">
-          <p className="forest-bridge text-sm uppercase tracking-wider text-accent font-medium mb-3">
-            {BRIDGE}
-          </p>
           <SectionHeading
             sans={orbit.titleSans}
             serif={orbit.titleSerif}
@@ -44,14 +40,14 @@ export function Orbit() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* Left: Dossier Card Specimen */}
-          <div className="lg:col-span-7">
-            <DossierCard active={active} />
+          {/* First: Concentric Orbit Dial (the picker precedes the dossier it controls) */}
+          <div className="order-1 lg:order-2 lg:col-span-5 flex justify-center">
+            <SubjectOrbit activeId={activeId} onSelect={setActiveId} />
           </div>
 
-          {/* Right: Concentric Orbit Dial */}
-          <div className="lg:col-span-5 flex justify-center">
-            <SubjectOrbit activeId={activeId} onSelect={setActiveId} />
+          {/* Second: Dossier Card Specimen */}
+          <div className="order-2 lg:order-1 lg:col-span-7">
+            <DossierCard active={active} />
           </div>
         </div>
       </div>
@@ -67,15 +63,11 @@ function DossierCard({ active }: { active: OrbitDiscipline }) {
       aria-labelledby={`orbit-tab-${active.id}`}
       tabIndex={0}
       aria-live="polite"
-      className="rounded-2xl border border-tx/15 bg-paper-2/60 backdrop-blur-md p-6 sm:p-8 shadow-2xl transition-all duration-300 relative overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-      style={{
-        boxShadow:
-          "0 20px 40px -15px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.05) inset",
-      }}
+      className="py-2 sm:py-4 transition-all duration-300 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
     >
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-tx/10 pb-4 mb-6">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+          <span className="h-2 w-2 rounded-full bg-accent" />
           <figcaption className="text-xs font-semibold uppercase tracking-wider text-tx-2">
             Sample prompt · {active.label}
           </figcaption>
@@ -89,31 +81,31 @@ function DossierCard({ active }: { active: OrbitDiscipline }) {
 
       <div className="space-y-4 mb-8">
         {/* Common trap */}
-        <div className="rounded-xl border border-error/20 bg-error/5 p-4 transition-colors">
+        <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[0.7rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded bg-error/15 text-error">
+            <span className="text-xs font-bold tracking-wider uppercase text-error">
               Common trap
             </span>
             <span className="text-xs text-tx-3">
-              What notes or AI summaries miss
+              · What notes or AI summaries miss
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-tx-2 leading-relaxed italic">
+          <p className="text-xs sm:text-sm text-tx-2 leading-relaxed italic max-w-[65ch]">
             {active.aiTrap}
           </p>
         </div>
 
         {/* Exam prompt */}
-        <div className="rounded-xl border border-accent/25 bg-accent/5 p-4 transition-colors">
+        <div className="border-t border-tx/10 pt-4">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[0.7rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded bg-accent/20 text-accent font-semibold">
+            <span className="text-xs font-bold tracking-wider uppercase text-accent font-semibold">
               Exam prompt
             </span>
             <span className="text-xs text-tx-3">
-              Answered from memory
+              · Answered from memory
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-tx leading-relaxed">
+          <p className="text-xs sm:text-sm text-tx leading-relaxed max-w-[65ch]">
             {active.transferAsk}
           </p>
         </div>
@@ -125,9 +117,9 @@ function DossierCard({ active }: { active: OrbitDiscipline }) {
         </span>
         <a
           href={orbit.cta.href}
-          className="btn-accent rounded-full px-5 py-2.5 font-medium text-xs sm:text-sm shadow-md transition-all"
+          className="inline-flex items-center gap-1.5 font-medium text-xs sm:text-sm text-accent hover:text-tx transition-colors"
         >
-          {orbit.cta.label}
+          <span>{orbit.cta.label}</span>
           <span aria-hidden="true">→</span>
         </a>
       </div>
