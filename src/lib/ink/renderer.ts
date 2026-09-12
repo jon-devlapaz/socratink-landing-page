@@ -5,6 +5,7 @@ import {
   COALESCENCE_IMPULSE,
   isCoalescenceTransition,
   NO_KINEMATICS,
+  RESPIRATION_KINEMATICS,
   resolveKinematicKind,
   sampleKinematics,
 } from "./kinematics";
@@ -200,7 +201,7 @@ export function mountInk(
     } else {
       pointerVelocity.multiplyScalar(Math.exp(-dt * 4.5));
       if (splashImpulse > 0) {
-        splashImpulse = Math.max(0, splashImpulse - dt * 2.8);
+        splashImpulse *= Math.exp(-dt * 3);
       }
       scrollStretch = THREE.MathUtils.lerp(
         scrollStretch,
@@ -216,6 +217,7 @@ export function mountInk(
 
     let extent = 1;
     const kinematicKind = resolveKinematicKind(recipe);
+    const breathing = kinematicKind === RESPIRATION_KINEMATICS;
     entities.forEach((entity, i) => {
       const target = targets[i];
       const phase = i * 2.39996;
@@ -261,21 +263,25 @@ export function mountInk(
 
       const dynamic = !frozen && !reduced;
       // Multi-harmonic microscopic fluid turbulence
-      const harmonicA = dynamic ? Math.sin(time * 1.7 + phase * 1.5) * a * 0.25 : 0;
-      const harmonicB = dynamic ? Math.cos(time * 2.5 + phase * 0.8) * a * 0.15 : 0;
+      const harmonicA = dynamic && !breathing ? Math.sin(time * 1.7 + phase * 1.5) * a * 0.25 : 0;
+      const harmonicB = dynamic && !breathing ? Math.cos(time * 2.5 + phase * 0.8) * a * 0.15 : 0;
 
       // Viscous drag / velocity shear
-      const shearX = dynamic ? pointerVelocity.x * 0.024 * (1 + (i % 3) * 0.15) : 0;
-      const shearY = dynamic ? pointerVelocity.y * 0.024 * (1 + (i % 3) * 0.15) : 0;
+      const shearX = dynamic && !breathing ? pointerVelocity.x * 0.024 * (1 + (i % 3) * 0.15) : 0;
+      const shearY = dynamic && !breathing ? pointerVelocity.y * 0.024 * (1 + (i % 3) * 0.15) : 0;
 
-      // Click splash shockwave
+      // Breathing ink responds with one shared swell, without a shockwave.
       const splashWave =
         dynamic && splashImpulse > 0
-          ? Math.sin(time * 22 + i * 1.4) * splashImpulse * 0.12
+          ? breathing
+            ? splashImpulse * 0.045
+            : Math.sin(time * 22 + i * 1.4) * splashImpulse * 0.12
           : 0;
 
       // Scroll inertial g-force stretch (volume conserving: stretch Y, compress XZ)
-      const gStretchY = dynamic ? THREE.MathUtils.clamp(scrollStretch, -0.22, 0.32) : 0;
+      const gStretchY = dynamic
+        ? THREE.MathUtils.clamp(scrollStretch, -0.22, 0.32) * (breathing ? 0.15 : 1)
+        : 0;
       const gStretchXZ = -gStretchY * 0.45;
 
       entity.position.lerp(
@@ -405,12 +411,12 @@ export function mountInk(
       pointerVelocity.x = THREE.MathUtils.lerp(
         pointerVelocity.x,
         THREE.MathUtils.clamp(vx, -5, 5),
-        0.35,
+        1 - Math.exp(-dtSec * 26),
       );
       pointerVelocity.y = THREE.MathUtils.lerp(
         pointerVelocity.y,
         THREE.MathUtils.clamp(vy, -5, 5),
-        0.35,
+        1 - Math.exp(-dtSec * 26),
       );
     }
     lastPointerTime = now;
@@ -428,6 +434,7 @@ export function mountInk(
   const pointerLeave = () => {
     pointerTarget.set(0, 0);
     pointerVelocity.set(0, 0);
+    lastPointerTime = 0;
     transition = 1;
     schedule();
   };

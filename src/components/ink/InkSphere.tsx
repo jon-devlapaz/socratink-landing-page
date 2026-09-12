@@ -21,11 +21,13 @@ export function InkSphere({
   size = 560,
   onTool,
   autoCycle = true,
+  interaction = "cycle",
   cycleInterval = DEFAULT_CYCLE_INTERVAL,
 }: {
   size?: number;
   onTool?: (tool: InkTool | null) => void;
   autoCycle?: boolean;
+  interaction?: "cycle" | "pulse";
   cycleInterval?: number;
 }) {
   const mount = useRef<HTMLDivElement>(null);
@@ -52,11 +54,11 @@ export function InkSphere({
 
   const startCycle = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
-    if (!autoCycle || isHoveredRef.current || isReducedRef.current) return;
+    if (interaction === "pulse" || !autoCycle || isHoveredRef.current || isReducedRef.current) return;
     timerRef.current = setInterval(() => {
       advance();
     }, cycleInterval);
-  }, [autoCycle, cycleInterval, advance]);
+  }, [autoCycle, interaction, cycleInterval, advance]);
 
   const stopCycle = useCallback(() => {
     if (timerRef.current) {
@@ -73,7 +75,7 @@ export function InkSphere({
       return;
     }
     rendererRef.current?.triggerImpulse(1.0);
-    advance();
+    if (interaction === "cycle") advance();
     startCycle();
   };
 
@@ -93,6 +95,8 @@ export function InkSphere({
       Promise.all([import("@/lib/ink/renderer"), import("@/lib/ink/tool")])
         .then(([{ mountInk }, { createInkTool, readInitialInk }]) => {
           if (disposed) return;
+          // Pulse mode disables cycling but still allows the landing to preview
+          // an explicitly saved scene from the ink lab.
           const initial = readInitialInk();
           const renderer = mountInk(element, initial, () => {
             if (element.dataset.inkReady !== "true")
@@ -215,13 +219,15 @@ export function InkSphere({
       window.removeEventListener("scroll", triggerImmediate);
       cleanup();
     };
-  }, [onTool, startCycle, stopCycle]);
+  }, [onTool, interaction, startCycle, stopCycle]);
 
   return (
     <div
       className="sphere ink-sphere"
       style={{ width: size, height: size, cursor: "pointer" }}
-      aria-label={`Living ink orb: ${INK_EXPRESSIONS[currentExpr]?.label ?? "At rest"} (${INK_EXPRESSIONS[currentExpr]?.symbol ?? "Ink droplet"}). Click to advance.`}
+      aria-label={interaction === "pulse"
+        ? "Living ink droplet. Click or press Enter or Space to gently pulse."
+        : `Living ink orb: ${INK_EXPRESSIONS[currentExpr]?.label ?? "At rest"} (${INK_EXPRESSIONS[currentExpr]?.symbol ?? "Ink droplet"}). Click to advance.`}
       role="button"
       tabIndex={0}
       onClick={handleManualAdvance}

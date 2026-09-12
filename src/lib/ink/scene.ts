@@ -91,10 +91,12 @@ export const INK_PRESETS: Record<string, InkScene> = {
     name: "Living ink",
     blend: 0.35,
     material: { color: "#060709", roughness: 0.14, metalness: 0.16 },
-    motion: { speed: 0.32, amplitude: 0.024, pointer: 0.15 },
+    motion: { speed: 0.45, amplitude: 0.032, pointer: 0.1 },
     kinematics: "respiration",
     parts: [
-      part([0, 0, 0], [1.7, 1.7, 1.7]),
+      // Deep overlap keeps the breathing shoulder joined to the body.
+      part([0, -0.1, 0], [1.6, 1.65, 1.6]),
+      part([0.18, 0.48, 0.02], [0.95, 1.1, 0.95]),
     ],
   },
   droplet: {
