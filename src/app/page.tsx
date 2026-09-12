@@ -20,8 +20,14 @@ export default function Home() {
       <Nav />
       <main id="main" tabIndex={-1} className="flex-1 outline-none">
         <Hero />
-        <RetentionCurve />
-        <HowItWorks />
+        <div className="folio-section-track folio-track-retention">
+          <RetentionCurve />
+        </div>
+        <div className="folio-section-track folio-track-how" data-story-section>
+          <div className="folio-section-shell">
+            <HowItWorks />
+          </div>
+        </div>
         <div className="folio-section-track folio-track-material" data-story-section>
           <div className="folio-section-shell">
             <Orbit />

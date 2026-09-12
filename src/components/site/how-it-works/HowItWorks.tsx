@@ -29,13 +29,10 @@ export function HowItWorks() {
       onMouseLeave={() => setIsHovered(false)}
       onFocusCapture={() => setIsFocused(true)}
       onBlurCapture={() => setIsFocused(false)}
-      className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
+      className="w-full mx-auto max-w-6xl scroll-mt-16 md:scroll-mt-20 px-4 py-8 sm:px-6 sm:py-12 lg:px-8"
     >
       {/* Section Heading */}
       <div className="mb-10 sm:mb-14">
-        <div className="text-[0.6875rem] font-mono font-semibold uppercase tracking-[0.14em] text-accent mb-2">
-          The diagnostic loop
-        </div>
         <h2
           id="how-it-works-title"
           className="font-serif text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight text-tx"
