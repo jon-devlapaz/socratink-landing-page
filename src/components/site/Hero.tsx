@@ -37,9 +37,6 @@ export function Hero() {
     <section id="top" className="hero-act">
       <div className="hero-grid content-wrap">
         <div className="hero-copy">
-          {notebook.heroEyebrow ? (
-            <div className="hero-eyebrow">{notebook.heroEyebrow}</div>
-          ) : null}
           <h1 className="hero-title notebook-display">
             {notebook.heroTitle}
           </h1>
@@ -66,7 +63,7 @@ export function Hero() {
             {testShape ? (
               <OrganicSphere size={560} shape={testShape} morph={testMorph} />
             ) : (
-              <InkSphere />
+              <InkSphere autoCycle={false} interaction="pulse" />
             )}
           </div>
           <figcaption>{notebook.heroNote}</figcaption>

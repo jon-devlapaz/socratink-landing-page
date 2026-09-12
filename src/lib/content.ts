@@ -30,19 +30,13 @@ export const site = {
 
 export const nav = {
   links: [
-    {
-      label: "Disciplines",
-      href: "#material",
-      tooltip: "10 rigorous syllabi · Where fluent answers can hide gaps",
-    },
-    {
-      label: "Memory",
-      href: "#memory",
-      tooltip: "Your record of work · Evidence that accumulates over sessions",
-    },
+    { label: "Why it sticks", href: "#retention-science" },
+    { label: "How it works", href: "#how-it-works" },
+    { label: "Disciplines", href: "#material" },
+    { label: "Memory", href: "#memory" },
   ],
   login: { label: "Log in", href: `${site.appUrl}login` },
-  cta: { label: "Try the free diagnostic", href: site.appUrl },
+  cta: { label: "Try the free diagnostic", shortLabel: "Try free", href: site.appUrl },
 } as const;
 
 export const hero = {
@@ -221,6 +215,8 @@ export const footer = {
   quiet: "No newsletter. No social grid.",
   attemptLabel: "Diagnostic",
   index: [
+    { label: "Why it sticks", href: "#retention-science" },
+    { label: "How it works", href: "#how-it-works" },
     { label: "Disciplines", href: "#material" },
     { label: "Memory", href: "#memory" },
   ],
@@ -236,8 +232,7 @@ export const notebook = {
   heroBody:
     "Answer one realistic exam prompt from memory. No multiple choice, no notes, and no AI autocomplete. You will immediately see which parts of your reasoning hold up and where the gaps are.",
   heroTrust: "Free diagnostic · No sign-up required · Works directly in your browser",
-  heroNote: "5-minute diagnostic · No account required",
+  heroNote: "One realistic prompt · Answered from memory",
 } as const;
-
 
 
