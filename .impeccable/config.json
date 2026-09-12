@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [
+      "cream-palette",
+      "ai-color-palette"
+    ],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-09-11T17:45:48.223Z",
+        "reason": "Archival notebook UI sans pairing with Newsreader serif"
+      },
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "src/app/globals.css"
+        ],
+        "createdAt": "2026-09-12T03:11:47.306Z",
+        "reason": "user confirmed: hero stage intentionally crops transparent orb canvas"
+      }
+    ]
+  }
+}
