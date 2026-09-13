@@ -1,111 +1,172 @@
-import { Reveal } from "@/components/ui/Reveal";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { memory } from "@/lib/content";
+"use client";
 
-/**
- * Macro-loop Memory: six-month trajectory of continuity (DEC-0005 themes in
- * customer language). Deliberately avoids method-demo echoes: no attempt
- * docket, single-question ledger, or ≠ principle-bar rerun.
- */
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import styles from "./ending.module.css";
+
+const LEDGER = [
+  {
+    day: "Day 01 · Cold baseline",
+    quote: "More responses should give us a more accurate estimate…",
+    body: null as string | null,
+    note: "Preserved verbatim — the authored sentence, kept.",
+    node: "hollow" as const,
+  },
+  {
+    day: "Day 03 · Socratic repair",
+    quote: null,
+    body: "Variance decoupled from bias: “measuring 100,000 people just gives a very precise estimate of tall people.”",
+    note: null,
+    node: "filled" as const,
+  },
+  {
+    day: "Day 14 · Unaided check",
+    quote: null,
+    body: "Mechanism recalled cold, without scaffolding. The bead closes the thread from the divergence above.",
+    note: null,
+    node: "terminal" as const,
+  },
+];
+
+function subscribeReducedMotion(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+
+function getReducedMotionSnapshot() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
+function clamp01(value: number) {
+  return Math.max(0, Math.min(1, value));
+}
+
 export function Memory() {
-  return (
-    <section data-sc-act="flow" id="memory" className="relative isolate scroll-mt-24 overflow-hidden pt-12 pb-12 sm:pt-12 sm:pb-16">
-      <SectionHeading sans={memory.titleSans} serif={memory.titleSerif} />
+  const sectionRef = useRef<HTMLElement>(null);
+  const [arrival, setArrival] = useState(0);
+  const isReducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  );
+  // False during SSR, true after hydration — no setState-in-effect needed.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
-      <div className="mx-auto mt-14 grid max-w-6xl gap-x-12 gap-y-12 px-5 sm:px-8 md:grid-cols-3 [&>*]:min-w-0">
-        {memory.cards.map((card, i) => (
-          <Reveal key={card.title} delay={i * 0.08} className="memory-column flex flex-col border-t border-tx/20 pt-6">
-            <h3 className="text-[1.25rem] text-tx">{card.title}</h3>
-            <p className="mt-1 font-serif text-[1.1rem] text-tx-2">{card.sub}</p>
-            <div className="my-7 flex-1">
-              {i === 0 ? <AccumulationArc /> : i === 1 ? <ModelIndependence /> : <AgencyKeys />}
-            </div>
-            <p className="text-base leading-relaxed text-tx-2">{card.body}</p>
-          </Reveal>
-        ))}
+  // Arrival progress: 0 as the section enters the viewport, 1 once composed.
+  // Same manual rAF-lerped family as the Retention scrub; reversible by construction.
+  useEffect(() => {
+    if (isReducedMotion) return;
+
+    let target = 0;
+    let current = 0;
+    let rafId = 0;
+    let isRunning = false;
+
+    const tick = () => {
+      current += (target - current) * 0.14;
+      if (Math.abs(target - current) < 0.001) {
+        current = target;
+        isRunning = false;
+      }
+      setArrival(current);
+      if (isRunning) rafId = window.requestAnimationFrame(tick);
+    };
+
+    const measure = () => {
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      target = clamp01((vh - rect.top) / (vh * 0.7));
+      if (!isRunning) {
+        isRunning = true;
+        rafId = window.requestAnimationFrame(tick);
+      }
+    };
+
+    measure();
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
+      if (rafId) window.cancelAnimationFrame(rafId);
+    };
+  }, [isReducedMotion]);
+
+  // SSR, no-JS, and reduced-motion always render the resolved ledger.
+  const q = !mounted || isReducedMotion ? 1 : arrival;
+
+  const entryStyle = (index: number): CSSProperties => {
+    const o = clamp01((q - index * 0.22) / 0.3);
+    return { opacity: o, transform: `translateY(${(1 - o) * 18}px)` };
+  };
+  const bead = clamp01((q - 0.7) / 0.3);
+
+  return (
+    <section id="memory" ref={sectionRef} className={styles.memory} aria-labelledby="memory-title">
+      <div className={`content-wrap ${styles.memoryGrid}`}>
+        <div className={styles.memoryCopy}>
+          <span className={styles.memoryEyebrow}>Longitudinal record</span>
+          <h2 id="memory-title" className="notebook-display">
+            Your thinking,
+            <br />
+            proven across time.
+          </h2>
+          <p className={styles.memoryDeck}>
+            An answer tells you what happened once. A record proves that your understanding
+            didn&apos;t evaporate before test day.
+          </p>
+
+          <p className={styles.memoryPrinciple}>
+            The original words stay.
+            <br />
+            The proof compounds around them.
+          </p>
+        </div>
+
+        <div className={styles.ledgerWrap}>
+          <ol className={styles.ledger} aria-label="Longitudinal record">
+            {LEDGER.map((entry, index) => (
+              <li key={entry.day} className={styles.ledgerEntry} style={entryStyle(index)}>
+                <span className={styles.ledgerRail} aria-hidden="true">
+                  {entry.node === "terminal" ? (
+                    <span
+                      className={styles.terminalBead}
+                      style={{ transform: `scale(${0.4 + 0.6 * bead})`, opacity: bead }}
+                    />
+                  ) : (
+                    <span className={styles.ledgerNode} data-node={entry.node} />
+                  )}
+                </span>
+                <span className={styles.ledgerText}>
+                  <span className={styles.ledgerDay} data-accent={entry.node === "terminal"}>
+                    {entry.day}
+                  </span>
+                  {entry.quote ? (
+                    <blockquote className={styles.ledgerQuote}>“{entry.quote}”</blockquote>
+                  ) : (
+                    <span className={styles.ledgerBody}>{entry.body}</span>
+                  )}
+                  {entry.note ? <span className={styles.ledgerNote}>{entry.note}</span> : null}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className={styles.ledgerFoot}>Illustrated record · No measured outcome is claimed.</p>
+        </div>
       </div>
     </section>
-  );
-}
-
-/** Illustration: how attempts could stack over time in the app (not this demo). */
-function AccumulationArc() {
-  const points = [
-    { t: "Week 1", label: "First attempts", marks: 2 },
-    { t: "Later", label: "Targets compound", marks: 5 },
-    { t: "Over time", label: "A record you can read", marks: 9 },
-  ];
-  return (
-    <ol className="relative flex flex-col gap-5 ps-5 text-[0.8125rem]">
-      <span aria-hidden="true" className="absolute inset-y-1 start-0 w-px bg-gradient-to-b from-tx/25 via-tx/10 to-transparent" />
-      {points.map((p, idx) => (
-        <li key={p.t} className="relative">
-          <span
-            aria-hidden
-            className={`absolute -start-5 top-1.5 h-[7px] w-[7px] rounded-full ${
-              idx === points.length - 1 ? "bg-accent ring-4 ring-accent/20" : "bg-tx-3"
-            }`}
-          />
-          <p className="text-[0.75rem] uppercase tracking-[0.15em] text-tx-2">{p.t}</p>
-          <p className={idx === points.length - 1 ? "text-tx" : "text-tx-2"}>{p.label}</p>
-          <span className="mt-2 flex flex-wrap gap-1" aria-hidden="true">
-            {Array.from({ length: p.marks }).map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 w-1.5 rounded-full ${i < Math.ceil(p.marks * 0.55) ? "bg-accent/80" : "bg-tx/25"}`}
-              />
-            ))}
-          </span>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-/** Open data formats and portability. */
-function ModelIndependence() {
-  const formats = [
-    { name: "Markdown", ext: ".md" },
-    { name: "Plain text", ext: ".txt" },
-    { name: "JSON", ext: ".json" },
-  ];
-  return (
-    <div className="flex flex-col gap-4 text-[0.8125rem]">
-      <p className="text-[0.75rem] uppercase tracking-[0.15em] text-tx-2">Open formats</p>
-      <ul className="flex flex-wrap gap-2">
-        {formats.map((f, i) => (
-          <li
-            key={f.name}
-            className={`tile px-3 py-1.5 ${i === formats.length - 1 ? "border border-dashed border-tx/25 text-tx-2" : "text-tx"}`}
-          >
-            {f.name} <span className="font-mono text-[0.65rem] text-tx-3">{f.ext}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="border-t border-tx/10 pt-3 text-tx-2">
-        Your notes and diagnostic evaluations stay stored in open formats so your study history is never locked into a closed platform.
-      </p>
-    </div>
-  );
-}
-
-/** Learner agency: inspect, correct, export, delete. */
-function AgencyKeys() {
-  const actions = [
-    { verb: "Inspect", note: "Review past explanations" },
-    { verb: "Correct", note: "Update as your recall grows" },
-    { verb: "Export", note: "Download study logs anytime" },
-    { verb: "Delete", note: "Erase records in one click" },
-  ];
-  return (
-    <ul className="divide-y divide-tx/10 text-sm">
-      {actions.map((a) => (
-        <li key={a.verb} className="flex items-baseline gap-3 py-3">
-          <span className="shrink-0 text-tx">{a.verb}</span>
-          <span className="mb-1 flex-1 border-b border-dotted border-tx/20" aria-hidden="true" />
-          <span className="shrink-0 text-end text-[0.75rem] text-tx-2">{a.note}</span>
-        </li>
-      ))}
-    </ul>
   );
 }

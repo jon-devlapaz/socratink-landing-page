@@ -1,284 +1,239 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import {
-  orbit,
-  type OrbitDiscipline,
-  type OrbitDisciplineId,
-} from "@/lib/content";
-import { useActProgress } from "@/lib/scroll/use-act-progress";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { orbitDisciplines, type OrbitDisciplineId } from "@/lib/content";
+import { orbit } from "@/lib/content";
+import styles from "./orbit.module.css";
 
+const INNER_IDS = new Set<OrbitDisciplineId>(["stats", "boards", "biochem", "law", "analysis"]);
+const innerDisciplines = orbitDisciplines.filter((d) => INNER_IDS.has(d.id));
+const outerDisciplines = orbitDisciplines.filter((d) => !INNER_IDS.has(d.id));
 
-/** The subject field stays legible; orbit labels switch the editorial card in place. */
+function subscribeReducedMotion(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+
+function getReducedMotionSnapshot() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
+function clamp01(value: number) {
+  return Math.max(0, Math.min(1, value));
+}
+
 export function Orbit() {
-  const { ref } = useActProgress(["start end", "end start"]);
-  const [activeId, setActiveId] = useState<OrbitDisciplineId>(orbit.defaultId);
-  const active = useMemo(
-    () =>
-      orbit.disciplines.find((d) => d.id === activeId) ?? orbit.disciplines[0],
-    [activeId],
+  const sectionRef = useRef<HTMLElement>(null);
+  const [arrival, setArrival] = useState(0);
+  const [selectedId, setSelectedId] = useState<OrbitDisciplineId>("stats");
+
+  const isReducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
   );
+
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
+  useEffect(() => {
+    if (isReducedMotion) return;
+
+    let target = 0;
+    let current = 0;
+    let rafId = 0;
+    let isRunning = false;
+
+    const tick = () => {
+      current += (target - current) * 0.14;
+      if (Math.abs(target - current) < 0.001) {
+        current = target;
+        isRunning = false;
+      }
+      setArrival(current);
+      if (isRunning) rafId = window.requestAnimationFrame(tick);
+    };
+
+    const measure = () => {
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      target = clamp01((vh - rect.top) / (vh * 0.75));
+      if (!isRunning) {
+        isRunning = true;
+        rafId = window.requestAnimationFrame(tick);
+      }
+    };
+
+    measure();
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
+      if (rafId) window.cancelAnimationFrame(rafId);
+    };
+  }, [isReducedMotion]);
+
+  const q = !mounted || isReducedMotion ? 1 : arrival;
+  const activeDiscipline =
+    orbitDisciplines.find((d) => d.id === selectedId) ?? orbitDisciplines[0];
+  const isCarriedThread = activeDiscipline.id === "stats";
 
   return (
     <section
       id="material"
-      data-sc-act="flow"
-      ref={ref}
-      className="orbit-act w-full h-full flex flex-col justify-center py-8 sm:py-12"
+      ref={sectionRef}
+      aria-labelledby="material-title"
+      className={styles.section}
     >
-      <div className="content-wrap w-full">
-        <div className="max-w-3xl mb-6 sm:mb-10">
-          <SectionHeading
-            sans={orbit.titleSans}
-            serif={orbit.titleSerif}
-            align="left"
-          />
-          <p className="mt-3.5 text-sm sm:text-base text-tx-2 leading-relaxed max-w-2xl">
-            {orbit.bridge}
+      <div className={`content-wrap ${styles.composition}`}>
+        <div className={styles.introduction}>
+          <span className={styles.kicker}>Your material</span>
+          <h2 id="material-title">
+            <span className={styles.duetSans}>Put your subject</span>
+            <span className={styles.duetSerif}>to the test.</span>
+          </h2>
+          <p className={styles.lede}>
+            A curated set across demanding fields, revolving around your thinking.
+            The page turns, the specimens arrive — or bring your own syllabus.
           </p>
+          <p className={styles.sublede}>{orbit.ownMaterial}</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* First: Concentric Orbit Dial (the picker precedes the dossier it controls) */}
-          <div className="order-1 lg:order-2 lg:col-span-5 flex justify-center">
-            <SubjectOrbit activeId={activeId} onSelect={setActiveId} />
+        <div className={styles.celestialStage} style={{ opacity: 0.2 + 0.8 * q }}>
+          {/* Background Orbital Rings & Revolving Constellation */}
+          <div className={styles.orbitSystem}>
+            <svg className={styles.celestialRings} viewBox="0 0 720 640" aria-hidden="true">
+              <circle cx="360" cy="320" r="215" className={styles.ringInner} />
+              <circle cx="360" cy="320" r="305" className={styles.ringOuter} />
+            </svg>
+
+            {/* Inner Ring Constellation (5 disciplines · 64s revolution) */}
+            {innerDisciplines.map((d, i) => {
+              const angle = (i * 360) / innerDisciplines.length;
+              const isSelected = d.id === selectedId;
+              return (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={() => setSelectedId(d.id)}
+                  aria-pressed={isSelected}
+                  className={`${styles.celestialPill} ${styles.pillInner}`}
+                  data-selected={isSelected ? "true" : undefined}
+                  style={
+                    {
+                      "--angle": `${angle}deg`,
+                      "--radius": "215px",
+                      "--duration": "64s",
+                    } as CSSProperties
+                  }
+                >
+                  {d.label}
+                  {d.id === "stats" && <span className={styles.threadDot} aria-hidden="true"> ●</span>}
+                </button>
+              );
+            })}
+
+            {/* Outer Ring Constellation (5 disciplines · 96s revolution) */}
+            {outerDisciplines.map((d, i) => {
+              const angle = (i * 360) / outerDisciplines.length + 36;
+              const isSelected = d.id === selectedId;
+              return (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={() => setSelectedId(d.id)}
+                  aria-pressed={isSelected}
+                  className={`${styles.celestialPill} ${styles.pillOuter}`}
+                  data-selected={isSelected ? "true" : undefined}
+                  style={
+                    {
+                      "--angle": `${angle}deg`,
+                      "--radius": "305px",
+                      "--duration": "96s",
+                    } as CSSProperties
+                  }
+                >
+                  {d.label}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Second: Dossier Card Specimen */}
-          <div className="order-2 lg:order-1 lg:col-span-7">
-            <DossierCard active={active} />
+          {/* Foreground Gravitational Anchor: The Archival Folio */}
+          <div
+            className={styles.centralFolio}
+            style={{
+              transform: `translateY(calc(12px * (1 - ${q})))`,
+            }}
+          >
+            {/* Palimpsest peek layer */}
+            <button
+              type="button"
+              onClick={() => setSelectedId(isCarriedThread ? "boards" : "stats")}
+              className={styles.palimpsestTab}
+              aria-label={`Switch to ${isCarriedThread ? "Board exams" : "Statistics"}`}
+            >
+              <span className={styles.palimpsestTag}>
+                {isCarriedThread ? "Board exams" : "Statistics · carried thread"}
+              </span>
+              <span className={styles.palimpsestHook}>
+                {isCarriedThread
+                  ? "Bayesian PPV in Low-Prevalence Screening"
+                  : "Sampling Bias Invariance under Sample Size"}
+              </span>
+            </button>
+
+            {/* Primary Folio Sheet: Populated by active discipline */}
+            <article
+              key={activeDiscipline.id}
+              className={styles.dossierCard}
+              aria-label={`${activeDiscipline.label} specimen`}
+            >
+              <header className={styles.dossierHeader}>
+                <div className={styles.tagGroup}>
+                  <span className={styles.disciplineTagActive}>
+                    {activeDiscipline.label}
+                  </span>
+                  {isCarriedThread && (
+                    <span className={styles.carriedBadge}>
+                      <span className={styles.beadDot} aria-hidden="true">●</span> carried thread
+                    </span>
+                  )}
+                </div>
+                <span className={styles.dossierHookActive}>
+                  {activeDiscipline.question}
+                </span>
+              </header>
+
+              <div className={styles.dossierBody}>
+                <h3 className={styles.dossierTitleHero}>
+                  {activeDiscipline.target}
+                </h3>
+                <blockquote className={styles.promptHero}>
+                  “{activeDiscipline.transferAsk}”
+                </blockquote>
+                <p className={styles.dossierFootnote}>
+                  Illustration specimen. Revolving disciplines shown; click any subject to test.
+                </p>
+              </div>
+            </article>
           </div>
         </div>
       </div>
     </section>
-  );
-}
-
-function DossierCard({ active }: { active: OrbitDiscipline }) {
-  return (
-    <figure
-      id="material-dossier"
-      role="tabpanel"
-      aria-labelledby={`orbit-tab-${active.id}`}
-      tabIndex={0}
-      aria-live="polite"
-      className="py-2 sm:py-4 transition-all duration-300 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-    >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-tx/10 pb-4 mb-6">
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-accent" />
-          <figcaption className="text-xs font-semibold uppercase tracking-wider text-tx-2">
-            Sample prompt · {active.label}
-          </figcaption>
-        </div>
-        <span className="text-xs font-mono text-tx-3">DIAGNOSTIC PROMPT</span>
-      </div>
-
-      <h3 className="font-serif text-xl sm:text-2xl text-tx font-medium leading-snug mb-6">
-        {active.target}
-      </h3>
-
-      <div className="space-y-4 mb-8">
-        {/* Common trap */}
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-xs font-bold tracking-wider uppercase text-error">
-              Common trap
-            </span>
-            <span className="text-xs text-tx-3">
-              · What notes or AI summaries miss
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-tx-2 leading-relaxed italic max-w-[65ch]">
-            {active.aiTrap}
-          </p>
-        </div>
-
-        {/* Exam prompt */}
-        <div className="border-t border-tx/10 pt-4">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-xs font-bold tracking-wider uppercase text-accent font-semibold">
-              Exam prompt
-            </span>
-            <span className="text-xs text-tx-3">
-              · Answered from memory
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-tx leading-relaxed max-w-[65ch]">
-            {active.transferAsk}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-tx/10">
-        <span className="text-xs text-tx-3 font-mono">
-          One question for one concept
-        </span>
-        <a
-          href={orbit.cta.href}
-          className="inline-flex items-center gap-1.5 font-medium text-xs sm:text-sm text-accent hover:text-tx transition-colors"
-        >
-          <span>{orbit.cta.label}</span>
-          <span aria-hidden="true">→</span>
-        </a>
-      </div>
-    </figure>
-  );
-}
-
-const INNER_DISCIPLINE_IDS = new Set(["stats", "boards", "law", "analysis"]);
-
-function SubjectOrbit({
-  activeId,
-  onSelect,
-}: {
-  activeId: OrbitDisciplineId;
-  onSelect: (id: OrbitDisciplineId) => void;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const count = orbit.disciplines.length;
-
-  const innerDisciplines = useMemo(
-    () => orbit.disciplines.filter((d) => INNER_DISCIPLINE_IDS.has(d.id)),
-    []
-  );
-  const outerDisciplines = useMemo(
-    () => orbit.disciplines.filter((d) => !INNER_DISCIPLINE_IDS.has(d.id)),
-    []
-  );
-
-  const handleKeyDown = (e: React.KeyboardEvent, id: OrbitDisciplineId) => {
-    const currentIndex = orbit.disciplines.findIndex((d) => d.id === id);
-    let nextIndex = currentIndex;
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-      e.preventDefault();
-      nextIndex = (currentIndex + 1) % count;
-    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-      e.preventDefault();
-      nextIndex = (currentIndex - 1 + count) % count;
-    } else if (e.key === "Home") {
-      e.preventDefault();
-      nextIndex = 0;
-    } else if (e.key === "End") {
-      e.preventDefault();
-      nextIndex = count - 1;
-    } else {
-      return;
-    }
-    const nextDiscipline = orbit.disciplines[nextIndex];
-    onSelect(nextDiscipline.id);
-    const targetButton = containerRef.current?.querySelector<HTMLButtonElement>(
-      `#orbit-tab-${nextDiscipline.id}`
-    );
-    targetButton?.focus();
-  };
-
-  return (
-    <div
-      ref={containerRef}
-      role="region"
-      aria-label="Discipline selector orbit"
-      className="orbit-phone orbit-container relative flex items-center justify-center scale-[0.70] xs:scale-85 sm:scale-100 transition-transform"
-    >
-      {/* Subtle Orbital Path Guides */}
-      <svg
-        className="pointer-events-none absolute inset-0 h-full w-full select-none"
-        viewBox="0 0 400 400"
-        aria-hidden="true"
-      >
-        <circle
-          cx="200"
-          cy="200"
-          r="72"
-          className="stroke-tx/12 dark:stroke-tx/15"
-          strokeWidth="1"
-          strokeDasharray="4 4"
-          fill="none"
-        />
-        <circle
-          cx="200"
-          cy="200"
-          r="162"
-          className="stroke-tx/12 dark:stroke-tx/15"
-          strokeWidth="1"
-          strokeDasharray="4 4"
-          fill="none"
-        />
-      </svg>
-
-      {/* Center Ink Hub */}
-      <div
-        className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-paper-2 border border-tx/15 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.18)]"
-        aria-hidden="true"
-      >
-        <span className="h-5 w-5 rounded-full bg-tx shadow-inner" />
-      </div>
-
-      {/* Concentric Orbiting Discipline Tabs */}
-      <div role="tablist" aria-label="Subjects for hard material" className="contents">
-        {/* Inner Ring (4 subjects, counter-clockwise) */}
-        {innerDisciplines.map((discipline, i) => {
-          const angle = (i * 360) / innerDisciplines.length;
-          const selected = discipline.id === activeId;
-          return (
-            <button
-              key={discipline.id}
-              type="button"
-              role="tab"
-              id={`orbit-tab-${discipline.id}`}
-              aria-selected={selected}
-              aria-controls="material-dossier"
-              tabIndex={selected ? 0 : -1}
-              onClick={() => onSelect(discipline.id)}
-              onKeyDown={(e) => handleKeyDown(e, discipline.id)}
-              style={
-                {
-                  "--radius": 72,
-                  "--duration": "42s",
-                  "--angle": angle,
-                } as React.CSSProperties
-              }
-              className={`orbit-node-pill orbit-phone-label is-reverse tile text-tx-2${
-                selected ? " is-active" : ""
-              }`}
-            >
-              {discipline.label}
-            </button>
-          );
-        })}
-
-        {/* Outer Ring (6 subjects, clockwise) */}
-        {outerDisciplines.map((discipline, i) => {
-          const angle = (i * 360) / outerDisciplines.length + 15;
-          const selected = discipline.id === activeId;
-          return (
-            <button
-              key={discipline.id}
-              type="button"
-              role="tab"
-              id={`orbit-tab-${discipline.id}`}
-              aria-selected={selected}
-              aria-controls="material-dossier"
-              tabIndex={selected ? 0 : -1}
-              onClick={() => onSelect(discipline.id)}
-              onKeyDown={(e) => handleKeyDown(e, discipline.id)}
-              style={
-                {
-                  "--radius": 162,
-                  "--duration": "62s",
-                  "--angle": angle,
-                } as React.CSSProperties
-              }
-              className={`orbit-node-pill orbit-phone-label tile text-tx-2${
-                selected ? " is-active" : ""
-              }`}
-            >
-              {discipline.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
   );
 }

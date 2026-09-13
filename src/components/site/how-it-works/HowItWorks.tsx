@@ -1,67 +1,30 @@
 "use client";
 
 import { useRef } from "react";
-import { StepTabList } from "./StepTabList";
+import { StepRail } from "./StepRail";
 import { StepPreview } from "./StepPreview";
-import { useStepAutoAdvance } from "./useStepAutoAdvance";
+import { useStepScrollProgress } from "./useStepScrollProgress";
 import "./how-it-works.css";
 
 export function HowItWorks() {
-  const containerRef = useRef<HTMLElement>(null);
-
-  const {
-    active,
-    progress,
-    isPaused,
-    isReducedMotion,
-    selectStep,
-    togglePause,
-    setIsHovered,
-    setIsFocused,
-  } = useStepAutoAdvance({ containerRef });
+  const trackRef = useRef<HTMLElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const { active, progress, isReducedMotion } =
+    useStepScrollProgress({ trackRef, stickyRef });
 
   return (
-    <section
-      id="how-it-works"
-      ref={containerRef}
-      aria-labelledby="how-it-works-title"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onFocusCapture={() => setIsFocused(true)}
-      onBlurCapture={() => setIsFocused(false)}
-      className="w-full mx-auto max-w-6xl scroll-mt-16 md:scroll-mt-20 px-4 py-8 sm:px-6 sm:py-12 lg:px-8"
-    >
-      {/* Section Heading */}
-      <div className="mb-10 sm:mb-14">
-        <h2
-          id="how-it-works-title"
-          className="font-serif text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight text-tx"
-        >
-          How a session works
-        </h2>
-        <p className="mt-2 text-sm sm:text-base text-tx-2 max-w-xl leading-relaxed">
-          Three quick steps to test what you actually know.
-        </p>
-      </div>
-
-      {/* Grid: Left Tabs, Right Mockup Window */}
-      <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-10 lg:gap-12 min-w-0">
-        <div className="md:col-span-5 min-w-0">
-          <StepTabList
-            activeStep={active}
-            progress={progress}
-            isPaused={isPaused}
-            isReducedMotion={isReducedMotion}
-            onSelectStep={selectStep}
-            onTogglePause={togglePause}
-          />
-        </div>
-
-        <div className="md:col-span-7 min-w-0">
-          <StepPreview
-            activeStep={active}
-            isReducedMotion={isReducedMotion}
-          />
+    <section id="how-it-works" ref={trackRef} aria-labelledby="how-it-works-title"
+      className="how-track" data-reduced-motion={isReducedMotion}>
+      <div ref={stickyRef} className="how-sticky">
+        <div className="how-composition">
+          <div className="how-introduction">
+            <h2 id="how-it-works-title">
+              <span className="how-duet-sans">Your thinking,</span>
+              <span className="how-duet-serif">made visible.</span>
+            </h2>
+            <StepRail activeStep={active} />
+          </div>
+          <StepPreview progress={progress} isReducedMotion={isReducedMotion} />
         </div>
       </div>
     </section>

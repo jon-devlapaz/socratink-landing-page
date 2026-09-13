@@ -1,215 +1,61 @@
 "use client";
 
-import { StepId, previewData } from "./steps";
+import type { CSSProperties } from "react";
+import { useSyncExternalStore } from "react";
+import { previewData } from "./steps";
 
 interface StepPreviewProps {
-  activeStep: StepId;
+  progress: number;
   isReducedMotion: boolean;
 }
 
-export function StepPreview({ activeStep, isReducedMotion }: StepPreviewProps) {
+const reveal = (progress: number, start: number, end: number) =>
+  Math.max(0, Math.min(1, (progress - start) / (end - start)));
+
+export function StepPreview({ progress, isReducedMotion }: StepPreviewProps) {
+  // False during SSR, true after hydration: SSR/no-JS render the resolved folio.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const p = !mounted || isReducedMotion ? 1 : progress;
+  const scaffold = reveal(p, 0.08, 0.24);
+  const response = reveal(p, 0.28, 0.5);
+  const inspect = reveal(p, 0.54, 0.76);
+  const inkStyle = {
+    "--scaffold": scaffold,
+    "--response": response,
+    "--inspect": inspect,
+  } as CSSProperties;
+
   return (
-    <div
-      className={`how-window-mock ${isReducedMotion ? "is-reduced-motion" : ""}`}
-      data-active-step={activeStep}
-      role="region"
-      aria-label="Illustrative diagnostic session preview"
-    >
-      {/* Window Header / Mac-style Ink Dots */}
-      <div className="how-window-header">
-        <div className="how-window-dots" aria-hidden="true">
-          <span className="how-dot how-dot-close" />
-          <span className="how-dot how-dot-min" />
-          <span className="how-dot how-dot-max" />
+    <figure className="how-folio" style={inkStyle} aria-label="Example session: a target becomes a record of learner-authored evidence">
+      <figcaption className="how-folio-header">
+        <span className="how-folio-subject">{previewData.target.category}</span>
+      </figcaption>
+      <div className="how-manuscript">
+        <div className="how-folio-target">
+          <h3>{previewData.target.activeTarget}</h3>
         </div>
-        <div className="how-window-title">
-          <span className="how-window-indicator" aria-hidden="true" />
-          <span>Socratink · Example session</span>
+        <div className="how-folio-scaffold how-reveal">
+          <p className="how-prompt">{previewData.explain.prompt}</p>
         </div>
-        <div className="w-12" aria-hidden="true" />
-      </div>
-
-      {/* Window Body with Deterministic Panels */}
-      <div className="how-window-body">
-        {/* Step 1: Target Specimen Selection */}
-        <div
-          id="panel-target"
-          role="tabpanel"
-          tabIndex={activeStep === "target" ? 0 : -1}
-          aria-hidden={activeStep !== "target"}
-          aria-labelledby="tab-target"
-          className={`how-panel ${activeStep === "target" ? "is-active" : "is-hidden"}`}
-        >
-          <div className="space-y-4">
-            <div className="flex items-center justify-between gap-2 border-b border-tx/10 pb-3">
-              <div>
-                <span className="text-xs font-mono uppercase tracking-wider text-tx-2">
-                  Target Curriculum
-                </span>
-                <p className="text-sm font-semibold text-tx">
-                  {previewData.target.category}
-                </p>
-              </div>
-              <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent">
-                Active Selection
-              </span>
-            </div>
-
-            <div className="border-l-2 border-accent pl-3.5 py-1">
-              <div className="flex items-start gap-2.5">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-paper">
-                  ✓
-                </span>
-                <div>
-                  <p className="text-sm font-medium text-tx">
-                    {previewData.target.activeTarget}
-                  </p>
-                  <p className="mt-1 text-xs text-tx-2">
-                    {previewData.target.activeContext}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-1.5 pt-1">
-              <span className="text-xs font-mono text-tx-2">
-                Other syllabus targets
-              </span>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {previewData.target.otherTargets.map((t) => (
-                  <div
-                    key={t.name}
-                    className="border-l border-tx/20 pl-2.5 py-1 text-xs text-tx-2"
-                  >
-                    <span className="block text-xs font-mono text-tx-3">
-                      {t.subject}
-                    </span>
-                    <span className="line-clamp-1 font-medium text-tx">
-                      {t.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+        <div className="how-folio-response how-reveal">
+          <blockquote>
+            “More responses should give us a more accurate estimate because the{" "}
+            <span className="how-held-ink">law of large numbers</span> averages out{" "}
+            <span className="how-gap-ink">individual errors</span>.”
+          </blockquote>
         </div>
-
-        {/* Step 2: Explain Unaided Prompt & Response */}
-        <div
-          id="panel-explain"
-          role="tabpanel"
-          tabIndex={activeStep === "explain" ? 0 : -1}
-          aria-hidden={activeStep !== "explain"}
-          aria-labelledby="tab-explain"
-          className={`how-panel ${activeStep === "explain" ? "is-active" : "is-hidden"}`}
-        >
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-tx/10 pb-3">
-              <span className="text-xs font-mono uppercase tracking-wider text-tx-2">
-                Unassisted Free Response
-              </span>
-              <div className="flex items-center gap-1.5">
-                {previewData.explain.badges.map((b) => (
-                  <span
-                    key={b}
-                    className="rounded-md border border-tx/15 bg-paper-2 px-2 py-0.5 text-xs font-medium text-tx-2"
-                  >
-                    {b}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Simulated Prompt */}
-            <div className="border-l-2 border-tx/25 pl-3.5 py-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-tx-2 mb-1">
-                Prompt
-              </p>
-              <p className="text-xs sm:text-sm text-tx font-serif leading-relaxed">
-                {previewData.explain.prompt}
-              </p>
-            </div>
-
-            {/* Simulated Student Response Box (Read-only demonstrative preview) */}
-            <div className="border-l-2 border-accent pl-3.5 py-1">
-              <div className="flex items-center justify-between text-xs text-tx-2 mb-1.5">
-                <span className="font-mono">Learner Submission</span>
-                <span className="inline-flex items-center gap-1 text-xs text-accent font-medium">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                  Recorded
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-tx leading-relaxed">
-                {previewData.explain.response}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Step 3: Inspect What Holds Diagnostic Readout */}
-        <div
-          id="panel-inspect"
-          role="tabpanel"
-          tabIndex={activeStep === "inspect" ? 0 : -1}
-          aria-hidden={activeStep !== "inspect"}
-          aria-labelledby="tab-inspect"
-          className={`how-panel ${activeStep === "inspect" ? "is-active" : "is-hidden"}`}
-        >
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-tx/10 pb-3">
-              <span className="text-xs font-mono uppercase tracking-wider text-tx-2">
-                {previewData.inspect.subject}
-              </span>
-              <span className="rounded-full border border-tx/15 bg-paper-2 px-2.5 py-0.5 text-xs font-medium text-tx-2">
-                Session Complete
-              </span>
-            </div>
-
-            {/* Held Concept */}
-            <div className="border-l-2 border-accent pl-3.5 py-1">
-              <div className="flex items-start gap-2.5">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-paper" aria-hidden="true">
-                  ✓
-                </span>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-accent">
-                    {previewData.inspect.held.label}
-                  </p>
-                  <p className="mt-0.5 text-xs sm:text-sm text-tx leading-relaxed">
-                    {previewData.inspect.held.detail}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Identified Gap */}
-            <div className="border-l-2 border-amber-600 pl-3.5 py-1">
-              <div className="flex items-start gap-2.5">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-600 text-xs font-bold text-paper" aria-hidden="true">
-                  !
-                </span>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
-                    {previewData.inspect.gap.label}
-                  </p>
-                  <p className="mt-0.5 text-xs sm:text-sm text-tx leading-relaxed">
-                    {previewData.inspect.gap.detail}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Continuity Probe */}
-            <div className="border-t border-tx/10 pt-3">
-              <div className="flex items-center gap-2 text-xs text-tx-2">
-                <span className="text-sm font-mono text-accent" aria-hidden="true">◷</span>
-                <span className="font-semibold text-tx">{previewData.inspect.schedule.label}:</span>
-                <span>{previewData.inspect.schedule.detail}</span>
-              </div>
-            </div>
+        <div className="how-folio-inspect how-reveal">
+          <div className="how-annotations">
+            <p><strong className="how-held-label">{previewData.inspect.held.label}</strong>{previewData.inspect.held.detail}</p>
+            <p><strong className="how-gap-label">{previewData.inspect.gap.label}</strong>{previewData.inspect.gap.detail}</p>
           </div>
         </div>
       </div>
-    </div>
+      <p className="how-folio-footer">Illustration only. This walkthrough stores nothing.</p>
+    </figure>
   );
 }

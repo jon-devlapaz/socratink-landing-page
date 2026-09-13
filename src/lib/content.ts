@@ -30,9 +30,9 @@ export const site = {
 
 export const nav = {
   links: [
-    { label: "Why it sticks", href: "#retention-science" },
     { label: "How it works", href: "#how-it-works" },
     { label: "Disciplines", href: "#material" },
+    { label: "Why it sticks", href: "#retention-science" },
     { label: "Memory", href: "#memory" },
   ],
   login: { label: "Log in", href: `${site.appUrl}login` },
@@ -41,7 +41,7 @@ export const nav = {
 
 export const hero = {
   primary: { label: "Try the free diagnostic", href: site.appUrl },
-  secondary: { label: "Explore disciplines", href: "#material" },
+  secondary: { label: "See how it works", href: "#how-it-works" },
 } as const;
 
 
@@ -62,6 +62,7 @@ export type OrbitDisciplineId =
 export type OrbitDiscipline = {
   id: OrbitDisciplineId;
   label: string;
+  question: string;
   target: string;
   aiTrap: string;
   transferAsk: string;
@@ -72,6 +73,7 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
   {
     id: "stats",
     label: "Statistics",
+    question: "Can a bigger survey still give the wrong answer?",
     target: "Sampling Bias Invariance under Sample Size",
     aiTrap:
       "AI fluently increases n, conflating standard error reduction with the correction of systematic sampling frame flaws.",
@@ -81,6 +83,7 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
   {
     id: "biochem",
     label: "Organic chemistry",
+    question: "Why can the same molecule react in two different ways?",
     target: "Steric Hindrance vs. Nucleophilicity in SN2 Pathways",
     aiTrap:
       "AI recites 'backside attack causes inversion', leaving the student unaware that a sterically hindered tertiary carbon forces an E2 elimination instead.",
@@ -90,6 +93,7 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
   {
     id: "boards",
     label: "Board exams",
+    question: "Does a positive test always mean someone is sick?",
     target: "Bayesian Positive Predictive Value in Low-Prevalence Screening",
     aiTrap:
       "AI praises a 99% test sensitivity, while the candidate forgets that when disease prevalence is 0.1%, false positives vastly outnumber true positives.",
@@ -99,6 +103,7 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
   {
     id: "cloud",
     label: "Cloud certifications",
+    question: "What happens when two servers disagree about your balance?",
     target: "Consistency Boundaries under Network Partition (CAP Theorem)",
     aiTrap:
       "AI recommends multi-region read replicas, obscuring the reality that replicas only scale reads and introduce split-brain write conflicts when the cross-region link drops.",
@@ -108,6 +113,7 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
   {
     id: "law",
     label: "Contract law",
+    question: "When does a promise become something you can enforce?",
     target: "Pre-Existing Duty Rule vs. Promissory Estoppel",
     aiTrap:
       "AI gives a generic definition of detrimental reliance, missing whether a subcontractor's verbal promise is unenforceable due to an existing contractual obligation.",
@@ -117,6 +123,7 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
   {
     id: "signals",
     label: "Signal processing",
+    question: "How can a recording pick up a sound that was never there?",
     target: "Analog Anti-Aliasing Filtration prior to Sampling",
     aiTrap:
       "AI quotes the Nyquist limit (fs > 2fmax), while the engineer forgets that high-frequency noise folds permanently into the baseband unless an analog low-pass filter precedes the ADC.",
@@ -126,6 +133,7 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
   {
     id: "med",
     label: "Pathophysiology",
+    question: "Why can the same treatment help one patient and harm another?",
     target: "Hemodynamic Divergence in Cardiogenic vs. Hypovolemic Shock",
     aiTrap:
       "AI explains the Frank-Starling curve fluently, while the learner reflexively orders IV fluid boluses for a patient whose lungs are already filling with fluid.",
@@ -135,6 +143,7 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
   {
     id: "analysis",
     label: "Real analysis",
+    question: "If every step is continuous, does the limit have to be?",
     target: "Pointwise vs. Uniform Convergence of Function Sequences",
     aiTrap:
       "AI proves fn(x) = x^n converges pointwise to 0 on [0, 1), masking the failure of the limit function to preserve continuity on the closed interval [0, 1].",
@@ -144,6 +153,7 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
   {
     id: "accounting",
     label: "Accounting",
+    question: "Does getting paid mean you have earned the revenue?",
     target: "Performance Obligation Bundling under ASC 606",
     aiTrap:
       "AI lists the 5-step revenue framework, while missing whether ongoing proprietary security patches make software licenses a single bundled service rather than upfront point-in-time revenue.",
@@ -153,6 +163,7 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
   {
     id: "ml",
     label: "Machine learning",
+    question: "Why can a model ace a test and fail in the real world?",
     target: "Data Leakage across Cross-Validation Splits",
     aiTrap:
       "AI writes a clean scikit-learn preprocessing block, but fits standard scalers across the full dataset prior to k-fold splitting, leaking test-fold distribution parameters into training.",
@@ -162,11 +173,13 @@ export const orbitDisciplines: readonly OrbitDiscipline[] = [
 ] as const;
 
 export const orbit = {
-  eyebrow: "Supported subjects",
-  bridge:
-    "Try sample prompts from 10 technical fields below, or paste your own study outline in the app.",
-  titleSans: "Built for subjects",
-  titleSerif: "where guessing is not an option.",
+  title: "Put your subject to the test.",
+  bridge: "Choose a subject. See what you can explain from memory.",
+  exampleLabel: "Example",
+  instruction: "Explain why, without your notes.",
+  ownMaterial: "Or bring your own study outline.",
+  pauseLabel: "Pause orbit",
+  resumeLabel: "Resume orbit",
   defaultId: "stats" as const satisfies OrbitDisciplineId,
   cta: {
     label: "Try the free diagnostic",
@@ -179,48 +192,83 @@ export const orbit = {
 } as const;
 
 export const memory = {
-  eyebrow: "Long-term review",
-  titleSans: "Build a clear record",
-  titleSerif: "of what you actually know.",
-  cards: [
+  eyebrow: "Longitudinal record",
+  title: "Your thinking,\nproven across time.",
+  body: "An answer tells you what happened once. A longitudinal record proves your understanding didn't evaporate. Track how raw intuition transforms into unshakeable recall before test day.",
+  principle: "The original words stay.\nThe proof compounds around them.",
+  stages: [
     {
-      title: "Track progress over time.",
-      sub: "A clear log of what you produced cold.",
-      body: "Every session saves what you wrote from memory. Instead of a vague score, you have an exact record of which concepts you could explain without notes.",
+      id: "day-01",
+      day: "Day 01",
+      stage: "Cold baseline diagnostic",
+      shortLabel: "Diagnostic",
+      date: "Oct 12 · 09:14",
+      prompt: "Why doesn't a massive sample size eliminate sampling bias?",
+      attempt: "“More responses should give us a more accurate estimate because the law of large numbers averages out individual errors.”",
+      status: "trap" as const,
+      statusLabel: "Identified trap",
+      annotation: "Conflated variance with bias. A larger sample reduces random noise, but amplifies systematic exclusion with higher false confidence.",
+      retentionDelta: "Baseline intuition",
     },
     {
-      title: "Permanent and portable.",
-      sub: "Your study records stay in plain text.",
-      body: "Your explanations and diagnostic evaluations belong to you. They stay saved in clean, readable text so you can review them whenever you want, on any device.",
+      id: "day-03",
+      day: "Day 03",
+      stage: "Targeted Socratic repair",
+      shortLabel: "Repair",
+      date: "Oct 14 · 18:22",
+      prompt: "Isolate the distinction between sample size and selection mechanism.",
+      attempt: "“Variance shrinks with N, but bias is in the sampling frame. If the door only lets tall people in, measuring 100,000 people just gives a very precise estimate of tall people.”",
+      status: "repair" as const,
+      statusLabel: "Mechanistic breakthrough",
+      annotation: "Causal boundary recognized. Decoupled random error (variance) from structural distortion (selection).",
+      retentionDelta: "+45% mechanistic precision",
     },
     {
-      title: "Complete privacy and export.",
-      sub: "Export, edit, or delete anytime.",
-      body: "Export your study logs as Markdown or JSON, or delete your history whenever you choose. Socratink never uses private sessions to train public models.",
+      id: "day-14",
+      day: "Day 14",
+      stage: "Unaided retention check",
+      shortLabel: "Unaided",
+      date: "Oct 26 · 11:05",
+      prompt: "Solved cold without notes, aids, or AI suggestions.",
+      attempt: "“Large N reduces variance toward the sample’s expected value; it does not shift that expectation toward the true population parameter if selection probability is non-uniform.”",
+      status: "mastered" as const,
+      statusLabel: "Retention validated",
+      annotation: "Exam-ready retrieval. Mechanism recalled cold without scaffolding after two weeks in the 80% retention band.",
+      retentionDelta: "80% retention verified cold",
+      seal: "RETENTION VALIDATED",
     },
   ],
+  exportFormats: [
+    { label: "Markdown", ext: ".md" },
+    { label: "JSON Ledger", ext: ".json" },
+    { label: "Anki Deck", ext: ".csv" },
+  ],
+  ownership: "Your records belong to you. Export as Markdown or JSON, or delete them anytime. Private sessions are never used to train public models.",
+  privacyNotice: "Zero public model training · Your thinking stays yours · Client-side export",
 } as const;
+
+export type MemoryStageId = (typeof memory.stages)[number]["id"];
 
 
 export const finalCta = {
-  titleSans: "Know what you actually know",
-  titleSerif: "before the exam begins.",
-  button: { label: "Start a 5-minute diagnostic", href: site.appUrl },
-  sub: "Free · No credit card or account needed · Opens instantly in your browser",
+  title: "Know what you\nactually know.",
+  prompt: "Start with one question.",
+  button: { label: "Try the free diagnostic", href: site.appUrl },
+  sub: "Free · No sign-up required · Works in your browser",
 } as const;
 
 export const footer = {
-  indexLabel: "Site index",
-  legalLabel: "Elsewhere",
-  quiet: "No newsletter. No social grid.",
-  attemptLabel: "Diagnostic",
   index: [
-    { label: "Why it sticks", href: "#retention-science" },
     { label: "How it works", href: "#how-it-works" },
     { label: "Disciplines", href: "#material" },
+    { label: "Why it sticks", href: "#retention-science" },
     { label: "Memory", href: "#memory" },
   ],
-  attempt: { label: "Try the free diagnostic", href: site.appUrl },
+  legal: [
+    { label: "Privacy", href: "/privacy" },
+    { label: "Terms", href: "/terms" },
+    { label: "Contact", href: "mailto:support@socratink.ai" },
+  ],
   legalNote: "All rights reserved.",
 } as const;
 
@@ -231,7 +279,7 @@ export const notebook = {
   heroTitle: "Practice hard material.\nKnow what you actually know before test day.",
   heroBody:
     "Answer one realistic exam prompt from memory. No multiple choice, no notes, and no AI autocomplete. You will immediately see which parts of your reasoning hold up and where the gaps are.",
-  heroTrust: "Free diagnostic · No sign-up required · Works directly in your browser",
+  heroTrust: "Free trial · No sign-up required · Works directly in your browser",
   heroNote: "One realistic prompt · Answered from memory",
 } as const;
 

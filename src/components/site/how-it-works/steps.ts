@@ -24,45 +24,29 @@ export const steps: readonly StepItem[] = [
     id: "inspect",
     stepNumber: "03",
     title: "See where the gaps are",
-    description: "Compare your explanation against the benchmark. You will see exactly which parts of your reasoning were solid and what needs review before test day.",
+    description: "Compare your explanation against the benchmark to identify what held and what needs review before test day.",
   },
 ] as const;
 
 export const previewData = {
   target: {
-    category: "Organic chemistry",
-    activeTarget: "Steric Hindrance vs. Nucleophilicity in SN2 Pathways",
-    activeContext: "Reactivity divergence under strong, hindered base conditions",
-    otherTargets: [
-      { subject: "Statistics", name: "Sampling Bias Invariance under Sample Size" },
-      { subject: "Cloud certs", name: "Consistency Boundaries under Network Partition (CAP)" },
-      { subject: "Accounting", name: "Performance Obligation Bundling under ASC 606" },
-    ],
+    category: "Statistics",
+    activeTarget: "Sampling Bias Invariance under Sample Size",
+    activeContext: "Systematic exclusion under large-N measurement",
   },
   explain: {
     prompt:
-      "Predict the major product when (R)-2-bromobutane is treated with potassium tert-butoxide in tert-butanol. Explain the governing divergence.",
-    response:
-      "Potassium tert-butoxide is a sterically hindered strong base. The bulky tert-butyl group cannot readily attack the secondary carbon via an SN2 substitution. Instead, it abstracts a beta-hydrogen in an E2 elimination pathway, producing 2-butene as the major product.",
-    badges: [
-      "Assistance: None",
-      "Free response",
-      "No multiple choice",
-    ],
+      "A medical survey polls 25,000 opt-in app users to estimate national diabetes rates. Explain why tighter variance does not cure the estimate.",
   },
   inspect: {
-    subject: "Diagnostic evaluation",
+    subject: "Benchmark comparison",
     held: {
       label: "Held concept",
-      detail: "Correctly identified steric hindrance as the mechanism forcing an E2 elimination over SN2.",
+      detail: "Reached for a mechanism — the law of large numbers — instead of guessing.",
     },
     gap: {
       label: "Identified gap",
-      detail: "Did not specify why bulky bases favor Hofmann orientation over Zaitsev products.",
-    },
-    schedule: {
-      label: "Follow-up check",
-      detail: "Verification scheduled for review in 14 days.",
+      detail: "Conflated variance with bias: a larger sample tightens spread around a skewed frame.",
     },
   },
 } as const;

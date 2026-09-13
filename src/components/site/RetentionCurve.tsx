@@ -16,24 +16,16 @@ const MILESTONES: MilestoneData[] = [
     headline: "The Recognition Illusion",
     summary:
       "Reading an answer key feels easy because the solution is in front of you. Reconstructing it from memory takes effort—and that effort is what makes it stick.",
-    unaided: "Unaided: permanent pathways form",
-    passive: "Passive: fades within 48 hours",
+    unaided: "Unaided: the mechanism gets named",
+    passive: "Passive: fluency mistaken for knowledge",
   },
   {
-    day: "Day 7",
-    headline: "The Forgetting Cliff",
+    day: "Day 14",
+    headline: "Answered Cold",
     summary:
-      "By day seven, passive reading has collapsed to 45%. A single unassisted retrieval session holds recall above 80%.",
-    unaided: "Unaided: 82% recall holds strong",
-    passive: "Passive: blank-page panic begins",
-  },
-  {
-    day: "Day 30",
-    headline: "Permanent Retention",
-    summary:
-      "On test day, passive review leaves you with roughly 18% recall. Unaided retrieval preserves over 80% independent execution.",
-    unaided: "Unaided: 80% exam-ready execution",
-    passive: "Passive: 18% near-total memory loss",
+      "Two weeks later, a different problem. No notes, no hints—the same reasoning, reconstructed from memory.",
+    unaided: "Unaided: the mechanism held",
+    passive: "Passive: the trace evaporated",
   },
 ];
 
@@ -167,12 +159,11 @@ export function RetentionCurve() {
       const passiveColor = isDark ? "#8f8c85" : "#686762";
       const gridColor = isDark ? "rgba(206, 205, 195, 0.08)" : "rgba(16, 15, 15, 0.07)";
       const textMuted = isDark ? "rgba(206, 205, 195, 0.45)" : "rgba(16, 15, 15, 0.45)";
-      const textPrimary = isDark ? "#cecdc3" : "#100f0f";
 
       // Layout geometry
       const isMobile = width < 640;
       const isCompact = width < 420;
-      const padLeft = isCompact ? 30 : isMobile ? 36 : 56;
+      const padLeft = isCompact ? 12 : isMobile ? 16 : 24;
       const padRight = isCompact ? 90 : isMobile ? 104 : 160;
       const padTop = 32;
       const padBottom = 42;
@@ -183,38 +174,13 @@ export function RetentionCurve() {
       const valToY = (pct: number) => padTop + chartH * (1 - pct);
       const timeToX = (t: number) => padLeft + chartW * t;
 
-      // Draw Hairline Drafting Coordinate Grid
-      ctx.lineWidth = 0.5;
-      ctx.strokeStyle = gridColor;
-
-      const gridSteps = [
-        { val: 1.0, label: "100%" },
-        { val: 0.75, label: "75%" },
-        { val: 0.5, label: "50%" },
-        { val: 0.25, label: "25%" },
-        { val: 0.0, label: "0%" },
-      ];
-
-      ctx.font = "10px monospace";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-
-      gridSteps.forEach((step) => {
-        const y = valToY(step.val);
-        ctx.beginPath();
-        ctx.moveTo(padLeft, y);
-        ctx.lineTo(padLeft + chartW, y);
-        ctx.stroke();
-
-        ctx.fillStyle = textMuted;
-        ctx.fillText(step.label, padLeft - 8, y);
-      });
+      // No y-axis grid: the divergence is qualitative, so the sheet carries
+      // no measurement scale. The ink speaks without numbers.
 
       // Baseline timeline markers
       const timelineDays = [
         { t: 0.0, label: "Day 1" },
-        { t: 0.45, label: "Day 7" },
-        { t: 1.0, label: "Day 30" },
+        { t: 1.0, label: "Day 14" },
       ];
 
       ctx.textAlign = "center";
@@ -233,8 +199,8 @@ export function RetentionCurve() {
       });
 
       // Curve Spline Geometry Functions
-      // Segment 1: t in [0, 0.45] (Day 1 to Day 7)
-      // Segment 2: t in [0.45, 1.0] (Day 7 to Day 30)
+      // Segment 1: t in [0, 0.45] (shape knee past Day 1)
+      // Segment 2: t in [0.45, 1.0] (knee to Day 14)
       const getUnaidedY = (t: number) => {
         if (t <= 0.45) {
           const u = t / 0.45;
@@ -263,7 +229,7 @@ export function RetentionCurve() {
       const activeProgress = isReducedMotion ? 1 : scrollProgress;
       const samples = 140;
 
-      // 1. Draw Shaded "Durable Retention Gap" Polygon between curves (from crossover to Day 30)
+      // 1. Draw shaded divergence polygon between curves (crossover to Day 14)
       if (activeProgress > crossoverT) {
         const endT = Math.min(1, activeProgress);
         ctx.beginPath();
@@ -290,16 +256,7 @@ export function RetentionCurve() {
         ctx.fillStyle = grad;
         ctx.fill();
 
-        // Architectural Gap Label in open space
-        if (activeProgress > 0.7 && !isMobile) {
-          const labelX = timeToX(0.72);
-          const labelY = (getUnaidedY(0.72) + getPassiveY(0.72)) / 2;
-          ctx.font = "9px monospace";
-          ctx.fillStyle = accentColor;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("DURABLE RETENTION GAP", labelX, labelY);
-        }
+        // No gap label: the shaded divergence carries the meaning without words.
       }
 
       // 2. Draw Passive Decay Curve (Evaporating & Diffusing Ink)
@@ -420,77 +377,12 @@ export function RetentionCurve() {
         }
       });
 
-      // 5. Crossover Callout (~Day 2)
+      // 5. Crossover bead (no callout: the divergence needs no meta label).
       if (activeProgress >= crossoverT) {
         ctx.beginPath();
         ctx.arc(crossoverX, crossoverY, 3, 0, Math.PI * 2);
         ctx.fillStyle = accentColor;
         ctx.fill();
-
-        // Anchor elevation: strictly in the clear negative space above the curve peak (84.5%)
-        // and below the 100% grid line (padTop). On all viewports, this guarantees
-        // ~25px+ clearance above any curve spline and ~6-10px below the 100% grid line.
-        const targetCalloutY = isCompact ? valToY(0.93) : isMobile ? valToY(0.94) : valToY(0.95);
-        const shoulderLength = isCompact ? 8 : 12;
-        const textStartX = crossoverX + shoulderLength + 4;
-
-        // Architectural drafting leader: vertical dashed stem + horizontal shoulder divider
-        ctx.beginPath();
-        ctx.strokeStyle = accentColor;
-        ctx.lineWidth = 0.8;
-        ctx.setLineDash([2, 2]);
-        ctx.moveTo(crossoverX, crossoverY - 4);
-        ctx.lineTo(crossoverX, targetCalloutY);
-        ctx.lineTo(crossoverX + shoulderLength, targetCalloutY);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Small drafting node at shoulder elbow
-        ctx.beginPath();
-        ctx.arc(crossoverX, targetCalloutY, 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = accentColor;
-        ctx.fill();
-
-        ctx.textAlign = "left";
-
-        if (isCompact) {
-          const label = "The Crossover · Day 2";
-          ctx.font = "bold 8.5px monospace";
-          const textMetrics = ctx.measureText(label);
-
-          // Drafting paper wipe mask ensures 100% contrast and prevents grid collision
-          ctx.fillStyle = isDark ? "rgba(16, 15, 15, 0.85)" : "rgba(255, 252, 240, 0.90)";
-          ctx.fillRect(textStartX - 2, targetCalloutY - 6.5, textMetrics.width + 4, 13);
-
-          ctx.fillStyle = textPrimary;
-          ctx.textBaseline = "middle";
-          ctx.fillText(label, textStartX, targetCalloutY);
-        } else {
-          const title = "The Crossover · ~Day 2";
-          const subtitle = isMobile ? "Passive decay begins" : "Passive recognition begins decay";
-
-          ctx.font = "bold 9.5px monospace";
-          const titleMetrics = ctx.measureText(title);
-          ctx.font = "8.5px monospace";
-          const subMetrics = ctx.measureText(subtitle);
-          const blockWidth = Math.max(titleMetrics.width, subMetrics.width);
-
-          // Drafting paper wipe mask
-          ctx.fillStyle = isDark ? "rgba(16, 15, 15, 0.85)" : "rgba(255, 252, 240, 0.90)";
-          ctx.fillRect(textStartX - 3, targetCalloutY - 13, blockWidth + 6, 24);
-
-          // Line 1: Primary Title (anchored cleanly above shoulder divider)
-          ctx.font = "bold 9.5px monospace";
-          ctx.fillStyle = textPrimary;
-          ctx.textBaseline = "bottom";
-          ctx.fillText(title, textStartX, targetCalloutY - 1.5);
-
-          // Line 2: Secondary Descriptor (anchored cleanly below shoulder divider)
-          ctx.font = "8.5px monospace";
-          ctx.fillStyle = textMuted;
-          ctx.textBaseline = "top";
-          ctx.fillText(subtitle, textStartX, targetCalloutY + 2.5);
-        }
       }
 
       // 6. Direct Curve End Typography (Apple Silicon style on paper)
@@ -512,17 +404,17 @@ export function RetentionCurve() {
           ctx.font = "bold 9px monospace";
           ctx.fillStyle = accentColor;
           ctx.textBaseline = "middle";
-          ctx.fillText("Socratink 80%", endLabelX("Socratink 80%", 6), endYUnaided);
+          ctx.fillText("Unaided", endLabelX("Unaided", 6), endYUnaided);
 
           ctx.font = "bold 9px monospace";
           ctx.fillStyle = passiveColor;
-          ctx.fillText("Passive 18%", endLabelX("Passive 18%", 6), endYPassive);
+          ctx.fillText("Re-reading", endLabelX("Re-reading", 6), endYPassive);
         } else {
           // Full editorial typography
           ctx.font = "bold 10px monospace";
           ctx.fillStyle = accentColor;
           ctx.textBaseline = "alphabetic";
-          ctx.fillText("Socratink (80%)", endLabelX("Socratink (80%)"), endYUnaided - 2);
+          ctx.fillText("Unaided", endLabelX("Unaided"), endYUnaided - 2);
 
           ctx.font = "9px monospace";
           ctx.fillStyle = textMuted;
@@ -530,7 +422,7 @@ export function RetentionCurve() {
 
           ctx.font = "10px monospace";
           ctx.fillStyle = passiveColor;
-          ctx.fillText("Passive (18%)", endLabelX("Passive (18%)"), endYPassive - 2);
+          ctx.fillText("Re-reading", endLabelX("Re-reading"), endYPassive - 2);
 
           ctx.font = "9px monospace";
           ctx.fillStyle = textMuted;
@@ -584,24 +476,8 @@ export function RetentionCurve() {
 
   // Active milestone index based on scroll
   const effectiveProgress = isReducedMotion ? 1 : scrollProgress;
-  const activeMilestoneIdx = effectiveProgress < 0.33 ? 0 : effectiveProgress < 0.68 ? 1 : 2;
-
-  const scrollToMilestone = (idx: number) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const rect = track.getBoundingClientRect();
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const stickyTop = window.innerWidth >= 768 ? 80 : 64;
-    const vh = window.innerHeight;
-    const stickyHeight = stickyRef.current ? stickyRef.current.offsetHeight : vh - stickyTop;
-    const totalTravel = rect.height - stickyHeight;
-
-    const targets = [0.08, 0.50, 0.98];
-    const targetRatio = targets[idx] ?? 0;
-
-    const targetScrollY = scrollTop + rect.top - stickyTop + targetRatio * totalTravel;
-    window.scrollTo({ top: targetScrollY, behavior: "smooth" });
-  };
+  const activeMilestoneIdx = effectiveProgress < 0.5 ? 0 : 1;
+  // Milestone entries are scroll-synced display only; the slice has no click-to-scroll.
 
   return (
     <section
@@ -612,7 +488,7 @@ export function RetentionCurve() {
         isReducedMotion ? "h-auto py-12 sm:py-16" : "h-[260vh] min-h-[1800px]"
       }`}
     >
-      {/* Pinned Sticky Stage: Locks in viewport while scroll scrubs through Day 1 -> Day 30 */}
+      {/* Pinned Sticky Stage: Locks in viewport while scroll scrubs through Day 1 -> Day 14 */}
       <div
         ref={stickyRef}
         className={`w-full ${
@@ -629,16 +505,27 @@ export function RetentionCurve() {
                 id="retention-title"
                 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-tx leading-[1.12]"
               >
-                Why studying without notes sticks under pressure
+                The same reasoning, answered cold
               </h2>
               <p className="mt-2.5 text-sm text-tx-2 leading-relaxed">
-                Reading through an answer key feels easy because the solution is already in front of you. Reconstructing the answer from memory takes effort, but that effort is what keeps the concept in your head weeks later.
+                Two weeks later, a different problem — flu prevalence estimated from pharmacy walk-ins. No notes, no hints.
               </p>
+
+              {/* Carried thread: the cold answer, quoted verbatim from the record ahead */}
+              <figure className="mt-4 rounded-md border border-tx/10 bg-paper-2 px-4 py-3">
+                <figcaption className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-tx-3">
+                  Cold retrieval · Day 14
+                </figcaption>
+                <blockquote className="mt-1.5 font-serif text-lg leading-snug text-tx">
+                  “Large N reduces variance toward the sample’s expected value; it does not shift that
+                  expectation when selection is non-uniform.”
+                </blockquote>
+              </figure>
 
               {/* Synchronized Milestone Narrative Ledger */}
               <div
                 className="mt-5 relative pl-7 sm:pl-8 space-y-3.5 border-t border-tx/10 pt-4"
-                role="tablist"
+                role="list"
                 aria-label="Retention milestones"
               >
                 {/* Continuous 1px Timeline Axis Rail */}
@@ -663,11 +550,10 @@ export function RetentionCurve() {
                         )}
                       </div>
 
-                      {/* Accessible 44px+ Touch Target Button */}
-                      <button
-                        type="button"
-                        onClick={() => scrollToMilestone(idx)}
-                        className="w-full text-left min-h-[44px] py-1.5 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-sm transition-all"
+                      {/* Scroll-synced entry; display only, no interaction */}
+                      <div
+                        role="listitem"
+                        className="w-full text-left py-1.5 rounded-sm transition-all"
                         aria-current={isActive ? "step" : undefined}
                       >
                         {/* Temporal Tag */}
@@ -713,7 +599,7 @@ export function RetentionCurve() {
                             </div>
                           </div>
                         </div>
-                      </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -722,7 +608,7 @@ export function RetentionCurve() {
               {/* Scroll Timeline Cue */}
               <div className="mt-3 flex items-center gap-2 text-xs font-mono text-tx-3">
                 <span className="inline-block text-accent" aria-hidden="true">↓</span>
-                <span>Scroll to scrub 30-day retention curve</span>
+                <span>Scroll — the ink draws as you read</span>
               </div>
             </div>
 
@@ -742,7 +628,7 @@ export function RetentionCurve() {
                 </div>
                 <span className="flex items-center gap-1.5 text-[0.6875rem] text-tx-3 sm:pb-0.5">
                   <span className="h-px w-3 bg-tx/25" aria-hidden="true" />
-                  30-day Ebbinghaus model
+                  Illustrated example
                 </span>
               </div>
 
@@ -752,14 +638,14 @@ export function RetentionCurve() {
                   ref={canvasRef}
                   className="w-full h-full block select-none"
                   role="img"
-                  aria-label="Living ink retention curve: unaided retrieval preserves 80% independent execution over 30 days while passive review fades to 18%."
+                  aria-label="Living ink divergence: an unaided retrieval trace holds its line over fourteen days while a re-reading trace evaporates. Illustrated example, not measured data."
                 />
               </div>
 
               {/* Academic Citation Footer */}
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-tx-3 font-mono border-t border-tx/5 pt-2">
-                <span>Empirical basis: Roediger &amp; Karpicke (2006); Karpicke &amp; Blunt (2011)</span>
-                <span>Living ink physics · Pinned scroll stage</span>
+                <span>Retrieval-practice literature: Roediger &amp; Karpicke (2006); Karpicke &amp; Blunt (2011)</span>
+                <span>Illustrated example · Scroll-scrubbed ink</span>
               </div>
             </div>
           </div>

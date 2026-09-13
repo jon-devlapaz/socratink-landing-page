@@ -153,7 +153,7 @@ One centered measure governs the page: `.content-wrap` (max 72rem/1152px, 1rem g
 
 Composition is two-column editorial that collapses honestly. The hero pairs copy (max 490px card) with the ink subject at 1.15fr/0.85fr, stacking to one column under 768px with the scene first and compacted. Disciplines, retention, and how-it-works all use 12-column grids on desktop (picker/ledger/tabs at 5, dossier/canvas/window at 7); memory runs three hairline-topped columns from 768px up. The close pairs the display headline with the CTA block at 1.2fr/0.8fr until 900px, then stacks.
 
-Breakpoints are content-driven, not device-driven: 420px swaps the nav CTA to its short label; 640px widens gutters and lifts type steps; 768px collapses the hero, memory, and retention grids; 860–900px stacks the close and hides the horizon oval on phones; 1024px opens the discipline and window grids. Touch targets hold 44px minimums throughout, and every anchor section carries scroll margin for the fixed nav.
+Breakpoints are content-driven, not device-driven: 640px swaps the nav CTA to its short label while widening gutters and lifting type steps; 768px collapses the hero, memory, and retention grids; 860–900px stacks the close and hides the horizon oval on phones; 1024px opens the discipline and window grids. Touch targets hold 44px minimums throughout, and every anchor section carries scroll margin for the fixed nav.
 
 ## Elevation & Depth
 
@@ -199,7 +199,7 @@ Refined and restrained: controls answer every press in 180ms with a 0.96 scale s
 
 - **Bar:** fixed, paper at 80% with extra-large backdrop blur, a 5% bottom hairline, and a 2.5rem inner row inside the 72rem measure. Safe-area aware.
 - **Links:** small graphite items that warm to ink on hover; keyboard focus shows the standard ring. Under 768px they collapse behind a 20px three-line menu button (1.75px rounded strokes) into a paper-95% dropdown with 44px rows.
-- **Trailing cluster:** appearance toggle, ghost Log in (hidden on small phones), and the primary CTA — which swaps to its short label under 420px.
+- **Trailing cluster:** appearance toggle, ghost Log in (hidden on small phones), and the primary CTA — which swaps to its short label under 640px.
 
 ### Wordmark
 
@@ -235,7 +235,7 @@ Refined and restrained: controls answer every press in 180ms with a 0.96 scale s
 
 ### Memory columns
 
-- **Record:** three hairline-topped columns, each opening with a plain 1.25rem sans title answered by a 1.1rem serif sub-line, a bespoke small illustration (accumulation timeline, open-format tiles, agency ledger rows), and graphite body. No cards, no boxes — the rule and the rhythm are the container.
+- **Record:** three hairline-topped columns, each opening with a plain 1.25rem sans title answered by a 1.1rem serif sub-line, a bespoke small illustration (fading-rail accumulation timeline with haloed terminal bead, open-format tiles with mono extension tags, agency ledger rows with dotted leaders), and graphite body. No cards, no boxes — the rule and the rhythm are the container.
 
 ### Footer bands
 

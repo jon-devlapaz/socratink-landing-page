@@ -103,7 +103,7 @@
       { "name": "preloader-sweep", "value": "0.85s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Compositor-only Verdigris top bar on first paint; hidden under reduced-motion." }
     ],
     "breakpoints": [
-      { "name": "cta-short", "value": "420px" },
+      { "name": "cta-short", "value": "640px" },
       { "name": "sm", "value": "640px" },
       { "name": "stack", "value": "768px" },
       { "name": "close-phone", "value": "860px" },
@@ -117,7 +117,7 @@
       "kind": "button",
       "refersTo": "button-accent",
       "description": "The one action per region that leaves the page; solid Verdigris with a 1.08 brightness lift.",
-      "html": "<a class=\"ds-btn-accent\" href=\"#\">Start a 5-minute diagnostic <span aria-hidden=\"true\">↗</span></a>",
+      "html": "<a class=\"ds-btn-accent\" href=\"#\">Start a conversation <span aria-hidden=\"true\">↗</span></a>",
       "css": ".ds-btn-accent { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 0.6rem; padding: 0.75rem 1.25rem; min-height: 44px; font-family: Inter, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; color: var(--accent-ink); background: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 82%, #100f0f); box-shadow: 0 4px 14px -3px rgba(0, 0, 0, 0.16); text-decoration: none; white-space: nowrap; transition: filter 180ms cubic-bezier(0.2, 0, 0, 1), scale 180ms cubic-bezier(0.2, 0, 0, 1); } .ds-btn-accent:hover { filter: brightness(1.08); } .ds-btn-accent:active { scale: 0.96; } .ds-btn-accent:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
     },
     {
@@ -125,7 +125,7 @@
       "kind": "button",
       "refersTo": "button-primary",
       "description": "Tonal ink-on-paper button with inset highlight and press shadow; the nav CTA.",
-      "html": "<a class=\"ds-btn-primary\" href=\"#\">Try the free diagnostic</a>",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\">Start a conversation</a>",
       "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 0.6rem; padding: 0.55rem 0.9rem; min-height: 44px; font-family: Inter, system-ui, sans-serif; font-size: 0.8125rem; font-weight: 500; color: var(--tx); background: color-mix(in srgb, var(--paper-2) 88%, var(--paper)); border: 1px solid color-mix(in srgb, var(--tx) 10%, transparent); box-shadow: var(--btn-primary-shadow); text-decoration: none; transition: background-color 180ms cubic-bezier(0.2, 0, 0, 1), border-color 180ms cubic-bezier(0.2, 0, 0, 1), box-shadow 180ms cubic-bezier(0.2, 0, 0, 1), scale 180ms cubic-bezier(0.2, 0, 0, 1); } .ds-btn-primary:hover { background: color-mix(in srgb, var(--ui) 75%, var(--paper)); border-color: color-mix(in srgb, var(--tx) 16%, transparent); box-shadow: var(--btn-primary-shadow-hover); } .ds-btn-primary:active { scale: 0.96; } .ds-btn-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
     },
     {
@@ -141,7 +141,7 @@
       "kind": "nav",
       "refersTo": null,
       "description": "Fixed frosted bar: ink-dot brand, graphite links warming to ink, tonal CTA.",
-      "html": "<nav class=\"ds-nav\"><span class=\"ds-nav-brand\"><span class=\"ds-nav-dot\"></span><span>Socratink</span></span><span class=\"ds-nav-links\"><a href=\"#\">Why it sticks</a><a href=\"#\">How it works</a><a href=\"#\">Disciplines</a></span><a class=\"ds-nav-cta\" href=\"#\">Try free</a></nav>",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-nav-brand\"><span class=\"ds-nav-dot\"></span><span>Socratink</span></span><span class=\"ds-nav-links\"><a href=\"#\">Why it sticks</a><a href=\"#\">How it works</a><a href=\"#\">Disciplines</a></span><a class=\"ds-nav-cta\" href=\"#\">Start</a></nav>",
       "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.5rem 1rem; background: color-mix(in srgb, var(--paper) 80%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--tx) 5%, transparent); font-family: Inter, system-ui, sans-serif; } .ds-nav-brand { display: inline-flex; align-items: center; gap: 0.625rem; font-size: 0.875rem; font-weight: 600; color: var(--tx); } .ds-nav-dot { width: 0.625rem; height: 0.625rem; border-radius: 999px; background: var(--tx); } .ds-nav-links { display: inline-flex; gap: 1.25rem; } .ds-nav-links a { color: var(--tx-2); font-size: 0.875rem; text-decoration: none; padding: 0.5rem 0.25rem; } .ds-nav-links a:hover { color: var(--tx); } .ds-nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-nav-cta { display: inline-flex; align-items: center; border-radius: 0.6rem; padding: 0.55rem 0.9rem; font-size: 0.8125rem; font-weight: 500; color: var(--tx); background: color-mix(in srgb, var(--paper-2) 88%, var(--paper)); border: 1px solid color-mix(in srgb, var(--tx) 10%, transparent); box-shadow: var(--btn-primary-shadow); text-decoration: none; } .ds-nav-cta:hover { background: color-mix(in srgb, var(--ui) 75%, var(--paper)); }"
     },
     {

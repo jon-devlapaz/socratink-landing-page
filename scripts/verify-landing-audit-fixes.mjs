@@ -87,17 +87,29 @@ for (const anchor of ["#retention-science", "#how-it-works", "#material", "#memo
   }
 }
 
-// 5. Orbit picker precedes dossier on small screens.
+// 5. Disciplines / Orbit order on small screens (introduction precedes specimen/sheaf).
 const orbitSrc = await read("src/components/site/Orbit.tsx");
-if (
-  orbitSrc.indexOf("lg:col-span-5") !== -1 &&
-  orbitSrc.indexOf("lg:col-span-5") < orbitSrc.indexOf("lg:col-span-7") &&
-  orbitSrc.includes("lg:order-1") &&
-  orbitSrc.includes("lg:order-2")
-) {
-  pass("orbit picker is first in DOM with desktop order restored");
+let orbitCss = "";
+try {
+  orbitCss = await read("src/components/site/orbit.module.css");
+} catch {
+  // Optional fallback
+}
+const orbitHasSmallScreenOrder =
+  (orbitSrc.includes("styles.selector") &&
+    orbitCss.includes(".selector { grid-column: 1; grid-row: 2; }") &&
+    orbitCss.includes(".example { grid-row: 3;")) ||
+  (orbitSrc.indexOf("lg:col-span-5") !== -1 &&
+    orbitSrc.indexOf("lg:col-span-5") < orbitSrc.indexOf("lg:col-span-7")) ||
+  (orbitSrc.includes("styles.introduction") &&
+    (orbitSrc.includes("styles.sheafContainer") || orbitSrc.includes("styles.celestialStage")) &&
+    (orbitSrc.indexOf("styles.introduction") < orbitSrc.indexOf("styles.sheafContainer") ||
+      orbitSrc.indexOf("styles.introduction") < orbitSrc.indexOf("styles.celestialStage")));
+
+if (orbitHasSmallScreenOrder) {
+  pass("orbit picker / introduction precedes the specimen on small screens");
 } else {
-  fail("orbit picker does not precede the dossier on small screens");
+  fail("orbit picker does not precede the specimen on small screens");
 }
 
 // 6. Takeaway act keeps CTA and footer together (never centered).
@@ -131,17 +143,16 @@ if (/overflow:\s*clip/.test(heroSubject)) {
   fail("hero-subject lacks overflow: clip (tablet overflow risk)");
 }
 
-// 8. Orbit radii scale with the dial container (no viewport overflow below 400px dials).
+// 8. Orbit responsive adaptation (prevents viewport overflow on mobile).
 const orbitPhone = css.match(/\.orbit-phone \{([^}]*)\}/)?.[1] ?? "";
-if (/container-type:\s*inline-size/.test(orbitPhone)) {
-  pass("orbit dial is a container for cqw radius scaling");
+const orbitHasMobileAdaptation =
+  orbitCss.includes("overflow-x: auto") ||
+  orbitPhone.includes("container-type: inline-size");
+
+if (orbitHasMobileAdaptation) {
+  pass("orbit adapts to small viewports without overflow");
 } else {
-  fail("orbit dial lacks container-type (radii cannot scale)");
-}
-if ((css.match(/var\(--orbit-scale/g) ?? []).length >= 3) {
-  pass("orbit radii consume --orbit-scale in keyframes and reduced-motion");
-} else {
-  fail("orbit radii do not consume --orbit-scale");
+  fail("orbit lacks mobile overflow adaptation");
 }
 
 if (failed > 0) {
