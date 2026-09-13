@@ -6,10 +6,10 @@ import styles from "./ending.module.css";
 
 export function FinalCta() {
   return (
-    <section id="takeaway" className={styles.close} aria-labelledby="close-title">
+    <section id="takeaway" className={styles.close} aria-labelledby="close-title" data-story-section>
       <div className={`content-wrap ${styles.closeContent}`}>
-        <div className={styles.invitation}>
-          <h2 id="close-title" className="notebook-display">{finalCta.title}</h2>
+        <div className={styles.invitation} data-reveal-item>
+          <h2 id="close-title" className="notebook-display" data-split-reveal>{finalCta.title}</h2>
           <p className={styles.closePrompt}>{finalCta.prompt}</p>
           <Link href={finalCta.button.href} className="btn-accent">
             {finalCta.button.label}<span aria-hidden="true">↗</span>
@@ -23,6 +23,7 @@ export function FinalCta() {
           width={360}
           height={360}
           sizes="(max-width: 640px) 160px, 360px"
+          data-reveal-item
         />
       </div>
       <Footer />

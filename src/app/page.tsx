@@ -6,6 +6,7 @@ import { Hero } from "@/components/site/Hero";
 import { HowItWorks } from "@/components/site/how-it-works/HowItWorks";
 import { RetentionCurve } from "@/components/site/RetentionCurve";
 import { Memory } from "@/components/site/Memory";
+import { Faq } from "@/components/site/Faq";
 import { Nav } from "@/components/site/Nav";
 import { Orbit } from "@/components/site/Orbit";
 
@@ -36,6 +37,11 @@ export default function Home() {
         <div className="folio-section-track folio-track-memory">
           <div className="folio-section-shell">
             <Memory />
+          </div>
+        </div>
+        <div className="folio-section-track folio-track-faq" data-story-section>
+          <div className="folio-section-shell">
+            <Faq />
           </div>
         </div>
         <div className="folio-section-track folio-track-takeaway">

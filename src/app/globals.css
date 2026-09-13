@@ -549,6 +549,11 @@ html[data-scroll-mode="curtain"] .folio-track-memory {
   z-index: 35;
 }
 
+html:not([data-scroll-mode]) .folio-track-faq,
+html[data-scroll-mode="curtain"] .folio-track-faq {
+  z-index: 38;
+}
+
 html:not([data-scroll-mode]) .folio-track-takeaway,
 html[data-scroll-mode="curtain"] .folio-track-takeaway {
   z-index: 40;

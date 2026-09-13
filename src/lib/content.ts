@@ -34,6 +34,7 @@ export const nav = {
     { label: "Disciplines", href: "#material" },
     { label: "Why it sticks", href: "#retention-science" },
     { label: "Memory", href: "#memory" },
+    { label: "FAQ", href: "#faq" },
   ],
   login: { label: "Log in", href: `${site.appUrl}login` },
   cta: { label: "Try the free diagnostic", shortLabel: "Try free", href: site.appUrl },
@@ -249,6 +250,50 @@ export const memory = {
 
 export type MemoryStageId = (typeof memory.stages)[number]["id"];
 
+export const faq = {
+  eyebrow: "Frequently inspected",
+  title: "A few fair questions\nbefore you begin.",
+  deck: "High-consideration learning demands honest answers. Here is how Socratink approaches cognitive resistance, grading integrity, and data ownership.",
+  items: [
+    {
+      id: "chatbots",
+      question: "How is Socratink different from ChatGPT, Claude, or NotebookLM?",
+      answer:
+        "Conventional chatbots are designed to please you by generating complete answers. That creates the recognition illusion: reading fluent text feels like understanding, but the cognitive work was done by the model. Socratink uses a strict Socratic dialogue grammar where the AI is forbidden from giving solutions directly. It forces pre-commit predictions and nudges you through productive struggle until you formulate the mechanism yourself.",
+    },
+    {
+      id: "syllabus",
+      question: "Can I bring my own syllabus, textbook outline, or board exam prep?",
+      answer:
+        "Yes. Paste any syllabus, textbook table of contents, or certification outline. Socratink compiles the material into a first-principles Directed Acyclic Graph (DAG) of prerequisite necessity, isolating the bottleneck threshold concepts (†) that you must master before downstream applications will hold.",
+    },
+    {
+      id: "blind-grading",
+      question: "What is the Blind Assessor and why does separation of powers matter?",
+      answer:
+        "When the same AI agent tutors you and grades you, it suffers from conversational halo: it knows what hints it gave you and gives you the benefit of the doubt. Socratink separates teaching from evaluation. An independent Blind Assessor evaluates your unaided retrieval in a completely isolated context without access to the coaching transcript. Every grade is an immutable written receipt on disk.",
+    },
+    {
+      id: "fsrs",
+      question: "How does FSRS-4.5 prevent the Harvard 2025 retention decay effect?",
+      answer:
+        "A 2025 Harvard study (Kestin et al.) confirmed that immediate gains from AI tutoring evaporate by day 10 without structured retrieval practice. Socratink integrates the Free Spaced Repetition Scheduler (FSRS-4.5) to mathematically model your retrievability decay curve R = (1 + F · t / S)⁻¹. It schedules unaided cold probes right before stability drops below target, ensuring retention compounds past 30 days.",
+    },
+    {
+      id: "time",
+      question: "How much time does a single diagnostic session take?",
+      answer:
+        "3 to 5 minutes per threshold node. Because you are explaining the mechanism cold rather than grinding through 50 passive multiple-choice questions, the cognitive yield per minute is extraordinarily high. You pinpoint your exact conceptual gap in minutes.",
+    },
+    {
+      id: "privacy",
+      question: "Does Socratink use my thinking to train public models?",
+      answer:
+        "Never. Your transcripts, diagnostic attempts, and receipts are stored locally on your device and belong strictly to you. You can export your entire ledger anytime as Markdown, JSON, or an Anki deck, or wipe it with one click. We never sell user data or train public foundation models on learner reasoning.",
+    },
+  ],
+} as const;
+
 
 export const finalCta = {
   title: "Don't outsource your thinking.\nKnow what you actually know.",
@@ -263,6 +308,7 @@ export const footer = {
     { label: "Disciplines", href: "#material" },
     { label: "Why it sticks", href: "#retention-science" },
     { label: "Memory", href: "#memory" },
+    { label: "FAQ", href: "#faq" },
   ],
   legal: [
     { label: "Privacy", href: "/privacy" },

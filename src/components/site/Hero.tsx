@@ -34,9 +34,9 @@ export function Hero() {
   const testMorph = useSyncExternalStore(subscribeLocation, getQueryMorph, () => undefined);
 
   return (
-    <section id="top" className="hero-act">
+    <section id="top" className="hero-act" data-story-section>
       <div className="hero-grid content-wrap">
-        <div className="hero-copy">
+        <div className="hero-copy" data-reveal-item>
           <div className="hero-eyebrow">{notebook.heroEyebrow}</div>
           <h1 className="hero-title notebook-display">
             {notebook.heroTitle}
@@ -59,7 +59,7 @@ export function Hero() {
             <p className="hero-trust">{notebook.heroTrust}</p>
           </div>
         </div>
-        <figure className="hero-scene">
+        <figure className="hero-scene" data-reveal-item>
           <div className="hero-subject">
             {testShape ? (
               <OrganicSphere size={560} shape={testShape} morph={testMorph} />
