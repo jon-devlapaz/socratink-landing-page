@@ -15,17 +15,17 @@ const MILESTONES: MilestoneData[] = [
     day: "Day 1",
     headline: "The Recognition Illusion",
     summary:
-      "Reading an answer key feels easy because the solution is in front of you. Reconstructing it from memory takes effort—and that effort is what makes it stick.",
-    unaided: "Unaided: the mechanism gets named",
-    passive: "Passive: fluency mistaken for knowledge",
+      "Chatbots and answer keys create fluency without mastery: reading feels effortless because the answer is already there. Productive struggle with prediction gates forces the neural pathway to form.",
+    unaided: "Unaided: mechanism named",
+    passive: "Passive: fluency mistaken for mastery",
   },
   {
     day: "Day 14",
     headline: "Answered Cold",
     summary:
-      "Two weeks later, a different problem. No notes, no hints—the same reasoning, reconstructed from memory.",
-    unaided: "Unaided: the mechanism held",
-    passive: "Passive: the trace evaporated",
+      "Harvard 2025 (Kestin et al.) proved AI tutoring gains decay without spaced retrieval. FSRS-4.5 schedules the cold probe at the stability boundary. No notes, no hints—the reasoning reconstructed from memory.",
+    unaided: "Unaided: mechanism held (R ≈ 84%)",
+    passive: "Passive: trace evaporated (R ≈ 18%)",
   },
 ];
 
@@ -644,7 +644,7 @@ export function RetentionCurve() {
 
               {/* Academic Citation Footer */}
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-tx-3 font-mono border-t border-tx/5 pt-2">
-                <span>Retrieval-practice literature: Roediger &amp; Karpicke (2006); Karpicke &amp; Blunt (2011)</span>
+                <span>Retrieval science: Roediger &amp; Karpicke (2006); Kestin et al. (Harvard 2025); FSRS-4.5 model</span>
                 <span>Illustrated example · Scroll-scrubbed ink</span>
               </div>
             </div>

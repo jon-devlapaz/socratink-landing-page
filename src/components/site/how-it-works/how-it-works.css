@@ -63,13 +63,20 @@
 .how-folio-header {
   position: sticky; top: 64px; z-index: 1; background: var(--paper);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
   padding: 0 0 10px;
   border-bottom: 1px solid color-mix(in srgb, var(--tx) 16%, transparent);
   color: var(--tx-2);
   font: 11px/1.4 ui-monospace, monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+.how-folio-context {
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.06em;
 }
 .how-manuscript { position: relative; }
 .how-manuscript > div { padding-block: 10px; border-bottom: 1px solid color-mix(in srgb, var(--tx) 10%, transparent); }

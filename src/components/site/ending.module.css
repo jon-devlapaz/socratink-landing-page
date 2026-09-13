@@ -901,7 +901,50 @@
 .ledgerQuote { margin: 0; font-family: var(--sc-font-display), Georgia, serif; font-size: 1.3125rem; line-height: 1.4; color: var(--tx); }
 .ledgerBody { font-size: 0.9375rem; line-height: 1.65; color: var(--tx); max-width: 52ch; }
 .ledgerNote { font-size: 0.8125rem; line-height: 1.6; color: var(--tx-2); }
-.ledgerFoot { margin-top: 1.75rem; padding-top: 1rem; border-top: 1px solid color-mix(in srgb, var(--tx) 10%, transparent); font-size: 0.75rem; color: var(--tx-3); }
+.ledgerFootWrap {
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--tx) 10%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+.exportRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font: 0.6875rem/1.4 var(--font-mono);
+  color: var(--tx-2);
+}
+.exportLabel {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tx-3);
+}
+.exportTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--tx) 14%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--paper) 60%, var(--paper-2));
+  color: var(--tx);
+  font: 500 0.6875rem/1.2 var(--font-mono);
+}
+.exportTag code {
+  color: var(--accent);
+}
+.ledgerFoot {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--tx-3);
+}
 
 @media (max-width: 767px) {
   .ledgerEntry { padding-bottom: 1.75rem; }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { memory } from "@/lib/content";
 import styles from "./ending.module.css";
 
 const LEDGER = [
@@ -8,21 +9,21 @@ const LEDGER = [
     day: "Day 01 · Cold baseline",
     quote: "More responses should give us a more accurate estimate…",
     body: null as string | null,
-    note: "Preserved verbatim — the authored sentence, kept.",
+    note: "Preserved verbatim — authored before exposure. No multiple choice, no hints.",
     node: "hollow" as const,
   },
   {
     day: "Day 03 · Socratic repair",
     quote: null,
     body: "Variance decoupled from bias: “measuring 100,000 people just gives a very precise estimate of tall people.”",
-    note: null,
+    note: "Threshold explorable verified · Cause isolated.",
     node: "filled" as const,
   },
   {
-    day: "Day 14 · Unaided check",
+    day: "Day 14 · Unaided check (FSRS probe)",
     quote: null,
-    body: "Mechanism recalled cold, without scaffolding. The bead closes the thread from the divergence above.",
-    note: null,
+    body: "Mechanism recalled cold without scaffolding: “Large N reduces variance toward the sample’s expected value; it does not shift that expectation when selection is non-uniform.”",
+    note: "Blind assessor receipt: Pass · Retrievability R ≥ 84%",
     node: "terminal" as const,
   },
 ];
@@ -118,26 +119,21 @@ export function Memory() {
     <section id="memory" ref={sectionRef} className={styles.memory} aria-labelledby="memory-title">
       <div className={`content-wrap ${styles.memoryGrid}`}>
         <div className={styles.memoryCopy}>
-          <span className={styles.memoryEyebrow}>Longitudinal record</span>
+          <span className={styles.memoryEyebrow}>{memory.eyebrow}</span>
           <h2 id="memory-title" className="notebook-display">
-            Your thinking,
-            <br />
-            proven across time.
+            {memory.title}
           </h2>
           <p className={styles.memoryDeck}>
-            An answer tells you what happened once. A record proves that your understanding
-            didn&apos;t evaporate before test day.
+            {memory.body}
           </p>
 
           <p className={styles.memoryPrinciple}>
-            The original words stay.
-            <br />
-            The proof compounds around them.
+            {memory.principle}
           </p>
         </div>
 
         <div className={styles.ledgerWrap}>
-          <ol className={styles.ledger} aria-label="Longitudinal record">
+          <ol className={styles.ledger} aria-label="Verifiable learning ledger">
             {LEDGER.map((entry, index) => (
               <li key={entry.day} className={styles.ledgerEntry} style={entryStyle(index)}>
                 <span className={styles.ledgerRail} aria-hidden="true">
@@ -164,7 +160,19 @@ export function Memory() {
               </li>
             ))}
           </ol>
-          <p className={styles.ledgerFoot}>Illustrated record · No measured outcome is claimed.</p>
+          <div className={styles.ledgerFootWrap}>
+            <div className={styles.exportRow}>
+              <span className={styles.exportLabel}>Client export:</span>
+              {memory.exportFormats.map((fmt) => (
+                <span key={fmt.label} className={styles.exportTag}>
+                  {fmt.label} <code>{fmt.ext}</code>
+                </span>
+              ))}
+            </div>
+            <p className={styles.ledgerFoot}>
+              Illustrated record · No measured outcome is claimed · {memory.privacyNotice}
+            </p>
+          </div>
         </div>
       </div>
     </section>

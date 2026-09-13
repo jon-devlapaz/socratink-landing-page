@@ -37,6 +37,7 @@ export function Hero() {
     <section id="top" className="hero-act">
       <div className="hero-grid content-wrap">
         <div className="hero-copy">
+          <div className="hero-eyebrow">{notebook.heroEyebrow}</div>
           <h1 className="hero-title notebook-display">
             {notebook.heroTitle}
           </h1>

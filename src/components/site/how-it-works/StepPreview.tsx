@@ -32,6 +32,7 @@ export function StepPreview({ progress, isReducedMotion }: StepPreviewProps) {
   return (
     <figure className="how-folio" style={inkStyle} aria-label="Example session: a target becomes a record of learner-authored evidence">
       <figcaption className="how-folio-header">
+        <span className="how-folio-context">{previewData.target.activeContext}</span>
         <span className="how-folio-subject">{previewData.target.category}</span>
       </figcaption>
       <div className="how-manuscript">
@@ -55,7 +56,7 @@ export function StepPreview({ progress, isReducedMotion }: StepPreviewProps) {
           </div>
         </div>
       </div>
-      <p className="how-folio-footer">Illustration only. This walkthrough stores nothing.</p>
+      <p className="how-folio-footer">Specimen diagnostic session · Graded blind · Receipt logged to local ledger on live app.</p>
     </figure>
   );
 }

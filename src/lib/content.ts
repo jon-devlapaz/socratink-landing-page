@@ -16,9 +16,9 @@
 
 export const site = {
   name: "Socratink",
-  tagline: "Know what you actually know",
+  tagline: "The learning engine that refuses to do the thinking for you",
   description:
-    "A learning agent for hard material. It makes you do the thinking, keeps the evidence of what you produced, and is built to come back later to see whether the capability became yours.",
+    "Master hard material from first principles. Deconstruct any syllabus into causal graphs, struggle through threshold concepts with a strict Socratic tutor, and prove retention with blind-graded receipts.",
   url: "https://socratink.ai",
   appUrl: "https://app.socratink.ai/",
   year: new Date().getFullYear(),
@@ -192,9 +192,9 @@ export const orbit = {
 } as const;
 
 export const memory = {
-  eyebrow: "Longitudinal record",
+  eyebrow: "Verifiable learning ledger",
   title: "Your thinking,\nproven across time.",
-  body: "An answer tells you what happened once. A longitudinal record proves your understanding didn't evaporate. Track how raw intuition transforms into unshakeable recall before test day.",
+  body: "An answer tells you what happened once. A verifiable ledger proves your understanding didn't evaporate. Track how raw intuition transforms into unshakeable recall before test day.",
   principle: "The original words stay.\nThe proof compounds around them.",
   stages: [
     {
@@ -244,17 +244,17 @@ export const memory = {
     { label: "Anki Deck", ext: ".csv" },
   ],
   ownership: "Your records belong to you. Export as Markdown or JSON, or delete them anytime. Private sessions are never used to train public models.",
-  privacyNotice: "Zero public model training · Your thinking stays yours · Client-side export",
+  privacyNotice: "Zero public model training · Your thinking stays yours · Client-side receipt ledger",
 } as const;
 
 export type MemoryStageId = (typeof memory.stages)[number]["id"];
 
 
 export const finalCta = {
-  title: "Know what you\nactually know.",
-  prompt: "Start with one question.",
+  title: "Don't outsource your thinking.\nKnow what you actually know.",
+  prompt: "Start with one diagnostic prompt or deconstruct your syllabus.",
   button: { label: "Try the free diagnostic", href: site.appUrl },
-  sub: "Free · No sign-up required · Works in your browser",
+  sub: "Free · No sign-up required · Works directly in your browser",
 } as const;
 
 export const footer = {
@@ -273,14 +273,14 @@ export const footer = {
 } as const;
 
 
-/** Approved hero presentation, retained while restoring the original page story. */
+/** Approved hero presentation, elevated to first-principles learning engine manifesto. */
 export const notebook = {
-  heroEyebrow: "Self-test engine",
-  heroTitle: "Practice hard material.\nKnow what you actually know before test day.",
+  heroEyebrow: "First-principles learning engine",
+  heroTitle: "The learning engine that refuses\nto do the thinking for you.",
   heroBody:
-    "Answer one realistic exam prompt from memory. No multiple choice, no notes, and no AI autocomplete. You will immediately see which parts of your reasoning hold up and where the gaps are.",
+    "Chatbots make you nod today and forget next week. Socratink deconstructs any syllabus into prerequisite graphs, forces productive Socratic struggle with prediction gates, and proves retention with blind-graded receipts.",
   heroTrust: "Free trial · No sign-up required · Works directly in your browser",
-  heroNote: "One realistic prompt · Answered from memory",
+  heroNote: "Deconstruct a syllabus · Answer cold from memory",
 } as const;
 
 
