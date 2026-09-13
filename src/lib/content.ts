@@ -37,11 +37,11 @@ export const nav = {
     { label: "FAQ", href: "#faq" },
   ],
   login: { label: "Log in", href: `${site.appUrl}login` },
-  cta: { label: "Try the free diagnostic", shortLabel: "Try free", href: site.appUrl },
+  cta: { label: "Try a 3-minute diagnostic", shortLabel: "Try free", href: site.appUrl },
 } as const;
 
 export const hero = {
-  primary: { label: "Try the free diagnostic", href: site.appUrl },
+  primary: { label: "Try a 3-minute diagnostic", href: site.appUrl },
   secondary: { label: "See how it works", href: "#how-it-works" },
 } as const;
 
@@ -298,8 +298,8 @@ export const faq = {
 export const finalCta = {
   title: "Don't outsource your thinking.\nKnow what you actually know.",
   prompt: "Start with one diagnostic prompt or deconstruct your syllabus.",
-  button: { label: "Try the free diagnostic", href: site.appUrl },
-  sub: "Free · No sign-up required · Works directly in your browser",
+  button: { label: "Try a 3-minute diagnostic", href: site.appUrl },
+  sub: "Free 3-minute diagnostic · No sign-up required · Works directly in your browser",
 } as const;
 
 export const footer = {
@@ -325,7 +325,9 @@ export const notebook = {
   heroTitle: "The learning engine that refuses\nto do the thinking for you.",
   heroBody:
     "Chatbots make you nod today and forget next week. Socratink deconstructs any syllabus into prerequisite graphs, forces productive Socratic struggle with prediction gates, and proves retention with blind-graded receipts.",
-  heroTrust: "Free trial · No sign-up required · Works directly in your browser",
+  heroTrust: "Free 3-minute diagnostic · No sign-up required · Works directly in your browser",
+  heroCurriculaLabel: "Curricula",
+  heroCurricula: "USMLE Step 1 · California Bar · AWS Solutions · CFA · Econometrics",
   heroNote: "Deconstruct a syllabus · Answer cold from memory",
 } as const;
 

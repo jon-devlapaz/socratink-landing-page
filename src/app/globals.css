@@ -748,6 +748,30 @@ html[data-scroll-mode="curtain"] .folio-section-shell {
   color: var(--tx-2);
   letter-spacing: 0.01em;
 }
+
+.hero-curricula {
+  margin-top: 0.625rem;
+  padding-top: 0.625rem;
+  border-top: 1px dashed color-mix(in srgb, var(--tx) 14%, transparent);
+  font: 0.6875rem/1.5 var(--font-mono);
+  color: var(--tx-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.45rem;
+}
+
+.hero-curricula-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.hero-curricula-tags {
+  color: var(--tx-2);
+}
+
 .hero-scene { min-width: 0; }
 .hero-subject { position: relative; height: 25rem; overflow: clip; }
 .hero-subject::before {

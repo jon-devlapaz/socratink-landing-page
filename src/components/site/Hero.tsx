@@ -57,6 +57,10 @@ export function Hero() {
               </a>
             </div>
             <p className="hero-trust">{notebook.heroTrust}</p>
+            <div className="hero-curricula">
+              <span className="hero-curricula-label">{notebook.heroCurriculaLabel}:</span>
+              <span className="hero-curricula-tags">{notebook.heroCurricula}</span>
+            </div>
           </div>
         </div>
         <figure className="hero-scene" data-reveal-item>
