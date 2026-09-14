@@ -61,6 +61,7 @@ try {
       null,
       { timeout: 8000 },
     ).catch(() => {});
+    await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
     await page.waitForTimeout(400);
 
     const metrics = await page.evaluate((chromePx) => {
