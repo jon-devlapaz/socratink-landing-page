@@ -54,6 +54,7 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: dark)", color: "#100f0f" },
   ],
   colorScheme: "light dark",
+  viewportFit: "cover",
 };
 
 const jsonLd = {
