@@ -1,0 +1,4 @@
+interface:
+  display_name: "Improve Perceived Value"
+  short_description: "Diagnose value gaps and design ethical tests"
+  default_prompt: "Use $improve-perceived-value to diagnose this offering and propose the strongest ethical value experiment."

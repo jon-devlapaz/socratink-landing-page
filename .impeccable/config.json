@@ -1,0 +1,352 @@
+{
+  "detector": {
+    "ignoreRules": [
+      "cream-palette",
+      "ai-color-palette"
+    ],
+    "ignoreFiles": [
+      "src/components/ink/InkLab.tsx",
+      "src/components/ink/InkLabV2.tsx",
+      "src/lib/ink/scene.ts",
+      "src/lib/sphere/organic-sphere.ts"
+    ],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-09-11T17:45:48.223Z",
+        "reason": "Archival notebook UI sans pairing with Newsreader serif"
+      },
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "src/app/globals.css"
+        ],
+        "createdAt": "2026-09-12T03:11:47.306Z",
+        "reason": "user confirmed: hero stage intentionally crops transparent orb canvas"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#8b5cf6",
+        "createdAt": "2026-09-12T03:43:49.128Z",
+        "reason": "ink-lab sculpt state (lab-only chrome)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#10b981",
+        "createdAt": "2026-09-12T03:43:49.147Z",
+        "reason": "ink-lab eureka state (lab-only chrome)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#000000",
+        "createdAt": "2026-09-12T03:43:49.166Z",
+        "reason": "wash token dark pole (globals.css tokens)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.16)",
+        "createdAt": "2026-09-12T03:43:49.183Z",
+        "reason": "shadow vocabulary (DESIGN.md Elevation)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.2)",
+        "createdAt": "2026-09-12T03:43:49.200Z",
+        "reason": "shadow vocabulary (DESIGN.md Elevation)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(255, 255, 255, 0.09)",
+        "createdAt": "2026-09-12T03:43:49.217Z",
+        "reason": "dark shadow vocabulary (DESIGN.md Elevation)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.55)",
+        "createdAt": "2026-09-12T03:43:49.233Z",
+        "reason": "dark shadow vocabulary (DESIGN.md Elevation)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#fff",
+        "createdAt": "2026-09-12T03:43:49.249Z",
+        "reason": "ink-lab chrome highlights (lab-only)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#f59e0b",
+        "createdAt": "2026-09-12T03:43:49.267Z",
+        "reason": "ink-lab question state (lab-only chrome)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ffffff",
+        "createdAt": "2026-09-12T03:43:49.284Z",
+        "reason": "wash token light pole (globals.css tokens)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(58, 169, 159, 0.065)",
+        "createdAt": "2026-09-12T03:43:49.302Z",
+        "reason": "token-derived accent wash (hero card)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#3aa99f",
+        "createdAt": "2026-09-12T03:43:49.320Z",
+        "reason": "dark accent fallback (sidecar dark field)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#059669",
+        "createdAt": "2026-09-12T03:43:49.338Z",
+        "reason": "ink-lab eureka deep (lab-only chrome)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(255, 255, 255, 0.25)",
+        "createdAt": "2026-09-12T03:43:49.355Z",
+        "reason": "ink-lab chrome (lab-only)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#e15549",
+        "createdAt": "2026-09-12T03:43:49.373Z",
+        "reason": "diagnostic window chrome, mock-only (DESIGN.md)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#e5a43b",
+        "createdAt": "2026-09-12T03:43:49.391Z",
+        "reason": "diagnostic window chrome, mock-only (DESIGN.md)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#56a858",
+        "createdAt": "2026-09-12T03:43:49.410Z",
+        "reason": "diagnostic window chrome, mock-only (DESIGN.md)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "0.75rem",
+        "createdAt": "2026-09-12T03:43:49.433Z",
+        "reason": "ink-lab chrome radii (lab-only)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "0.4rem",
+        "createdAt": "2026-09-12T03:43:49.450Z",
+        "reason": "skip-link + ink-lab chrome (sanctioned one-offs)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "0.65rem",
+        "createdAt": "2026-09-12T03:43:49.468Z",
+        "reason": "ink-lab chrome radii (lab-only)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "4px",
+        "createdAt": "2026-09-12T03:43:49.485Z",
+        "reason": "ink-lab chrome radii (lab-only)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "1.5rem",
+        "createdAt": "2026-09-12T03:43:49.504Z",
+        "reason": "ink-lab stage shell (lab-only)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "0.8rem",
+        "createdAt": "2026-09-12T03:43:49.524Z",
+        "reason": "ink-lab chrome radii (lab-only)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "0.55rem",
+        "createdAt": "2026-09-12T03:43:49.544Z",
+        "reason": "ink-lab chrome radii (lab-only)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "0.5rem",
+        "createdAt": "2026-09-12T03:43:49.563Z",
+        "reason": "ink-lab chrome radii (lab-only)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "1px",
+        "files": [
+          "src/components/ui/AnimatedCursor.tsx"
+        ],
+        "createdAt": "2026-09-12T03:43:49.581Z",
+        "reason": "cursor ring geometry"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.8125rem",
+        "createdAt": "2026-09-12T03:43:49.599Z",
+        "reason": "documented button/detail size (DESIGN.md Components)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.8rem",
+        "createdAt": "2026-09-12T03:43:49.617Z",
+        "reason": "footer quiet + ink-lab chrome (sanctioned)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.7rem",
+        "createdAt": "2026-09-12T03:43:49.635Z",
+        "reason": "ink-lab chrome (lab-only)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.875rem",
+        "createdAt": "2026-09-12T03:43:49.653Z",
+        "reason": "documented detail size (DESIGN.md Typography)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.65rem",
+        "createdAt": "2026-09-12T03:43:49.670Z",
+        "reason": "memory ext tags + lab micro labels (sanctioned)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.85rem",
+        "createdAt": "2026-09-12T03:43:49.687Z",
+        "reason": "ink-lab chrome (lab-only)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.68rem",
+        "createdAt": "2026-09-12T03:43:49.705Z",
+        "reason": "ink-lab chrome (lab-only)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.9375rem",
+        "createdAt": "2026-09-12T03:43:49.723Z",
+        "reason": "hero body sizes (sanctioned one-offs)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2rem",
+        "createdAt": "2026-09-12T03:43:49.741Z",
+        "reason": "documented headline step (DESIGN.md Typography)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.62rem",
+        "createdAt": "2026-09-12T03:43:49.758Z",
+        "reason": "footer kicker + lab micro label (sanctioned)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.1rem",
+        "createdAt": "2026-09-12T03:43:49.775Z",
+        "reason": "memory sub + lab (sanctioned)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.6875rem",
+        "createdAt": "2026-09-12T03:43:49.792Z",
+        "reason": "accepted legend recede size (DESIGN.md Components)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2.15rem",
+        "createdAt": "2026-09-12T03:43:49.809Z",
+        "reason": "hero display step (DESIGN.md Typography)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2.2rem",
+        "createdAt": "2026-09-12T03:43:49.826Z",
+        "reason": "documented display step (DESIGN.md Typography)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.05rem",
+        "createdAt": "2026-09-12T03:43:49.842Z",
+        "reason": "orbit dossier standfirst (DESIGN.md Components)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.35rem",
+        "createdAt": "2026-09-12T03:43:49.859Z",
+        "reason": "orbit blockquote floor (DESIGN.md Components)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.9rem",
+        "createdAt": "2026-09-12T03:43:49.876Z",
+        "reason": "footer CTA size (sanctioned one-off)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "4.5rem",
+        "createdAt": "2026-09-12T03:43:49.893Z",
+        "reason": "ink-lab chrome (lab-only)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "11px",
+        "createdAt": "2026-09-12T03:43:49.910Z",
+        "reason": "ink-lab chrome (lab-only)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.6rem",
+        "createdAt": "2026-09-12T03:43:49.928Z",
+        "reason": "ink-lab chrome (lab-only)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.82rem",
+        "createdAt": "2026-09-12T03:43:49.947Z",
+        "reason": "ink-lab chrome (lab-only)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.25rem",
+        "createdAt": "2026-09-12T03:43:49.966Z",
+        "reason": "memory column title (DESIGN.md Components)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2.6rem",
+        "createdAt": "2026-09-12T03:43:49.983Z",
+        "reason": "documented headline step (DESIGN.md Typography)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "3rem",
+        "createdAt": "2026-09-12T03:43:50.000Z",
+        "reason": "documented headline step (DESIGN.md Typography)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.5rem",
+        "createdAt": "2026-09-12T03:43:50.018Z",
+        "reason": "documented compact headline (DESIGN.md Typography)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.75rem",
+        "createdAt": "2026-09-12T03:43:50.039Z",
+        "reason": "documented compact headline (DESIGN.md Typography)"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "sfmono-regular",
+        "createdAt": "2026-09-12T03:43:50.060Z",
+        "reason": "instrument mono stacks (DESIGN.md Mono Instrument Rule)"
+      }
+    ]
+  }
+}

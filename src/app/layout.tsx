@@ -21,12 +21,12 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} • ${site.tagline}`,
+    default: `Make the thinking your own. • ${site.name}`,
     template: `%s • ${site.name}`,
   },
   description: site.description,
   openGraph: {
-    title: `${site.name} • ${site.tagline}`,
+    title: `Make the thinking your own. • ${site.name}`,
     description: site.description,
     url: site.url,
     siteName: site.name,
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name} • ${site.tagline}`,
+    title: `Make the thinking your own. • ${site.name}`,
     description: site.description,
     images: ["/brand/living-ink-poster.png"],
   },
@@ -56,6 +56,34 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: site.name,
+  applicationCategory: "EducationalApplication",
+  operatingSystem: "Web browser",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+    availability: "https://schema.org/OnlineOnly",
+  },
+  description: site.description,
+  url: site.url,
+  featureList: [
+    "Voice-first Socratic dialogue",
+    "Refusal to autocomplete answers",
+    "Conceptual knowledge topology cartography",
+    "Adaptive pedagogical engrams",
+    "Zero tracking cookies & sovereign privacy",
+  ],
+  author: {
+    "@type": "Organization",
+    name: site.name,
+    url: site.url,
+  },
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -64,9 +92,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <head>
+        <link rel="describedby" href="/llms.txt" />
         <script
           dangerouslySetInnerHTML={{ __html: themeBootScript }}
           suppressHydrationWarning
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body className="min-h-full flex flex-col">

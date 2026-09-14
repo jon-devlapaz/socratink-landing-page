@@ -170,7 +170,7 @@ export function sampleRespiration(
   const tz = input.targetZ ?? 0;
   // Pulmonary rhythm: asymmetric sinusoidal wave (longer inhale, soft poise, relaxed exhale)
   const breathCycle = Math.sin(time * 1.25) + 0.3 * Math.sin(time * 2.5);
-  const breath = breathCycle * Math.max(0.015, a);
+  const breath = breathCycle * a;
 
   if (i === 0) {
     // Central nucleus breathes in volume

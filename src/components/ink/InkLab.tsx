@@ -183,17 +183,6 @@ export function InkLab() {
       <header>
         <div className="flex items-center gap-3">
           <Link href="/">← Socratink</Link>
-          <span style={{ opacity: 0.3 }}>|</span>
-          <Link
-            href="/ink-lab-v2"
-            style={{
-              color: "var(--accent)",
-              fontWeight: 500,
-              fontSize: "0.85rem",
-            }}
-          >
-            Studio v2 ✨
-          </Link>
         </div>
         <button className="ink-lab-button" onClick={toggleTheme}>
           Switch theme

@@ -1,0 +1,52 @@
+# Socratink · Comprehensive Specification & Educational Philosophy
+
+> The learning engine that refuses to do the thinking for you. Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.
+
+## 1. System Overview
+
+Socratink is a voice-first learning engine built for adults acquiring difficult technical, formal, or professional bodies of knowledge (systems programming, applied mathematics, medicine, jurisprudence, distributed systems, machine learning).
+
+The core thesis of Socratink is that conventional conversational AI interfaces act as "autocomplete for cognition." When a student asks ChatGPT or Claude to explain a concept or debug a proof, the model provides an effortless, fluent narrative. While this creates a psychological feeling of immediate fluency ("I understand this now"), cognitive science demonstrates that passive recognition fails to produce durable mental models. Under cold examination or novel application without the prompt present, the knowledge evaporates.
+
+Socratink enforces the opposite: productive struggle, active retrieval, and unassisted synthesis.
+
+## 2. Core Pedagogical Invariants
+
+1. **Refusal to Autocomplete**: Socratink never produces direct solutions upon initial inquiry. It interrogates the learner's assumptions, requires the learner to formulate the governing axioms, and guides through counterexamples and targeted Socratic dialogue.
+2. **Desirable Difficulties (Bjork Framework)**: Learning that feels hard, effortful, and spaced produces long-term retention. Immediate performance is deliberately traded for long-term transfer.
+3. **Learner-Authored Work as Sole Evidence**: Merely nodding along or answering multiple-choice prompts is not evidence of capability. The learner must speak, write, or diagram their own explanation.
+4. **Cognitive Frontier Mapping**: Rather than a linear curriculum or gamified quiz streak, knowledge is mapped as an active frontier of concepts, boundaries, and decay intervals.
+5. **Adaptive Engrams**: The teacher persona adapts to the learner's intellectual style (formal, intuitive, adversarial, dialectical) and maintains memory across sessions, periodically returning to past points of confusion days later in unfamiliar contexts.
+
+## 3. Product Architecture
+
+### Chapter 01 · A Map of the Work
+- The inquiry starts with the actual problem or ambiguity the learner possesses.
+- Visual representation of concepts using a minimalist sumi-ink graph topology.
+- Traversal from known foundational theorems to current uncertainties.
+
+### Chapter 02 · You Speak. It Teaches.
+- Voice-first conversational loop optimized for low-latency verbal deliberation.
+- The engine listens to the learner's vocabulary, precision, and hesitation.
+- It detects when a learner is regurgitating buzzwords versus articulating first principles.
+- Strict constraint: "It does not answer for you."
+
+### Chapter 03 · A Teacher You Keep
+- Long-term memory structure tracking the learner's specific misconceptions.
+- Spaced cognitive probes: Returning 3 days, 7 days, or 30 days later with a variant question to verify whether understanding has decayed.
+- Pedagogical engrams: Customizable instruction dynamics.
+
+## 4. Privacy, Security, & Sovereign Architecture
+
+- **Zero Tracking Cookies**: No marketing pixels, Google Analytics, or third-party behavioral trackers.
+- **Cookieless Infrastructure**: Eliminates consent modals, cookie walls, and cross-site tracking.
+- **Data Sovereignty**: Learner dialogues and conceptual maps belong strictly to the learner. Telemetry is strictly functional and anonymous.
+
+## 5. Canonical Endpoints
+
+- **Main Domain**: https://socratink.ai/
+- **Web Application**: https://app.socratink.ai/
+- **Privacy Statement**: https://socratink.ai/privacy
+- **Terms of Service**: https://socratink.ai/terms
+- **AI Agent Manifest**: https://socratink.ai/llms.txt
+- **AI Full Documentation**: https://socratink.ai/llms-full.txt

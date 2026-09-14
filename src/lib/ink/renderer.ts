@@ -1,15 +1,21 @@
 import * as THREE from "three";
 import Raymarcher, { type Entity } from "three-raymarcher";
 import { type InkScene } from "./scene";
+import { applyInkFinish } from "./finish";
 import {
   COALESCENCE_IMPULSE,
   isCoalescenceTransition,
   NO_KINEMATICS,
+  RESPIRATION_KINEMATICS,
   resolveKinematicKind,
   sampleKinematics,
 } from "./kinematics";
 
 const operation = { union: 0, subtract: 1, intersect: 2 };
+const INK_MORPH = 1.7;
+const INK_MENISCUS_BLEND = 1;
+// Shader-side gesture selectors; see surfaceMotion in finish.ts.
+const SURFACE_MOTION = { voice: 1, thought: 2, sap: 3 } as const;
 const rotation = (v: number[]) =>
   new THREE.Quaternion().setFromEuler(
     new THREE.Euler(
@@ -17,15 +23,17 @@ const rotation = (v: number[]) =>
     ),
   );
 
+// A dim room, one small window, a wide faint sky, a rim catch from behind:
+// a wet pool, not a product under softboxes.
 function createEnvironment(renderer: THREE.WebGLRenderer) {
   const room = new THREE.Scene();
-  room.background = new THREE.Color(0.025, 0.028, 0.033);
+  room.background = new THREE.Color(0.045, 0.043, 0.038);
   const panels: THREE.Mesh<THREE.CircleGeometry, THREE.MeshBasicMaterial>[] =
     [];
   for (const [position, scale, strength] of [
-    [[-3, 4, 1], [2.5, 2], 18],
-    [[4, 1, 1], [0.7, 3], 10],
-    [[-1, -3, 1], [2, 0.5], 4],
+    [[-2.6, 4, 2.2], [0.8, 0.8], 16],
+    [[0, 4.5, 3.5], [7, 3], 0.7],
+    [[3, -2, -4], [2.5, 1.2], 2.2],
   ] as const) {
     const panel = new THREE.Mesh(
       new THREE.CircleGeometry(1, 64),
@@ -53,7 +61,13 @@ function createEnvironment(renderer: THREE.WebGLRenderer) {
 export function mountInk(
   mount: HTMLElement,
   initial: InkScene,
-  onFrame?: () => void,
+  onFrame?: (dt: number) => void,
+  onReady?: (ready: boolean) => void,
+  options: {
+    continuous?: boolean; morphDuration?: number; respectReducedMotion?: boolean;
+    surfaceMotion?: keyof typeof SURFACE_MOTION;
+    checkOcclusion?: boolean;
+  } = {},
 ) {
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
@@ -66,7 +80,7 @@ export function mountInk(
   renderer.domElement.style.cssText = "display:block;width:100%;height:100%";
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 40);
-  camera.position.z = 4.5;
+  camera.position.z = options.continuous || initial.name.startsWith("Hero ink:") ? 5.35 : 4.5;
   let environment = createEnvironment(renderer);
   const ink = new Raymarcher({
     envMap: environment.texture,
@@ -76,23 +90,38 @@ export function mountInk(
   // The library defaults to a 0.05-unit march floor. Our ~2-unit ink forms
   // need finer sampling to avoid stepped highlights on their curved surface.
   ink.userData.raymarcher.material.defines.MIN_DISTANCE = "0.005";
+  const finish = applyInkFinish(ink.userData.raymarcher.material);
+  finish.surfaceMotion.value = options.surfaceMotion ? SURFACE_MOTION[options.surfaceMotion] : 0;
   scene.add(ink);
+  mount.dataset.inkReady = "false";
+  onReady?.(false);
   mount.replaceChildren(renderer.domElement);
   let recipe = structuredClone(initial);
   let entities: Entity[] = [];
   let targets: Entity[] = [];
+  // Previous anatomy, kept in the layer so the shader can blend two SDFs.
+  let was: Entity[] = [];
+  let wasTargets: Entity[] = [];
+  let flowFrom: Entity[] = [];
+  let flowBlendFrom = initial.blend;
+  let wasExtent = 0;
+  let pending: InkScene | null = null;
   let time = 0;
+  let motionTime = 0;
   let frame = 0;
   let previous = 0;
   let visible = true;
+  let intersecting = true;
   let lost = false;
   let destroyed = false;
   let frozen = false;
-  let reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let reduced = options.respectReducedMotion !== false && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let theme = "light";
   let renderCount = 0;
   let transition = 0;
-  let requestedCount = 0;
+  let morph = 0;
+  let morphDuration = 0;
+  let bleed = 0.4;
   const origin = new THREE.Vector2();
   const nextPosition = new THREE.Vector3();
   const nextScale = new THREE.Vector3();
@@ -108,8 +137,19 @@ export function mountInk(
   const frameTimes: number[] = [];
   const motion = { ...recipe.motion };
 
+  // Shared hero volumes retarget from their current positions. Unrelated lab
+  // anatomies finish their distance-field blend before accepting the next.
   function setScene(next: InkScene) {
+    const flowing = (options.continuous || (recipe.name.startsWith("Hero ink:") &&
+      next.name.startsWith("Hero ink:"))) && entities.length === next.parts.length;
+    if (morph > 0 && !flowing) {
+      pending = next;
+      return;
+    }
     const prevKind = resolveKinematicKind(recipe);
+    const prior = entities;
+    const priorTargets = targets;
+    flowBlendFrom = ink.userData.blending;
     recipe = structuredClone(next);
     frameTimes.length = 0;
     targets = next.parts.map((p) => ({
@@ -120,55 +160,66 @@ export function mountInk(
       rotation: rotation(p.rotation),
       color: new THREE.Color(next.material.color),
     }));
-    requestedCount = targets.length;
-    // New parts grow in; removed parts contract into the body before disposal.
-    const count = Math.max(entities.length, targets.length);
     if (
       isCoalescenceTransition(prevKind, resolveKinematicKind(next)) &&
       !reduced
     ) {
-      // Surface tension energy release upon coalescence: capillary rebound wave
       motion.amplitude = COALESCENCE_IMPULSE.amplitude;
       motion.speed = COALESCENCE_IMPULSE.speed;
     }
-    const priorEntities = entities;
-    entities = Array.from({ length: count }, (_, i) => {
-      const target = targets[i];
-      const prior = priorEntities[i];
-      if (!target) {
-        targets.push({
-          ...prior,
-          operation: 0,
-          position: new THREE.Vector3(0, 0, -20),
-          scale: new THREE.Vector3(0.0001, 0.0001, 0.0001),
-          rotation: prior.rotation.clone(),
-          color: targets[0].color.clone(),
-        });
-        return { ...prior, operation: 0 };
-      }
-      return {
-        ...target,
-        position: (prior?.position ?? target.position).clone(),
-        scale: prior
-          ? prior.scale.clone()
-          : target.scale
-              .clone()
-              .multiplyScalar(priorEntities.length ? 0.001 : 1),
-        rotation: (prior?.rotation ?? target.rotation).clone(),
-        color: (prior?.color ?? target.color).clone(),
-      };
-    });
-    ink.userData.layers = [entities];
-    transition = 0.85;
+    flowFrom = flowing && !reduced && !frozen ? prior.map((entity) => ({
+      ...entity, position: entity.position.clone(), scale: entity.scale.clone(), rotation: entity.rotation.clone(),
+    })) : [];
+    was = reduced || flowing ? [] : prior;
+    wasTargets = reduced || flowing ? [] : priorTargets;
+    wasExtent = was.reduce(
+      (extent, entity) =>
+        Math.max(extent, entity.position.length() + entity.scale.length() * 0.5),
+      0,
+    );
+    entities = targets.map((target, i) => ({
+      ...target,
+      position: (flowFrom[i]?.position ?? target.position).clone(),
+      scale: (flowFrom[i]?.scale ?? target.scale).clone(),
+      rotation: (flowFrom[i]?.rotation ?? target.rotation).clone(),
+      color: target.color.clone(),
+    }));
+    morphDuration = flowFrom.length ? (options.morphDuration ?? 1.6) : was.length ? INK_MORPH : 0;
+    morph = morphDuration;
+    finish.morph.value = 0;
+    finish.morphSplit.value = was.length;
+    ink.userData.layers = [was.concat(entities)];
+    if (!flowing) ink.userData.blending = next.blend;
+    ink.userData.roughness = next.material.roughness;
+    ink.userData.metalness = next.material.metalness;
+    transition = morphDuration || (prior.length ? 0.85 : 0);
     schedule();
+  }
+  function settle() {
+    was = [];
+    wasTargets = [];
+    flowFrom = [];
+    finish.morph.value = 1;
+    finish.morphSplit.value = 0;
+    ink.userData.layers = [entities];
+    if (pending) {
+      const next = pending;
+      pending = null;
+      setScene(next);
+    }
   }
   function resize() {
     const width = mount.clientWidth,
       height = mount.clientHeight;
     if (!width || !height) return;
+    // Mobile scales the hero in CSS. Render at its displayed size, rather
+    // than paying for a desktop canvas behind the smaller illustration.
+    const displayedScale = Math.min(1, mount.getBoundingClientRect().width / width);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2) * displayedScale);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
+    updateExposure();
     schedule();
   }
   function draw(dt: number) {
@@ -189,8 +240,12 @@ export function mountInk(
       recipe.motion.pointer,
       ease,
     );
-    if (moving) time += dt * motion.speed;
-    if (!frozen) pointer.lerp(reduced ? origin : pointerTarget, ease);
+    if (moving) {
+      time += dt * motion.speed;
+      motionTime += dt;
+    }
+    if (!frozen) pointer.lerp(reduced ? origin : pointerTarget,
+      options.surfaceMotion && !reduced ? 1 - Math.exp(-dt * 2.2) : ease);
 
     if (reduced || frozen) {
       pointerVelocity.set(0, 0);
@@ -200,7 +255,7 @@ export function mountInk(
     } else {
       pointerVelocity.multiplyScalar(Math.exp(-dt * 4.5));
       if (splashImpulse > 0) {
-        splashImpulse = Math.max(0, splashImpulse - dt * 2.8);
+        splashImpulse *= Math.exp(-dt * 3);
       }
       scrollStretch = THREE.MathUtils.lerp(
         scrollStretch,
@@ -214,12 +269,53 @@ export function mountInk(
       );
     }
 
-    let extent = 1;
     const kinematicKind = resolveKinematicKind(recipe);
+    const hero = options.continuous || recipe.name.startsWith("Hero ink:");
+    const breathing = kinematicKind === RESPIRATION_KINEMATICS;
+    const morphing = morph > 0;
+    const morphU = morphing ? 1 - morph / morphDuration : 1;
+    // Blending the two anatomies cuts through creases in each one's distance
+    // field; a wide smooth union through the morph keeps the skin taut.
+    const meniscus = morphing ? Math.sqrt(Math.sin(Math.PI * morphU)) : 0;
+    const locked =
+      entities.some((entity) => entity.operation !== 0) ||
+      (recipe.name.startsWith("Hero ink") && entities.length > 1);
+    const a = reduced ? 0 : motion.amplitude;
+    if (morphing && was.length) {
+      const ox = Math.sin(time * 0.8) * a;
+      const oy = Math.sin(time * 0.63) * a;
+      const oz = Math.cos(time * 0.7) * a * 0.6;
+      const breath = 1 + Math.sin(time * 0.9) * a * 0.12;
+      const px = pointer.x * motion.pointer * 0.3;
+      const py = pointer.y * motion.pointer * 0.3;
+      was.forEach((entity, i) => {
+        const rest = wasTargets[i];
+        if (!rest) return;
+        entity.position.set(
+          rest.position.x + ox + px,
+          rest.position.y + oy + py,
+          rest.position.z + oz,
+        );
+        entity.scale.copy(rest.scale).multiplyScalar(breath);
+        entity.rotation.copy(rest.rotation);
+      });
+    }
+    let extent = 0;
     entities.forEach((entity, i) => {
       const target = targets[i];
-      const phase = i * 2.39996;
-      const a = (reduced || i >= requestedCount) ? 0 : motion.amplitude;
+      if (hero) {
+        // A small delay down the strand lets a gesture travel through the ink.
+        const u = THREE.MathUtils.clamp((morphU - i / targets.length * 0.12) / 0.88, 0, 1);
+        const progress = u * u * u * (u * (u * 6 - 15) + 10);
+        const from = flowFrom[i];
+        entity.position.copy(from ? nextPosition.lerpVectors(from.position, target.position, progress) : target.position);
+        entity.scale.copy(from ? nextScale.lerpVectors(from.scale, target.scale, progress) : target.scale);
+        entity.rotation.copy(from ? nextRotation.slerpQuaternions(from.rotation, target.rotation, progress) : target.rotation);
+        entity.color.copy(target.color);
+        extent = Math.max(extent, target.position.length() + target.scale.length() * 0.5);
+        return;
+      }
+      const phase = locked ? 0 : i * 2.39996;
 
       let x = target.position.x + Math.sin(time * 0.8 + phase) * a;
       let y = target.position.y + Math.sin(time * 0.63 + phase * 1.3) * a;
@@ -228,8 +324,7 @@ export function mountInk(
       let scaleOverride: THREE.Vector3 | null = null;
 
       let sample: ReturnType<typeof sampleKinematics> = null;
-      // Coupled multi-part kinematics evaluated through the isolated driver.
-      if (kinematicKind !== NO_KINEMATICS && i < requestedCount) {
+      if (!locked && kinematicKind !== NO_KINEMATICS) {
         sample = sampleKinematics(kinematicKind, {
           time,
           amplitude: a,
@@ -261,27 +356,31 @@ export function mountInk(
 
       const dynamic = !frozen && !reduced;
       // Multi-harmonic microscopic fluid turbulence
-      const harmonicA = dynamic ? Math.sin(time * 1.7 + phase * 1.5) * a * 0.25 : 0;
-      const harmonicB = dynamic ? Math.cos(time * 2.5 + phase * 0.8) * a * 0.15 : 0;
+      const harmonicA = dynamic && !breathing ? Math.sin(time * 1.7 + phase * 1.5) * a * 0.25 : 0;
+      const harmonicB = dynamic && !breathing ? Math.cos(time * 2.5 + phase * 0.8) * a * 0.15 : 0;
 
       // Viscous drag / velocity shear
-      const shearX = dynamic ? pointerVelocity.x * 0.024 * (1 + (i % 3) * 0.15) : 0;
-      const shearY = dynamic ? pointerVelocity.y * 0.024 * (1 + (i % 3) * 0.15) : 0;
+      const shearX = dynamic && !breathing && !locked ? pointerVelocity.x * 0.024 * (1 + (i % 3) * 0.15) : 0;
+      const shearY = dynamic && !breathing && !locked ? pointerVelocity.y * 0.024 * (1 + (i % 3) * 0.15) : 0;
 
-      // Click splash shockwave
       const splashWave =
         dynamic && splashImpulse > 0
-          ? Math.sin(time * 22 + i * 1.4) * splashImpulse * 0.12
+          ? breathing || locked
+            ? splashImpulse * 0.045
+            : Math.sin(time * 22 + i * 1.4) * splashImpulse * 0.12
           : 0;
 
       // Scroll inertial g-force stretch (volume conserving: stretch Y, compress XZ)
-      const gStretchY = dynamic ? THREE.MathUtils.clamp(scrollStretch, -0.22, 0.32) : 0;
+      const gStretchY = dynamic
+        ? THREE.MathUtils.clamp(scrollStretch, -0.22, 0.32) * (breathing ? 0.15 : 1)
+        : 0;
       const gStretchXZ = -gStretchY * 0.45;
 
+      const pointerSpread = locked ? 0.3 : 0.3 + i * 0.15;
       entity.position.lerp(
         nextPosition.set(
-          x + pointer.x * motion.pointer * (0.3 + i * 0.15) + shearX,
-          y + pointer.y * motion.pointer * (0.3 + i * 0.15) + shearY,
+          x + pointer.x * motion.pointer * pointerSpread + shearX,
+          y + pointer.y * motion.pointer * pointerSpread + shearY,
           z + harmonicA,
         ),
         ease,
@@ -320,21 +419,23 @@ export function mountInk(
       }
       entity.rotation.slerp(rotTarget, ease);
       entity.color.lerp(target.color, ease);
-      if (i < requestedCount)
-        extent = Math.max(
-          extent,
-          target.position.length() + target.scale.length() * 0.5,
-        );
+      extent = Math.max(
+        extent,
+        target.position.length() + target.scale.length() * 0.5,
+      );
     });
+    extent = Math.max(1, THREE.MathUtils.lerp(wasExtent, extent, morphU));
     camera.position.z = THREE.MathUtils.lerp(
       camera.position.z,
-      ((extent + 0.2) / Math.sin(THREE.MathUtils.degToRad(19))) * 1.02,
+      hero ? 5.35 : ((extent + 0.2) / Math.sin(THREE.MathUtils.degToRad(19))) * 1.02,
       ease,
     );
-    ink.userData.blending = THREE.MathUtils.lerp(
+    ink.userData.blending = flowFrom.length
+      ? THREE.MathUtils.lerp(flowBlendFrom, recipe.blend, THREE.MathUtils.smoothstep(morphU, 0, 1))
+      : THREE.MathUtils.lerp(
       ink.userData.blending,
-      recipe.blend,
-      ease,
+      recipe.blend + (hero ? 0 : meniscus * (INK_MENISCUS_BLEND - recipe.blend)),
+      morphing ? 1 : ease,
     );
     ink.userData.roughness = THREE.MathUtils.lerp(
       ink.userData.roughness,
@@ -346,10 +447,24 @@ export function mountInk(
       recipe.material.metalness,
       ease,
     );
-    ink.userData.envMapIntensity = theme === "dark" ? 1.55 : 1.2;
+    ink.userData.envMapIntensity = theme === "dark" ? 1.35 : 1.2;
+    finish.time.value = time;
+    finish.motionTime.value = motionTime;
+    finish.surfaceStrength.value = THREE.MathUtils.lerp(
+      finish.surfaceStrength.value, recipe.name === initial.name ? 1 : 0, 1 - Math.exp(-dt * 1.4),
+    );
+    finish.living.value = options.surfaceMotion ? 0 : hero ? 1 : 0;
+    finish.pointer.value.copy(pointer).multiplyScalar(motion.pointer);
+    finish.impulse.value = splashImpulse;
+    finish.bleed.value = bleed + meniscus * 0.22;
+    finish.morph.value = morphU;
     renderer.render(scene, camera);
     renderCount++;
-    onFrame?.();
+    if (mount.dataset.inkReady !== "true") {
+      mount.dataset.inkReady = "true";
+      onReady?.(true);
+    }
+    onFrame?.(dt);
   }
   function animate(now: number) {
     frame = 0;
@@ -360,12 +475,12 @@ export function mountInk(
       frameTimes.push(elapsed);
       if (frameTimes.length > 240) frameTimes.shift();
     }
-    const dt = Math.min(elapsed / 1000, 0.06);
+    const clock = Number(new URLSearchParams(location.search).get("inkClock"));
+    const dt =
+      Math.min(elapsed / 1000, 0.06) * (clock > 0 && clock <= 1 ? clock : 1);
     transition = reduced ? 0 : Math.max(0, transition - dt);
-    if (transition === 0 && entities.length > requestedCount) {
-      entities.length = requestedCount;
-      targets.length = requestedCount;
-    }
+    if (!frozen) morph = reduced ? 0 : Math.max(0, morph - dt);
+    if (morph === 0 && (was.length || flowFrom.length || pending)) settle();
     draw(dt);
     if (
       (!frozen &&
@@ -375,7 +490,8 @@ export function mountInk(
           pointerVelocity.lengthSq() > 0.0001 ||
           splashImpulse > 0.01 ||
           Math.abs(scrollStretch) > 0.001)) ||
-      transition > 0
+      transition > 0 ||
+      (!frozen && morph > 0)
     )
       schedule();
   }
@@ -385,11 +501,27 @@ export function mountInk(
   }
   function visibility() {
     previous = 0;
+    updateExposure();
+    schedule();
+  }
+  function updateExposure() {
+    if (!options.checkOcclusion && !initial.name.startsWith("Hero ink:")) return;
+    // The folio's later sheets cover sticky ink without moving it outside
+    // the viewport. IntersectionObserver alone cannot detect that occlusion.
+    const rect = mount.getBoundingClientRect();
+    const exposed = intersecting && [[0.5, 0.5], [0.5, 0.25], [0.5, 0.75], [0.25, 0.5], [0.75, 0.5]].some(([x, y]) =>
+      mount.parentElement?.contains(document.elementFromPoint(rect.left + rect.width * x, rect.top + rect.height * y)),
+    );
+    if (visible === exposed) return;
+    visible = exposed;
+    previous = 0;
     schedule();
   }
   const observer = new ResizeObserver(resize);
   const intersection = new IntersectionObserver(([entry]) => {
-    visible = entry.isIntersecting;
+    intersecting = entry.isIntersecting;
+    if (options.checkOcclusion || initial.name.startsWith("Hero ink:")) updateExposure();
+    else visible = intersecting;
     previous = 0;
     schedule();
   });
@@ -405,12 +537,12 @@ export function mountInk(
       pointerVelocity.x = THREE.MathUtils.lerp(
         pointerVelocity.x,
         THREE.MathUtils.clamp(vx, -5, 5),
-        0.35,
+        1 - Math.exp(-dtSec * 26),
       );
       pointerVelocity.y = THREE.MathUtils.lerp(
         pointerVelocity.y,
         THREE.MathUtils.clamp(vy, -5, 5),
-        0.35,
+        1 - Math.exp(-dtSec * 26),
       );
     }
     lastPointerTime = now;
@@ -428,6 +560,7 @@ export function mountInk(
   const pointerLeave = () => {
     pointerTarget.set(0, 0);
     pointerVelocity.set(0, 0);
+    lastPointerTime = 0;
     transition = 1;
     schedule();
   };
@@ -437,6 +570,7 @@ export function mountInk(
     cancelAnimationFrame(frame);
     frame = 0;
     mount.dataset.inkReady = "false";
+    onReady?.(false);
   };
   const contextRestored = () => {
     environment.dispose();
@@ -448,6 +582,8 @@ export function mountInk(
     schedule();
   };
   observer.observe(mount);
+  window.addEventListener("resize", resize);
+  window.addEventListener("scroll", updateExposure, { passive: true });
   intersection.observe(mount);
   mount.addEventListener("pointermove", pointerMove);
   mount.addEventListener("pointerdown", pointerDown);
@@ -473,11 +609,16 @@ export function mountInk(
     },
     setTheme(value: string) {
       theme = value;
+      finish.paper.value.setStyle(
+        getComputedStyle(document.documentElement).getPropertyValue("--paper").trim(),
+      );
+      finish.bleed.value = value === "dark" ? 0.12 : 0.4;
+      bleed = finish.bleed.value;
       transition = 1;
       schedule();
     },
     setReduced(value: boolean) {
-      reduced = value;
+      reduced = options.respectReducedMotion !== false && value;
       transition = 1;
       schedule();
     },
@@ -505,7 +646,7 @@ export function mountInk(
       const sorted = frameTimes.slice().sort((a, b) => a - b);
       return {
         renderer: "three-raymarcher",
-        transitioning: transition > 0,
+        transitioning: transition > 0 || morph > 0 || pending !== null,
         ready: renderCount > 0 && !lost,
         paused: frozen,
         reducedMotion: reduced,
@@ -528,6 +669,8 @@ export function mountInk(
       destroyed = true;
       cancelAnimationFrame(frame);
       observer.disconnect();
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("scroll", updateExposure);
       intersection.disconnect();
       mount.removeEventListener("pointermove", pointerMove);
       mount.removeEventListener("pointerdown", pointerDown);

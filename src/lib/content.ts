@@ -16,9 +16,9 @@
 
 export const site = {
   name: "Socratink",
-  tagline: "Know what you actually know",
+  tagline: "The learning engine that refuses to do the thinking for you",
   description:
-    "A learning agent for hard material. It makes you do the thinking, keeps the evidence of what you produced, and is built to come back later to see whether the capability became yours.",
+    "Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.",
   url: "https://socratink.ai",
   appUrl: "https://app.socratink.ai/",
   year: new Date().getFullYear(),
@@ -28,216 +28,66 @@ export const site = {
   },
 } as const;
 
-export const nav = {
-  links: [
-    {
-      label: "Disciplines",
-      href: "#material",
-      tooltip: "10 rigorous syllabi · Where fluent answers can hide gaps",
-    },
-    {
-      label: "Memory",
-      href: "#memory",
-      tooltip: "Your record of work · Evidence that accumulates over sessions",
-    },
-  ],
-  login: { label: "Log in", href: `${site.appUrl}login` },
-  cta: { label: "Try the free diagnostic", href: site.appUrl },
-} as const;
-
 export const hero = {
-  primary: { label: "Try the free diagnostic", href: site.appUrl },
-  secondary: { label: "Explore disciplines", href: "#material" },
+  primary: { label: "Start learning", href: site.appUrl },
+  secondary: { label: "See how it works", href: "#how-it-works" },
+  subline: "You think · One teacher · It stays",
 } as const;
 
-
-
-
-export type OrbitDisciplineId =
-  | "stats"
-  | "biochem"
-  | "boards"
-  | "cloud"
-  | "law"
-  | "signals"
-  | "med"
-  | "analysis"
-  | "accounting"
-  | "ml";
-
-export type OrbitDiscipline = {
-  id: OrbitDisciplineId;
-  label: string;
-  target: string;
-  aiTrap: string;
-  transferAsk: string;
-};
-
-/** In-place Orbit switcher cards. Gemini DISCIPLINE_CARDS; labels match prior orbit.nodes. */
-export const orbitDisciplines: readonly OrbitDiscipline[] = [
-  {
-    id: "stats",
-    label: "Statistics",
-    target: "Sampling Bias Invariance under Sample Size",
-    aiTrap:
-      "AI fluently increases n, conflating standard error reduction with the correction of systematic sampling frame flaws.",
-    transferAsk:
-      "A medical survey polls 25,000 opt-in app users to estimate national diabetes rates. Explain why tighter variance does not cure the estimate, without multiple choice.",
-  },
-  {
-    id: "biochem",
-    label: "Organic chemistry",
-    target: "Steric Hindrance vs. Nucleophilicity in SN2 Pathways",
-    aiTrap:
-      "AI recites 'backside attack causes inversion', leaving the student unaware that a sterically hindered tertiary carbon forces an E2 elimination instead.",
-    transferAsk:
-      "Predict the major product when (R)-2-bromobutane is treated with sodium cyanide in DMSO vs. potassium tert-butoxide in tert-butanol. Explain the governing divergence unprompted.",
-  },
-  {
-    id: "boards",
-    label: "Board exams",
-    target: "Bayesian Positive Predictive Value in Low-Prevalence Screening",
-    aiTrap:
-      "AI praises a 99% test sensitivity, while the candidate forgets that when disease prevalence is 0.1%, false positives vastly outnumber true positives.",
-    transferAsk:
-      "A test with 99% sensitivity and 95% specificity tests positive in an asymptomatic screening population (prevalence 0.1%). Calculate without notes why the patient still only has a ~2% chance of disease.",
-  },
-  {
-    id: "cloud",
-    label: "Cloud certifications",
-    target: "Consistency Boundaries under Network Partition (CAP Theorem)",
-    aiTrap:
-      "AI recommends multi-region read replicas, obscuring the reality that replicas only scale reads and introduce split-brain write conflicts when the cross-region link drops.",
-    transferAsk:
-      "A fiber cut isolates two availability zones handling a banking ledger. Prove why the database cannot maintain both zero-downtime balance deductions and ledger consistency.",
-  },
-  {
-    id: "law",
-    label: "Contract law",
-    target: "Pre-Existing Duty Rule vs. Promissory Estoppel",
-    aiTrap:
-      "AI gives a generic definition of detrimental reliance, missing whether a subcontractor's verbal promise is unenforceable due to an existing contractual obligation.",
-    transferAsk:
-      "A contractor promises an electrician a $10,000 bonus to finish an on-time completion they were already legally bound to deliver. Analyze whether the electrician can enforce payment without reference notes.",
-  },
-  {
-    id: "signals",
-    label: "Signal processing",
-    target: "Analog Anti-Aliasing Filtration prior to Sampling",
-    aiTrap:
-      "AI quotes the Nyquist limit (fs > 2fmax), while the engineer forgets that high-frequency noise folds permanently into the baseband unless an analog low-pass filter precedes the ADC.",
-    transferAsk:
-      "A sensor samples a 1 kHz acoustic signal at 1.5 kHz. What spurious alias frequency appears in the output, and explain why no downstream DSP algorithm can remove it.",
-  },
-  {
-    id: "med",
-    label: "Pathophysiology",
-    target: "Hemodynamic Divergence in Cardiogenic vs. Hypovolemic Shock",
-    aiTrap:
-      "AI explains the Frank-Starling curve fluently, while the learner reflexively orders IV fluid boluses for a patient whose lungs are already filling with fluid.",
-    transferAsk:
-      "A hypotensive patient presents with cold extremities, elevated jugular venous pressure, and bilateral pulmonary crackles. Explain why standard fluid resuscitation will precipitate respiratory arrest.",
-  },
-  {
-    id: "analysis",
-    label: "Real analysis",
-    target: "Pointwise vs. Uniform Convergence of Function Sequences",
-    aiTrap:
-      "AI proves fn(x) = x^n converges pointwise to 0 on [0, 1), masking the failure of the limit function to preserve continuity on the closed interval [0, 1].",
-    transferAsk:
-      "Construct a sequence of continuous functions on [0, 1] that converges to 0 pointwise, but whose integrals converge to 1. State unprompted why uniform convergence fails.",
-  },
-  {
-    id: "accounting",
-    label: "Accounting",
-    target: "Performance Obligation Bundling under ASC 606",
-    aiTrap:
-      "AI lists the 5-step revenue framework, while missing whether ongoing proprietary security patches make software licenses a single bundled service rather than upfront point-in-time revenue.",
-    transferAsk:
-      "A SaaS vendor sells a 3-year term license with essential daily proprietary vulnerability updates. Defend why revenue cannot be recognized upfront on key delivery.",
-  },
-  {
-    id: "ml",
-    label: "Machine learning",
-    target: "Data Leakage across Cross-Validation Splits",
-    aiTrap:
-      "AI writes a clean scikit-learn preprocessing block, but fits standard scalers across the full dataset prior to k-fold splitting, leaking test-fold distribution parameters into training.",
-    transferAsk:
-      "Explain why fitting a TF-IDF vectorizer before train/test partitioning produces an artificially inflated evaluation metric, even if target labels were excluded.",
-  },
-] as const;
-
-export const orbit = {
-  eyebrow: "Supported subjects",
-  bridge:
-    "Try sample prompts from 10 technical fields below, or paste your own study outline in the app.",
-  titleSans: "Built for subjects",
-  titleSerif: "where guessing is not an option.",
-  defaultId: "stats" as const satisfies OrbitDisciplineId,
-  cta: {
-    label: "Try the free diagnostic",
-    href: site.appUrl,
-  },
-  /** Ordered to match the decorative orbit ring (prior nodes list). */
-  disciplines: orbitDisciplines,
-  /** Label list for ring geometry / legacy readers; same order as disciplines. */
-  nodes: orbitDisciplines.map((d) => d.label),
-} as const;
-
-export const memory = {
-  eyebrow: "Long-term review",
-  titleSans: "Build a clear record",
-  titleSerif: "of what you actually know.",
-  cards: [
-    {
-      title: "Track progress over time.",
-      sub: "A clear log of what you produced cold.",
-      body: "Every session saves what you wrote from memory. Instead of a vague score, you have an exact record of which concepts you could explain without notes.",
-    },
-    {
-      title: "Permanent and portable.",
-      sub: "Your study records stay in plain text.",
-      body: "Your explanations and diagnostic evaluations belong to you. They stay saved in clean, readable text so you can review them whenever you want, on any device.",
-    },
-    {
-      title: "Complete privacy and export.",
-      sub: "Export, edit, or delete anytime.",
-      body: "Export your study logs as Markdown or JSON, or delete your history whenever you choose. Socratink never uses private sessions to train public models.",
-    },
+/** Chapter 1. Title is facet 1 of the accepted direction; journey lines are the live How-it-works path. */
+export const mapChapter = {
+  cue: "01",
+  title: "A map\nof the work",
+  journey: [
+    "Start with the question you actually have.",
+    "Use an explanation, a picture, or a counterexample when it helps.",
+    "Return later, in a different setting, and see what still holds.",
   ],
+  mapAlt: "A small ink map. A few places joined by one path that runs off the edge of the paper.",
 } as const;
 
+/** Chapter 2. Facet 2 of the accepted direction. The constraint line lives here, not on the title page. */
+export const speakChapter = {
+  cue: "02",
+  title: "You speak.\nIt teaches.",
+  body: "The work is spoken. It listens for what you actually understand.",
+  constraint: "It does not answer for you.",
+  markAlt: "One brushstroke. It starts faint and broken, then turns to solid ink and stops.",
+} as const;
 
-export const finalCta = {
-  titleSans: "Know what you actually know",
-  titleSerif: "before the exam begins.",
-  button: { label: "Start a 5-minute diagnostic", href: site.appUrl },
-  sub: "Free · No credit card or account needed · Opens instantly in your browser",
+/** Chapter 3, the peak. Facet 3 of the accepted direction; the engram is how you are taught. */
+export const keepChapter = {
+  cue: "03",
+  title: "A teacher\nyou keep",
+  body: "It stays, it pushes, it remembers.",
+  engram: "You choose its engram, the personality it teaches with.",
+} as const;
+
+export const colophon = {
+  button: { label: hero.primary.label, href: site.appUrl },
+  subline: hero.subline,
 } as const;
 
 export const footer = {
-  indexLabel: "Site index",
-  legalLabel: "Elsewhere",
-  quiet: "No newsletter. No social grid.",
-  attemptLabel: "Diagnostic",
-  index: [
-    { label: "Disciplines", href: "#material" },
-    { label: "Memory", href: "#memory" },
+  legal: [
+    { label: "Privacy", href: "/privacy" },
+    { label: "Terms", href: "/terms" },
+    { label: "Contact", href: "mailto:support@socratink.ai" },
   ],
-  attempt: { label: "Try the free diagnostic", href: site.appUrl },
   legalNote: "All rights reserved.",
 } as const;
 
 
-/** Approved hero presentation, retained while restoring the original page story. */
+/** Minimal hero invitation: the learner does the thinking. */
 export const notebook = {
-  heroEyebrow: "Self-test engine",
-  heroTitle: "Practice hard material.\nKnow what you actually know before test day.",
+  heroTitle: "Make the thinking\nyour own.",
   heroBody:
-    "Answer one realistic exam prompt from memory. No multiple choice, no notes, and no AI autocomplete. You will immediately see which parts of your reasoning hold up and where the gaps are.",
-  heroTrust: "Free diagnostic · No sign-up required · Works directly in your browser",
-  heroNote: "5-minute diagnostic · No account required",
+    "Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.",
 } as const;
 
-
-
+export const notFound = {
+  cue: "404",
+  title: "You walked off\nthe edge of the paper.",
+  body: "There is no inquiry recorded at this address. The ink has not touched this sheet.",
+  action: { label: "Return to the map", href: "/" },
+} as const;

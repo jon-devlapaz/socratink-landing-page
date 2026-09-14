@@ -42,7 +42,6 @@ export function AppearanceToggle() {
       onClick={onToggle}
       aria-pressed={isNight}
       aria-label="Dark theme"
-      title={isNight ? "Switch to light appearance" : "Switch to dark appearance"}
     >
       <span className="orb-glyph" aria-hidden="true">
         <span className="theme-icon is-sun">

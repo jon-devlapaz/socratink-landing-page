@@ -1,0 +1,27 @@
+# Socratink
+
+> The learning engine that refuses to do the thinking for you. Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.
+
+Socratink is a voice-first, high-friction Socratic learning engine designed for adults facing consequential performance demands in technical and academic disciplines (engineering, mathematics, medicine, law, systems architecture).
+
+Unlike general conversational AI assistants that autocomplete solutions, generate summaries, or provide immediate answers—inducing the "fluency trap" where passive exposure is mistaken for durable capability—Socratink operates under strict cognitive constraints:
+- Refusal to autocomplete: It does not supply the answer. It asks the learner to frame hypotheses, derive proofs, and defend conclusions.
+- Productive struggle: Grounded in Robert Bjork's desirable difficulties and cognitive science; durable learning requires effortful retrieval.
+- Evidence of mastery: Learner-authored work is the only recognized evidence of understanding. Immediate fluency is untrusted until demonstrated cold.
+- Persistent memory & engrams: The learning partner remembers past misconceptions, tracks the frontier of the learner's knowledge, and tests recall across time and context.
+- Sovereign & cookieless: Built without third-party tracking scripts or advertising cookies. Respects learner attention and intellectual sovereignty.
+
+## Core Documentation
+
+- [Prospectus & Overview](https://socratink.ai/): Overview of the method, the three-part sequence (Map, Speak, Keep), and the live interactive demonstration.
+- [Web Application](https://app.socratink.ai/): The live learning interface for spoken inquiry and conceptual cartography.
+- [Privacy Policy](https://socratink.ai/privacy): Sovereign privacy architecture: zero tracking cookies, minimal telemetry, user data sovereignty.
+- [Terms of Service](https://socratink.ai/terms): Terms governing access, acceptable use, and intellectual property ownership.
+
+## Method & Architecture
+
+- [Title · Make the thinking your own.](https://socratink.ai/#top): Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.
+- [Chapter 01 · A map of the work](https://socratink.ai/#how-it-works): Start with the question you actually have. Use an explanation, a picture, or a counterexample when it helps. Return later, in a different setting, and see what still holds.
+- [Chapter 02 · You speak. It teaches.](https://socratink.ai/#speak): The work is spoken. It listens for what you actually understand. It does not answer for you.
+- [Chapter 03 · A teacher you keep](https://socratink.ai/#keep): It stays, it pushes, it remembers. You choose its engram, the personality it teaches with.
+- [Colophon](https://socratink.ai/#colophon): Start learning. You think · One teacher · It stays.

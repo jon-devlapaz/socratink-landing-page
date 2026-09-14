@@ -1,0 +1,90 @@
+.colophon {
+  scroll-margin-top: 5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+}
+.colophonInvite {
+  display: grid;
+  gap: 0.9rem;
+  justify-items: start;
+  padding-block: clamp(4rem, 12vh, 8rem) clamp(3rem, 8vh, 5rem);
+}
+.colophonInvite a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  color: var(--tx);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: from-font;
+  text-underline-position: from-font;
+  transition-property: color, scale;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-press);
+}
+@media (hover: hover) {
+  .colophonInvite a:hover { color: var(--tx-2); }
+}
+.colophonInvite a:active { scale: 0.96; }
+.colophonInvite p {
+  margin: 0;
+  color: var(--tx-2);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin-top: auto;
+  border-top: 1px solid var(--ui-2);
+  padding-block: 2rem max(2rem, env(safe-area-inset-bottom));
+}
+.footerBrand { display: grid; gap: 0.75rem; }
+.footerBrand p { color: var(--tx-2); font-size: 0.75rem; }
+.footerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.footerLinks a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding-inline: 0.25rem;
+  color: var(--tx-2);
+  font-size: 0.8125rem;
+  transition-property: color;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-press);
+}
+@media (hover: hover) {
+  .footerLinks a:hover { color: var(--tx); }
+}
+
+@media (max-width: 767px) {
+  .footer { align-items: flex-start; flex-direction: column; gap: 1rem; }
+}
+@media (max-width: 640px) {
+  .colophon {
+    scroll-margin-top: calc(4.5rem + env(safe-area-inset-top));
+  }
+  .colophonInvite {
+    padding-block: calc(7rem + env(safe-area-inset-top)) 2.5rem;
+  }
+  .footerLinks { column-gap: 1.25rem; }
+}
