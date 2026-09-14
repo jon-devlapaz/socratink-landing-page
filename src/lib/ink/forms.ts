@@ -22,10 +22,9 @@ export function heroInkScene(form: number): InkScene {
     const u = i / (VOLUMES - 1);
     const t = u * 2 - 1;
     switch (name) {
-      case "sphere": {
-        const a = u * Math.PI * 2;
-        return volume(Math.cos(a) * 0.21, Math.sin(a) * 0.23, Math.sin(a * 2) * 0.08, 1.12);
-      }
+      case "sphere":
+        // Wordmark disc: twelve coincident volumes so morphs still have a strand.
+        return volume(0, 0, 0, 1.7);
       case "droplet":
         return volume(0.16 * t * t, t * 0.59, 0.06 * Math.sin(u * Math.PI), 1.16 - 0.83 * u);
       case "ribbon":

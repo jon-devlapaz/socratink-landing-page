@@ -519,11 +519,13 @@ textarea:disabled { cursor: not-allowed; }
   z-index: 10;
   width: 100%;
   min-height: 100svh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   box-sizing: border-box;
   background: var(--paper);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* ==========================================================================
@@ -720,19 +722,30 @@ textarea:disabled { cursor: not-allowed; }
   .hero-subject .sphere { scale: 0.8; }
 }
 @media (max-width: 767px) {
-  .hero-grid { grid-template-columns: 1fr; gap: 1.25rem; padding-top: 4.25rem; padding-bottom: 2.25rem; min-height: auto; }
-  .hero-scene { order: -1; margin-top: 0.5rem; margin-bottom: 0; }
-  .hero-copy { max-width: 100%; padding-block: 0.5rem 1rem; }
-  .hero-copy .hero-title.notebook-display { font-size: clamp(2rem, 8.5vw, 2.5rem); margin-bottom: 0.875rem; }
-  .hero-copy p { font-size: 0.9375rem; margin-bottom: 1.125rem; }
+  /* iPhone SE Safari's tab bar is not in safe-area. Keep the invitation above it. */
+  .hero-act {
+    justify-content: flex-start;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4.75rem);
+  }
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding-top: 4.25rem;
+    padding-bottom: 0.35rem;
+    min-height: auto;
+  }
+  .hero-scene { order: -1; margin-top: 0.25rem; margin-bottom: 0; }
+  .hero-copy { max-width: 100%; padding-block: 0.25rem 0; }
+  .hero-copy .hero-title.notebook-display { font-size: clamp(2rem, 8.5vw, 2.5rem); margin-bottom: 0.75rem; }
+  .hero-copy p { font-size: 0.9375rem; margin-bottom: 0.875rem; }
   .hero-subject {
-    height: min(22rem, 72vw);
+    height: min(11.5rem, 42vw, 26dvh);
     overflow: visible;
   }
   .hero-subject::before { display: none; }
   .hero-subject .sphere {
-    width: min(22rem, 72vw) !important;
-    height: min(22rem, 72vw) !important;
+    width: min(11.5rem, 42vw, 26dvh) !important;
+    height: min(11.5rem, 42vw, 26dvh) !important;
   }
   .hero-scene figcaption { margin-top: 0.25rem; font-size: 0.8125rem; }
 }
