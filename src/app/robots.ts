@@ -7,7 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/ink-lab", "/ink-studies", "/positioning"],
       },
       {
         userAgent: [
@@ -20,7 +19,6 @@ export default function robots(): MetadataRoute.Robots {
           "Google-Extended",
         ],
         allow: ["/", "/llms.txt", "/llms-full.txt"],
-        disallow: ["/ink-lab", "/ink-studies", "/positioning"],
       },
     ],
     sitemap: `${site.url}/sitemap.xml`,

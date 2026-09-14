@@ -9,15 +9,9 @@
     "start": "next start -p 3001",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "check": "tsc --noEmit && eslint && next build",
-    "test:smoke": "node scripts/verify-encounter-bound.mjs",
+    "check": "tsc --noEmit && eslint && node scripts/verify-site-hygiene.mjs && next build",
     "test:hygiene": "node scripts/verify-site-hygiene.mjs",
-    "test:a11y": "node scripts/a11y-audit.mjs",
-    "test:orb": "node scripts/benchmark-orb-fidelity.mjs",
-    "test:ink": "node scripts/verify-ink.mjs",
-    "test:ink-symbols": "node scripts/verify-ink-symbols.mjs",
-    "test:ink-landing": "node scripts/verify-ink-landing.mjs",
-    "test:landing-fixes": "node scripts/verify-landing-audit-fixes.mjs"
+    "test:hero-se": "node scripts/verify-iphone-se-hero.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",
