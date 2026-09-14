@@ -24,11 +24,20 @@ export function themeColor(theme: Theme): string {
 }
 
 export function applyTheme(theme: Theme): void {
+  const freeze = document.createElement("style");
+  freeze.appendChild(document.createTextNode("*,*::before,*::after{transition:none !important}"));
+  document.head.appendChild(freeze);
   document.documentElement.dataset.theme = theme;
   localStorage.setItem(THEME_STORAGE_KEY, theme);
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", themeColor(theme));
   window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
+  window.getComputedStyle(document.documentElement).getPropertyValue("background-color");
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      freeze.remove();
+    });
+  });
 }
 
 export function toggleTheme(): Theme {

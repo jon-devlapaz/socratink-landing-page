@@ -8,7 +8,7 @@ import {
   type OrganicSphereController,
   type SphereGround,
   type SphereShape,
-} from "@/lib/sphere/organic-sphere";
+} from "@/archive/landing/sphere/organic-sphere";
 
 type OrganicSphereProps = {
   /** Diameter in px. The canvas is square. */

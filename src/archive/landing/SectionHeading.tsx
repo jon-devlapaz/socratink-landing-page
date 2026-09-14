@@ -1,6 +1,6 @@
 "use client";
 
-import { Reveal } from "@/components/ui/Reveal";
+import { Reveal } from "@/archive/landing/Reveal";
 
 type SectionHeadingProps = {
   eyebrow?: string;

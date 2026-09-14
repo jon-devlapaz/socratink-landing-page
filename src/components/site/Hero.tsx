@@ -1,77 +1,33 @@
-"use client";
-
-import { useSyncExternalStore } from "react";
-import Link from "next/link";
-import dynamic from "next/dynamic";
 import { InkSphere } from "@/components/ink/InkSphere";
-import type { SphereShape } from "@/lib/sphere/organic-sphere";
 import { hero, notebook } from "@/lib/content";
 
-const OrganicSphere = dynamic(
-  () => import("@/components/ui/OrganicSphere").then((module) => module.OrganicSphere),
-  { ssr: false },
-);
-
-function subscribeLocation(callback: () => void) {
-  window.addEventListener("popstate", callback);
-  return () => window.removeEventListener("popstate", callback);
-}
-
-function getQueryShape(): SphereShape | undefined {
-  if (typeof window === "undefined") return undefined;
-  const s = new URLSearchParams(window.location.search).get("shape");
-  return s ? (s as SphereShape) : undefined;
-}
-
-function getQueryMorph(): number | undefined {
-  if (typeof window === "undefined") return undefined;
-  const m = new URLSearchParams(window.location.search).get("morph");
-  return m ? parseFloat(m) : undefined;
-}
-
 export function Hero() {
-  const testShape = useSyncExternalStore(subscribeLocation, getQueryShape, () => undefined);
-  const testMorph = useSyncExternalStore(subscribeLocation, getQueryMorph, () => undefined);
-
   return (
-    <section id="top" className="hero-act" data-story-section>
+    <section id="top" className="hero-act">
       <div className="hero-grid content-wrap">
-        <div className="hero-copy" data-reveal-item>
-          <div className="hero-eyebrow">{notebook.heroEyebrow}</div>
+        <div className="hero-copy">
           <h1 className="hero-title notebook-display">
             {notebook.heroTitle}
           </h1>
           <p>{notebook.heroBody}</p>
           <div className="hero-actions">
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-              <Link href={hero.primary.href} className="btn-accent">
+              <a href={hero.primary.href} className="btn-accent">
                 <span>{hero.primary.label}</span>
                 <span aria-hidden="true">↗</span>
-              </Link>
-              <a
-                href={hero.secondary.href}
-                className="inline-flex min-h-11 items-center gap-1.5 text-xs sm:text-sm font-medium text-tx-2 hover:text-tx transition-colors px-1"
-              >
+              </a>
+              <a href={hero.secondary.href} className="hero-secondary">
                 <span>{hero.secondary.label}</span>
                 <span aria-hidden="true">↓</span>
               </a>
             </div>
-            <p className="hero-trust">{notebook.heroTrust}</p>
-            <div className="hero-curricula">
-              <span className="hero-curricula-label">{notebook.heroCurriculaLabel}:</span>
-              <span className="hero-curricula-tags">{notebook.heroCurricula}</span>
-            </div>
+            <p className="hero-subline">{hero.subline}</p>
           </div>
         </div>
-        <figure className="hero-scene" data-reveal-item>
+        <figure className="hero-scene">
           <div className="hero-subject">
-            {testShape ? (
-              <OrganicSphere size={560} shape={testShape} morph={testMorph} />
-            ) : (
-              <InkSphere autoCycle={false} interaction="pulse" />
-            )}
+            <InkSphere autoCycle={false} interaction="pulse" />
           </div>
-          <figcaption>{notebook.heroNote}</figcaption>
         </figure>
       </div>
     </section>

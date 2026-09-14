@@ -10,13 +10,7 @@ export function Footer() {
         <Wordmark />
         <p>© {site.name} {site.year}. {footer.legalNote}</p>
       </div>
-      <nav aria-label="Footer" className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-6">
-        <ul className={styles.footerLinks}>
-          {footer.index.map((link) => (
-            <li key={link.href}><a href={link.href}>{link.label}</a></li>
-          ))}
-        </ul>
-        <span className="hidden sm:inline text-tx/20 text-xs" aria-hidden="true">·</span>
+      <nav aria-label="Footer">
         <ul className={styles.footerLinks}>
           {footer.legal.map((link) => (
             <li key={link.href}>

@@ -1,32 +1,18 @@
-"use client";
-
-import { useRef } from "react";
-import { StepRail } from "./StepRail";
-import { StepPreview } from "./StepPreview";
-import { useStepScrollProgress } from "./useStepScrollProgress";
-import "./how-it-works.css";
+import "@/components/site/how-it-works/how-it-works.css";
+import { ChapterInk } from "@/components/ink/ChapterInk";
+import { mapChapter } from "@/lib/content";
 
 export function HowItWorks() {
-  const trackRef = useRef<HTMLElement>(null);
-  const stickyRef = useRef<HTMLDivElement>(null);
-  const { active, progress, isReducedMotion } =
-    useStepScrollProgress({ trackRef, stickyRef });
-
   return (
-    <section id="how-it-works" ref={trackRef} aria-labelledby="how-it-works-title"
-      className="how-track" data-reduced-motion={isReducedMotion}>
-      <div ref={stickyRef} className="how-sticky">
-        <div className="how-composition">
-          <div className="how-introduction">
-            <h2 id="how-it-works-title">
-              <span className="how-duet-sans">Your thinking,</span>
-              <span className="how-duet-serif">made visible.</span>
-            </h2>
-            <StepRail activeStep={active} />
-          </div>
-          <StepPreview progress={progress} isReducedMotion={isReducedMotion} />
+    <section id="how-it-works" className="how-chapter" aria-labelledby="how-it-works-title">
+      <div className="how-chapter-text">
+        <span className="how-chapter-cue" aria-hidden="true">{mapChapter.cue}</span>
+        <h2 id="how-it-works-title">{mapChapter.title}</h2>
+        <div className="how-chapter-journey">
+          {mapChapter.journey.map((line) => <p key={line}>{line}</p>)}
         </div>
       </div>
+      <ChapterInk study="map" />
     </section>
   );
 }

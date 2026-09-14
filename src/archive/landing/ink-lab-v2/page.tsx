@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { InkLabV2 } from "@/components/ink/InkLabV2";
+import { InkLabV2 } from "@/archive/landing/InkLabV2";
 
 export const metadata: Metadata = {
   title: "Ink laboratory v2 · Autonomous Model Embodiment",

@@ -4,7 +4,7 @@ import { site } from "@/lib/content";
 
 export const metadata = {
   title: `Privacy Policy • ${site.name}`,
-  description: "Our plain-language privacy commitment: zero model training, complete data ownership, and instant export or deletion.",
+  description: "How Socratink treats your sessions, records, and deletion.",
 };
 
 export default function PrivacyPage() {
@@ -42,8 +42,8 @@ export default function PrivacyPage() {
               1. Zero Foundation Model Training
             </h2>
             <p>
-              Your unassisted diagnostic explanations, answers, and reasoning belong strictly to you.{" "}
-              <strong className="text-tx font-semibold">Socratink never uses private diagnostic sessions to train or fine-tune public foundation models.</strong>
+              Your explanations, answers, and reasoning belong to you.{" "}
+              <strong className="text-tx font-semibold">Socratink never uses private sessions to train or fine-tune public foundation models.</strong>
             </p>
           </section>
 
@@ -68,7 +68,7 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="font-serif text-xl font-medium text-tx">
-              4. In-Browser Diagnostic & Guest Sessions
+              4. In-browser and guest sessions
             </h2>
             <p>
               Initial trial encounters run directly in your browser. No third-party ad tracking, pixel scraping, or cross-site telemetry is attached to your thinking process.

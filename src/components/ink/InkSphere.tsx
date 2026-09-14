@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import Image from "next/image";
+import { useEffect, useRef, useState, useCallback, useSyncExternalStore } from "react";
 import type { InkTool } from "@/lib/ink/tool";
 import type { InkRenderer } from "@/lib/ink/renderer";
 import { getStoredTheme, resolveTheme, THEME_CHANGE_EVENT } from "@/lib/theme";
 import { INK_EXPRESSIONS, type InkExpression } from "@/lib/ink/expressions";
+import { HERO_FORMS, heroInkScene } from "@/lib/ink/forms";
 
 const CYCLE_EXPRESSIONS: InkExpression[] = [
   "rest",
@@ -16,8 +16,128 @@ const CYCLE_EXPRESSIONS: InkExpression[] = [
 ];
 
 const DEFAULT_CYCLE_INTERVAL = 4200;
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
-export function InkSphere({
+function subscribeReducedMotion(callback: () => void) {
+  const media = window.matchMedia(REDUCED_MOTION);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
+type InkSphereProps = {
+  size?: number;
+  onTool?: (tool: InkTool | null) => void;
+  autoCycle?: boolean;
+  interaction?: "cycle" | "pulse";
+  cycleInterval?: number;
+};
+
+function HeroInk({ size = 560 }: { size?: number }) {
+  const mount = useRef<HTMLDivElement>(null);
+  const interact = useRef<(reset?: boolean) => void>(() => {});
+  const [form, setForm] = useState(0);
+  const [available, setAvailable] = useState(false);
+  const reduceMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => false,
+  );
+
+  useEffect(() => {
+    const element = mount.current;
+    if (!element || reduceMotion) return;
+    let disposed = false;
+    let cleanup = () => {};
+
+    import("@/lib/ink/renderer").then(({ mountInk }) => {
+      if (disposed) return;
+      let onIdleFrame: (dt: number) => void = () => {};
+      const renderer = mountInk(element, heroInkScene(0), (dt) => onIdleFrame(dt), setAvailable);
+      let current = 0;
+      let untilNextForm = 6;
+      const show = (next: number) => {
+        current = next;
+        renderer.setScene(heroInkScene(next));
+        setForm(next);
+      };
+      interact.current = (reset = false) => {
+        untilNextForm = 12;
+        renderer.triggerImpulse(0.35);
+        show(reset ? 0 : (current + 1) % HERO_FORMS.length);
+      };
+      const updateTheme = () => renderer.setTheme(resolveTheme(getStoredTheme()));
+      const theme = window.matchMedia("(prefers-color-scheme: dark)");
+      updateTheme();
+      window.addEventListener(THEME_CHANGE_EVENT, updateTheme);
+      window.addEventListener("storage", updateTheme);
+      theme.addEventListener("change", updateTheme);
+      setForm(0);
+
+      // Count visible animation time, so returning to the page never skips
+      // ahead. Give each gesture a quiet hold before the next one unfolds.
+      onIdleFrame = (dt) => {
+        if (element.parentElement?.matches(":hover, :focus-within")) return;
+        untilNextForm -= dt;
+        if (untilNextForm > 0) return;
+        show((current + 1) % HERO_FORMS.length);
+        untilNextForm = current === 0 ? 10 : 8;
+      };
+      cleanup = () => {
+        interact.current = () => {};
+        window.removeEventListener(THEME_CHANGE_EVENT, updateTheme);
+        window.removeEventListener("storage", updateTheme);
+        theme.removeEventListener("change", updateTheme);
+        renderer.destroy();
+      };
+    }).catch(() => {
+      if (!disposed) setAvailable(false);
+    });
+
+    return () => {
+      disposed = true;
+      cleanup();
+    };
+  }, [reduceMotion]);
+
+  const interactive = available && !reduceMotion;
+  return (
+    <button
+      type="button"
+      className="sphere ink-sphere hero-living-ink"
+      style={{ width: size, height: size, padding: 0, border: 0, borderRadius: 0, overflow: "visible", background: "transparent", color: "var(--tx-2)", cursor: interactive ? "pointer" : "default", touchAction: "pan-y" }}
+      aria-label={interactive
+        ? `Living ink, ${HERO_FORMS[form]}. Click or press Enter to reshape. Escape returns to the sphere.`
+        : "Ink sphere"}
+      aria-disabled={!interactive}
+      tabIndex={interactive ? 0 : -1}
+      onClick={() => { if (interactive) interact.current(); }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && interactive) interact.current(true);
+      }}
+    >
+      <img className="ink-poster" src="/brand/living-ink-poster.png" alt="" width={560} height={560}
+        style={{ opacity: interactive ? 0 : 1, pointerEvents: "none" }} />
+      <div ref={mount} className="ink-render" style={{ visibility: reduceMotion ? "hidden" : "visible" }} />
+      <span className="hero-ink-focus" aria-hidden="true" />
+      <style>{`
+        .hero-living-ink:focus-visible { outline: none; }
+        .hero-living-ink:focus-visible .hero-ink-focus {
+          position: absolute;
+          inset: 18%;
+          border: 2px solid var(--accent);
+          border-radius: 50%;
+          pointer-events: none;
+        }
+      `}</style>
+    </button>
+  );
+}
+
+export function InkSphere(props: InkSphereProps) {
+  return props.interaction === "pulse" ? <HeroInk size={props.size} /> : <LabInkSphere {...props} />;
+}
+
+function LabInkSphere({
   size = 560,
   onTool,
   autoCycle = true,
@@ -39,6 +159,14 @@ export function InkSphere({
   const isReducedRef = useRef(false);
   const [error, setError] = useState("");
   const [currentExpr, setCurrentExpr] = useState<InkExpression>("rest");
+  const reduceMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => false,
+  );
+  useEffect(() => {
+    isReducedRef.current = reduceMotion;
+  }, [reduceMotion]);
 
   const advance = useCallback(() => {
     const tool = toolRef.current;
@@ -80,6 +208,10 @@ export function InkSphere({
   };
 
   useEffect(() => {
+    if (reduceMotion) {
+      initRendererRef.current = () => {};
+      return;
+    }
     const element = mount.current;
     if (!element) return;
     let disposed = false;
@@ -183,43 +315,13 @@ export function InkSphere({
     };
 
     initRendererRef.current = initRenderer;
-
-    // Defer heavy WebGL initialization until idle or user interaction
-    let idleId: number | null = null;
-    let timerId: ReturnType<typeof setTimeout> | null = null;
-
-    if (typeof window !== "undefined") {
-      const win = window as unknown as {
-        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-        cancelIdleCallback?: (id: number) => void;
-      };
-      if (typeof win.requestIdleCallback === "function") {
-        idleId = win.requestIdleCallback(initRenderer, { timeout: 1800 });
-      } else {
-        timerId = setTimeout(initRenderer, 1000);
-      }
-    }
-
-    const triggerImmediate = () => initRenderer();
-    element.addEventListener("pointerenter", triggerImmediate, { once: true, passive: true });
-    element.addEventListener("pointerdown", triggerImmediate, { once: true, passive: true });
-    window.addEventListener("scroll", triggerImmediate, { once: true, passive: true });
+    initRenderer();
 
     return () => {
       disposed = true;
-      const win = window as unknown as {
-        cancelIdleCallback?: (id: number) => void;
-      };
-      if (idleId !== null && typeof win.cancelIdleCallback === "function") {
-        win.cancelIdleCallback(idleId);
-      }
-      if (timerId !== null) clearTimeout(timerId);
-      element.removeEventListener("pointerenter", triggerImmediate);
-      element.removeEventListener("pointerdown", triggerImmediate);
-      window.removeEventListener("scroll", triggerImmediate);
       cleanup();
     };
-  }, [onTool, interaction, startCycle, stopCycle]);
+  }, [onTool, interaction, startCycle, stopCycle, reduceMotion]);
 
   return (
     <div
@@ -249,16 +351,15 @@ export function InkSphere({
       <span className="sr-only" aria-live="polite">
         {INK_EXPRESSIONS[currentExpr]?.meaning}
       </span>
-      <Image
-        className="ink-poster"
-        src="/brand/living-ink-poster.png"
-        alt="Living ink droplet"
-        width={560}
-        height={560}
-        sizes="(max-width: 768px) 280px, 560px"
-        priority
-        fetchPriority="high"
-      />
+      {reduceMotion ? (
+        <img
+          className="ink-poster"
+          src="/brand/living-ink-poster.png"
+          alt=""
+          width={560}
+          height={560}
+        />
+      ) : null}
       <div ref={mount} className="ink-render" />
       {error ? (
         <span className="sr-only">

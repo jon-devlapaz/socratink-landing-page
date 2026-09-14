@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Footer } from "@/components/site/Footer";
-import { finalCta } from "@/lib/content";
+import { finalCta } from "@/archive/landing/content";
 import styles from "./ending.module.css";
 
 export function FinalCta() {

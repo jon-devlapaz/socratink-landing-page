@@ -4,7 +4,7 @@ import { site } from "@/lib/content";
 
 export const metadata = {
   title: `Terms of Service • ${site.name}`,
-  description: "Plain-language terms for Socratink diagnostic sessions, free trials, and student data integrity.",
+  description: "Plain-language terms for using Socratink.",
 };
 
 export default function TermsPage() {
@@ -42,16 +42,16 @@ export default function TermsPage() {
               1. Purpose of the Service
             </h2>
             <p>
-              Socratink provides self-test diagnostics and reasoning feedback on consequential technical and academic material. It is designed to assist learners in diagnosing their own conceptual gaps through unassisted active recall.
+              Socratink is a learning partner for hard technical and academic material. It is built to help you explain ideas, see what holds, and keep the work.
             </p>
           </section>
 
           <section className="space-y-3">
             <h2 className="font-serif text-xl font-medium text-tx">
-              2. Free Diagnostic Trial
+              2. Free trial
             </h2>
             <p>
-              We provide free diagnostic access directly in your browser with no payment obligation or credit card required. Trial access allows you to evaluate unassisted recall feedback on supported discipline syllabi.
+              We provide free access directly in your browser with no payment obligation or credit card required.
             </p>
           </section>
 
@@ -69,7 +69,7 @@ export default function TermsPage() {
               4. Fair Use & Integrity
             </h2>
             <p>
-              You agree to use Socratink for legitimate educational self-assessment. Automated scraping, malicious disruption of service, or abusive reverse engineering is prohibited.
+              You agree to use Socratink for legitimate study. Automated scraping, malicious disruption of service, or abusive reverse engineering is prohibited.
             </p>
           </section>
 

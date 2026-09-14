@@ -9,7 +9,7 @@ interface StepRailProps {
 /** Static step rail with nested descriptions: scroll-synced display only. No interaction. */
 export function StepRail({ activeStep }: StepRailProps) {
   return (
-    <ol className="how-tabs" aria-label="Diagnostic session steps">
+    <ol className="how-tabs" aria-label="Learning session steps">
       {steps.map((step) => (
         <li
           key={step.id}

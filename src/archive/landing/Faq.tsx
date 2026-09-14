@@ -1,6 +1,6 @@
 "use client";
 
-import { faq } from "@/lib/content";
+import { faq } from "@/archive/landing/content";
 import styles from "./faq.module.css";
 
 export function Faq() {

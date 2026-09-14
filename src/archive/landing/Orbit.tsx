@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
-import { orbitDisciplines, type OrbitDisciplineId } from "@/lib/content";
-import { orbit } from "@/lib/content";
+import { orbit, orbitDisciplines, type OrbitDisciplineId } from "@/archive/landing/content";
 import styles from "./orbit.module.css";
 
 const INNER_IDS = new Set<OrbitDisciplineId>(["stats", "boards", "biochem", "law", "analysis"]);

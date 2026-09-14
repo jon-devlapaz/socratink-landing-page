@@ -56,7 +56,7 @@ export function StepPreview({ progress, isReducedMotion }: StepPreviewProps) {
           </div>
         </div>
       </div>
-      <p className="how-folio-footer">Specimen diagnostic session · Graded blind · Receipt logged to local ledger on live app.</p>
+      <p className="how-folio-footer">Example practice session · Graded blind · Receipt logged to local ledger on live app.</p>
     </figure>
   );
 }

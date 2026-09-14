@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Wordmark } from "@/components/ui/Wordmark";
 import { AppearanceToggle } from "@/components/theme/AppearanceToggle";
-import { positioning as copy } from "@/lib/positioning-content";
+import { positioning as copy } from "@/archive/landing/positioning-content";
 import styles from "./positioning.module.css";
 
 export const metadata: Metadata = {

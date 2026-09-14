@@ -18,7 +18,7 @@ export const site = {
   name: "Socratink",
   tagline: "The learning engine that refuses to do the thinking for you",
   description:
-    "Master hard material from first principles. Deconstruct any syllabus into causal graphs, struggle through threshold concepts with a strict Socratic tutor, and prove retention with blind-graded receipts.",
+    "Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.",
   url: "https://socratink.ai",
   appUrl: "https://app.socratink.ai/",
   year: new Date().getFullYear(),
@@ -28,288 +28,47 @@ export const site = {
   },
 } as const;
 
-export const nav = {
-  links: [
-    { label: "How it works", href: "#how-it-works" },
-    { label: "Disciplines", href: "#material" },
-    { label: "Why it sticks", href: "#retention-science" },
-    { label: "Memory", href: "#memory" },
-    { label: "FAQ", href: "#faq" },
-  ],
-  login: { label: "Log in", href: `${site.appUrl}login` },
-  cta: { label: "Try a 3-minute diagnostic", shortLabel: "Try free", href: site.appUrl },
-} as const;
-
 export const hero = {
-  primary: { label: "Try a 3-minute diagnostic", href: site.appUrl },
+  primary: { label: "Start learning", href: site.appUrl },
   secondary: { label: "See how it works", href: "#how-it-works" },
+  subline: "You think · One teacher · It stays",
 } as const;
 
-
-
-
-export type OrbitDisciplineId =
-  | "stats"
-  | "biochem"
-  | "boards"
-  | "cloud"
-  | "law"
-  | "signals"
-  | "med"
-  | "analysis"
-  | "accounting"
-  | "ml";
-
-export type OrbitDiscipline = {
-  id: OrbitDisciplineId;
-  label: string;
-  question: string;
-  target: string;
-  aiTrap: string;
-  transferAsk: string;
-};
-
-/** In-place Orbit switcher cards. Gemini DISCIPLINE_CARDS; labels match prior orbit.nodes. */
-export const orbitDisciplines: readonly OrbitDiscipline[] = [
-  {
-    id: "stats",
-    label: "Statistics",
-    question: "Can a bigger survey still give the wrong answer?",
-    target: "Sampling Bias Invariance under Sample Size",
-    aiTrap:
-      "AI fluently increases n, conflating standard error reduction with the correction of systematic sampling frame flaws.",
-    transferAsk:
-      "A medical survey polls 25,000 opt-in app users to estimate national diabetes rates. Explain why tighter variance does not cure the estimate, without multiple choice.",
-  },
-  {
-    id: "biochem",
-    label: "Organic chemistry",
-    question: "Why can the same molecule react in two different ways?",
-    target: "Steric Hindrance vs. Nucleophilicity in SN2 Pathways",
-    aiTrap:
-      "AI recites 'backside attack causes inversion', leaving the student unaware that a sterically hindered tertiary carbon forces an E2 elimination instead.",
-    transferAsk:
-      "Predict the major product when (R)-2-bromobutane is treated with sodium cyanide in DMSO vs. potassium tert-butoxide in tert-butanol. Explain the governing divergence unprompted.",
-  },
-  {
-    id: "boards",
-    label: "Board exams",
-    question: "Does a positive test always mean someone is sick?",
-    target: "Bayesian Positive Predictive Value in Low-Prevalence Screening",
-    aiTrap:
-      "AI praises a 99% test sensitivity, while the candidate forgets that when disease prevalence is 0.1%, false positives vastly outnumber true positives.",
-    transferAsk:
-      "A test with 99% sensitivity and 95% specificity tests positive in an asymptomatic screening population (prevalence 0.1%). Calculate without notes why the patient still only has a ~2% chance of disease.",
-  },
-  {
-    id: "cloud",
-    label: "Cloud certifications",
-    question: "What happens when two servers disagree about your balance?",
-    target: "Consistency Boundaries under Network Partition (CAP Theorem)",
-    aiTrap:
-      "AI recommends multi-region read replicas, obscuring the reality that replicas only scale reads and introduce split-brain write conflicts when the cross-region link drops.",
-    transferAsk:
-      "A fiber cut isolates two availability zones handling a banking ledger. Prove why the database cannot maintain both zero-downtime balance deductions and ledger consistency.",
-  },
-  {
-    id: "law",
-    label: "Contract law",
-    question: "When does a promise become something you can enforce?",
-    target: "Pre-Existing Duty Rule vs. Promissory Estoppel",
-    aiTrap:
-      "AI gives a generic definition of detrimental reliance, missing whether a subcontractor's verbal promise is unenforceable due to an existing contractual obligation.",
-    transferAsk:
-      "A contractor promises an electrician a $10,000 bonus to finish an on-time completion they were already legally bound to deliver. Analyze whether the electrician can enforce payment without reference notes.",
-  },
-  {
-    id: "signals",
-    label: "Signal processing",
-    question: "How can a recording pick up a sound that was never there?",
-    target: "Analog Anti-Aliasing Filtration prior to Sampling",
-    aiTrap:
-      "AI quotes the Nyquist limit (fs > 2fmax), while the engineer forgets that high-frequency noise folds permanently into the baseband unless an analog low-pass filter precedes the ADC.",
-    transferAsk:
-      "A sensor samples a 1 kHz acoustic signal at 1.5 kHz. What spurious alias frequency appears in the output, and explain why no downstream DSP algorithm can remove it.",
-  },
-  {
-    id: "med",
-    label: "Pathophysiology",
-    question: "Why can the same treatment help one patient and harm another?",
-    target: "Hemodynamic Divergence in Cardiogenic vs. Hypovolemic Shock",
-    aiTrap:
-      "AI explains the Frank-Starling curve fluently, while the learner reflexively orders IV fluid boluses for a patient whose lungs are already filling with fluid.",
-    transferAsk:
-      "A hypotensive patient presents with cold extremities, elevated jugular venous pressure, and bilateral pulmonary crackles. Explain why standard fluid resuscitation will precipitate respiratory arrest.",
-  },
-  {
-    id: "analysis",
-    label: "Real analysis",
-    question: "If every step is continuous, does the limit have to be?",
-    target: "Pointwise vs. Uniform Convergence of Function Sequences",
-    aiTrap:
-      "AI proves fn(x) = x^n converges pointwise to 0 on [0, 1), masking the failure of the limit function to preserve continuity on the closed interval [0, 1].",
-    transferAsk:
-      "Construct a sequence of continuous functions on [0, 1] that converges to 0 pointwise, but whose integrals converge to 1. State unprompted why uniform convergence fails.",
-  },
-  {
-    id: "accounting",
-    label: "Accounting",
-    question: "Does getting paid mean you have earned the revenue?",
-    target: "Performance Obligation Bundling under ASC 606",
-    aiTrap:
-      "AI lists the 5-step revenue framework, while missing whether ongoing proprietary security patches make software licenses a single bundled service rather than upfront point-in-time revenue.",
-    transferAsk:
-      "A SaaS vendor sells a 3-year term license with essential daily proprietary vulnerability updates. Defend why revenue cannot be recognized upfront on key delivery.",
-  },
-  {
-    id: "ml",
-    label: "Machine learning",
-    question: "Why can a model ace a test and fail in the real world?",
-    target: "Data Leakage across Cross-Validation Splits",
-    aiTrap:
-      "AI writes a clean scikit-learn preprocessing block, but fits standard scalers across the full dataset prior to k-fold splitting, leaking test-fold distribution parameters into training.",
-    transferAsk:
-      "Explain why fitting a TF-IDF vectorizer before train/test partitioning produces an artificially inflated evaluation metric, even if target labels were excluded.",
-  },
-] as const;
-
-export const orbit = {
-  title: "Put your subject to the test.",
-  bridge: "Choose a subject. See what you can explain from memory.",
-  exampleLabel: "Example",
-  instruction: "Explain why, without your notes.",
-  ownMaterial: "Or bring your own study outline.",
-  pauseLabel: "Pause orbit",
-  resumeLabel: "Resume orbit",
-  defaultId: "stats" as const satisfies OrbitDisciplineId,
-  cta: {
-    label: "Try the free diagnostic",
-    href: site.appUrl,
-  },
-  /** Ordered to match the decorative orbit ring (prior nodes list). */
-  disciplines: orbitDisciplines,
-  /** Label list for ring geometry / legacy readers; same order as disciplines. */
-  nodes: orbitDisciplines.map((d) => d.label),
-} as const;
-
-export const memory = {
-  eyebrow: "Verifiable learning ledger",
-  title: "Your thinking,\nproven across time.",
-  body: "An answer tells you what happened once. A verifiable ledger proves your understanding didn't evaporate. Track how raw intuition transforms into unshakeable recall before test day.",
-  principle: "The original words stay.\nThe proof compounds around them.",
-  stages: [
-    {
-      id: "day-01",
-      day: "Day 01",
-      stage: "Cold baseline diagnostic",
-      shortLabel: "Diagnostic",
-      date: "Oct 12 · 09:14",
-      prompt: "Why doesn't a massive sample size eliminate sampling bias?",
-      attempt: "“More responses should give us a more accurate estimate because the law of large numbers averages out individual errors.”",
-      status: "trap" as const,
-      statusLabel: "Identified trap",
-      annotation: "Conflated variance with bias. A larger sample reduces random noise, but amplifies systematic exclusion with higher false confidence.",
-      retentionDelta: "Baseline intuition",
-    },
-    {
-      id: "day-03",
-      day: "Day 03",
-      stage: "Targeted Socratic repair",
-      shortLabel: "Repair",
-      date: "Oct 14 · 18:22",
-      prompt: "Isolate the distinction between sample size and selection mechanism.",
-      attempt: "“Variance shrinks with N, but bias is in the sampling frame. If the door only lets tall people in, measuring 100,000 people just gives a very precise estimate of tall people.”",
-      status: "repair" as const,
-      statusLabel: "Mechanistic breakthrough",
-      annotation: "Causal boundary recognized. Decoupled random error (variance) from structural distortion (selection).",
-      retentionDelta: "+45% mechanistic precision",
-    },
-    {
-      id: "day-14",
-      day: "Day 14",
-      stage: "Unaided retention check",
-      shortLabel: "Unaided",
-      date: "Oct 26 · 11:05",
-      prompt: "Solved cold without notes, aids, or AI suggestions.",
-      attempt: "“Large N reduces variance toward the sample’s expected value; it does not shift that expectation toward the true population parameter if selection probability is non-uniform.”",
-      status: "mastered" as const,
-      statusLabel: "Retention validated",
-      annotation: "Exam-ready retrieval. Mechanism recalled cold without scaffolding after two weeks in the 80% retention band.",
-      retentionDelta: "80% retention verified cold",
-      seal: "RETENTION VALIDATED",
-    },
+/** Chapter 1. Title is facet 1 of the accepted direction; journey lines are the live How-it-works path. */
+export const mapChapter = {
+  cue: "01",
+  title: "A map\nof the work",
+  journey: [
+    "Start with the question you actually have.",
+    "Use an explanation, a picture, or a counterexample when it helps.",
+    "Return later, in a different setting, and see what still holds.",
   ],
-  exportFormats: [
-    { label: "Markdown", ext: ".md" },
-    { label: "JSON Ledger", ext: ".json" },
-    { label: "Anki Deck", ext: ".csv" },
-  ],
-  ownership: "Your records belong to you. Export as Markdown or JSON, or delete them anytime. Private sessions are never used to train public models.",
-  privacyNotice: "Zero public model training · Your thinking stays yours · Client-side receipt ledger",
+  mapAlt: "A small ink map. A few places joined by one path that runs off the edge of the paper.",
 } as const;
 
-export type MemoryStageId = (typeof memory.stages)[number]["id"];
-
-export const faq = {
-  eyebrow: "Frequently inspected",
-  title: "A few fair questions\nbefore you begin.",
-  deck: "High-consideration learning demands honest answers. Here is how Socratink approaches cognitive resistance, grading integrity, and data ownership.",
-  items: [
-    {
-      id: "chatbots",
-      question: "How is Socratink different from ChatGPT, Claude, or NotebookLM?",
-      answer:
-        "Conventional chatbots are designed to please you by generating complete answers. That creates the recognition illusion: reading fluent text feels like understanding, but the cognitive work was done by the model. Socratink uses a strict Socratic dialogue grammar where the AI is forbidden from giving solutions directly. It forces pre-commit predictions and nudges you through productive struggle until you formulate the mechanism yourself.",
-    },
-    {
-      id: "syllabus",
-      question: "Can I bring my own syllabus, textbook outline, or board exam prep?",
-      answer:
-        "Yes. Paste any syllabus, textbook table of contents, or certification outline. Socratink compiles the material into a first-principles Directed Acyclic Graph (DAG) of prerequisite necessity, isolating the bottleneck threshold concepts (†) that you must master before downstream applications will hold.",
-    },
-    {
-      id: "blind-grading",
-      question: "What is the Blind Assessor and why does separation of powers matter?",
-      answer:
-        "When the same AI agent tutors you and grades you, it suffers from conversational halo: it knows what hints it gave you and gives you the benefit of the doubt. Socratink separates teaching from evaluation. An independent Blind Assessor evaluates your unaided retrieval in a completely isolated context without access to the coaching transcript. Every grade is an immutable written receipt on disk.",
-    },
-    {
-      id: "fsrs",
-      question: "How does FSRS-4.5 prevent the Harvard 2025 retention decay effect?",
-      answer:
-        "A 2025 Harvard study (Kestin et al.) confirmed that immediate gains from AI tutoring evaporate by day 10 without structured retrieval practice. Socratink integrates the Free Spaced Repetition Scheduler (FSRS-4.5) to mathematically model your retrievability decay curve R = (1 + F · t / S)⁻¹. It schedules unaided cold probes right before stability drops below target, ensuring retention compounds past 30 days.",
-    },
-    {
-      id: "time",
-      question: "How much time does a single diagnostic session take?",
-      answer:
-        "3 to 5 minutes per threshold node. Because you are explaining the mechanism cold rather than grinding through 50 passive multiple-choice questions, the cognitive yield per minute is extraordinarily high. You pinpoint your exact conceptual gap in minutes.",
-    },
-    {
-      id: "privacy",
-      question: "Does Socratink use my thinking to train public models?",
-      answer:
-        "Never. Your transcripts, diagnostic attempts, and receipts are stored locally on your device and belong strictly to you. You can export your entire ledger anytime as Markdown, JSON, or an Anki deck, or wipe it with one click. We never sell user data or train public foundation models on learner reasoning.",
-    },
-  ],
+/** Chapter 2. Facet 2 of the accepted direction. The constraint line lives here, not on the title page. */
+export const speakChapter = {
+  cue: "02",
+  title: "You speak.\nIt teaches.",
+  body: "The work is spoken. It listens for what you actually understand.",
+  constraint: "It does not answer for you.",
+  markAlt: "One brushstroke. It starts faint and broken, then turns to solid ink and stops.",
 } as const;
 
+/** Chapter 3, the peak. Facet 3 of the accepted direction; the engram is how you are taught. */
+export const keepChapter = {
+  cue: "03",
+  title: "A teacher\nyou keep",
+  body: "It stays, it pushes, it remembers.",
+  engram: "You choose its engram, the personality it teaches with.",
+} as const;
 
-export const finalCta = {
-  title: "Don't outsource your thinking.\nKnow what you actually know.",
-  prompt: "Start with one diagnostic prompt or deconstruct your syllabus.",
-  button: { label: "Try a 3-minute diagnostic", href: site.appUrl },
-  sub: "Free 3-minute diagnostic · No sign-up required · Works directly in your browser",
+export const colophon = {
+  button: { label: hero.primary.label, href: site.appUrl },
+  subline: hero.subline,
 } as const;
 
 export const footer = {
-  index: [
-    { label: "How it works", href: "#how-it-works" },
-    { label: "Disciplines", href: "#material" },
-    { label: "Why it sticks", href: "#retention-science" },
-    { label: "Memory", href: "#memory" },
-    { label: "FAQ", href: "#faq" },
-  ],
   legal: [
     { label: "Privacy", href: "/privacy" },
     { label: "Terms", href: "/terms" },
@@ -319,16 +78,16 @@ export const footer = {
 } as const;
 
 
-/** Approved hero presentation, elevated to first-principles learning engine manifesto. */
+/** Minimal hero invitation: the learner does the thinking. */
 export const notebook = {
-  heroEyebrow: "First-principles learning engine",
-  heroTitle: "The learning engine that refuses\nto do the thinking for you.",
+  heroTitle: "Make the thinking\nyour own.",
   heroBody:
-    "Chatbots make you nod today and forget next week. Socratink deconstructs any syllabus into prerequisite graphs, forces productive Socratic struggle with prediction gates, and proves retention with blind-graded receipts.",
-  heroTrust: "Free 3-minute diagnostic · No sign-up required · Works directly in your browser",
-  heroCurriculaLabel: "Curricula",
-  heroCurricula: "USMLE Step 1 · California Bar · AWS Solutions · CFA · Econometrics",
-  heroNote: "Deconstruct a syllabus · Answer cold from memory",
+    "Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.",
 } as const;
 
-
+export const notFound = {
+  cue: "404",
+  title: "You walked off\nthe edge of the paper.",
+  body: "There is no inquiry recorded at this address. The ink has not touched this sheet.",
+  action: { label: "Return to the map", href: "/" },
+} as const;

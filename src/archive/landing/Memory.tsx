@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
-import { memory } from "@/lib/content";
+import { memory } from "@/archive/landing/content";
 import styles from "./ending.module.css";
 
 const LEDGER = [

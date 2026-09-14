@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
-import { InkSphere } from "./InkSphere";
+import { InkSphere } from "@/components/ink/InkSphere";
 import { SCULPT_CATALOG } from "@/lib/ink/sculpt";
 import {
   SOMATIC_METADATA,
