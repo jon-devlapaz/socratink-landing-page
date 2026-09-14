@@ -87,7 +87,7 @@ try {
       if (/^\s*0[123]\b/m.test(metrics.body) || /\b0[123]\s/.test(metrics.body.slice(0, 80))) {
         fail(`${sheet.name}: step numeral still visible`);
       }
-      if (sheet.heading && !metrics.heading?.text.includes(sheet.heading.split("\n")[0].replace(".", ""))) {
+      if (sheet.heading && !metrics.heading?.text.replace(/\s+/g, " ").includes(sheet.heading.replace(/\s+/g, " "))) {
         fail(`${sheet.name}: heading missing (${metrics.heading?.text})`);
       }
       const titleClear = metrics.heading && metrics.heading.top >= metrics.navBottom + 12;
@@ -97,6 +97,21 @@ try {
       const limit = metrics.chromeTop - CLEARANCE;
       if (metrics.heading && metrics.heading.bottom > limit) {
         fail(`${sheet.name} ${shot.width} ${shot.theme}: heading under chrome (${metrics.heading.bottom} > ${limit})`);
+      }
+      const footerLinks = await page.evaluate((chromePx) => {
+        if (!document.getElementById("colophon")) return null;
+        const links = [...document.querySelectorAll("#colophon .footerLinks a, #colophon footer a")];
+        if (!links.length) {
+          const any = [...document.querySelectorAll("footer a")];
+          return any.map((a) => a.getBoundingClientRect().bottom);
+        }
+        return links.map((a) => a.getBoundingClientRect().bottom);
+      }, CHROME_PX);
+      if (sheet.id === "colophon") {
+        const bottoms = footerLinks ?? [];
+        if (!bottoms.length) fail("colophon: no footer links");
+        const worst = Math.max(...bottoms);
+        if (worst > limit) fail(`colophon ${shot.width}: footer links under chrome (${worst} > ${limit})`);
       }
 
       await page.evaluate((chromePx) => {

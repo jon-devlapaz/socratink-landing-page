@@ -72,3 +72,10 @@
     margin-inline: auto;
   }
 }
+
+@media (max-width: 760px) and (max-height: 700px) {
+  .how-map {
+    width: min(100%, 12.5rem, 30dvh);
+    margin-top: 1.15rem;
+  }
+}
