@@ -6,7 +6,6 @@ export function KeepChapter() {
   return (
     <section id="keep" className="how-chapter" aria-labelledby="keep-title">
       <div className="how-chapter-text">
-        <span className="how-chapter-cue" aria-hidden="true">{keepChapter.cue}</span>
         <h2 id="keep-title">{keepChapter.title}</h2>
         <div className="how-chapter-journey">
           <p>{keepChapter.body}</p>

@@ -562,6 +562,20 @@ textarea:disabled { cursor: not-allowed; }
   padding-block: 0;
 }
 
+@media (max-width: 767px) {
+  .folio-section-shell {
+    justify-content: flex-start;
+    min-height: 100svh;
+    min-height: 100dvh;
+    padding-top: 4.25rem;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 3.25rem);
+  }
+
+  .folio-track-takeaway .folio-section-shell {
+    padding-block: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-act,
   .folio-section-track {

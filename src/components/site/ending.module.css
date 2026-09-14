@@ -84,7 +84,7 @@
     scroll-margin-top: calc(4.5rem + env(safe-area-inset-top));
   }
   .colophonInvite {
-    padding-block: calc(7rem + env(safe-area-inset-top)) 2.5rem;
+    padding-block: calc(7rem + env(safe-area-inset-top)) calc(2.5rem + env(safe-area-inset-bottom, 0px));
   }
   .footerLinks { column-gap: 1.25rem; }
 }
