@@ -115,6 +115,7 @@ try {
       metrics.secondary?.text.includes("See how it works") &&
       metrics.subline?.text.includes("You think · One teacher · It stays");
     const restDisc = /Living ink, sphere/.test(metrics.form) || metrics.form === "Ink sphere";
+    const inkBelowCta = metrics.blob && metrics.actions && metrics.blob.top >= metrics.actions.bottom - 4;
 
     await page.evaluate((chromePx) => {
       const bar = document.createElement("div");
@@ -144,7 +145,7 @@ try {
 
     const file = path.join(out, `${shot.name}.png`);
     await page.screenshot({ path: file, fullPage: false });
-    report.push({ shot: shot.name, metrics, actionsClear, sublineClear, blobOk, labels, restDisc, file });
+    report.push({ shot: shot.name, metrics, actionsClear, sublineClear, blobOk, labels, restDisc, inkBelowCta, file });
 
     if (!labels) fail(`${shot.name}: kept copy missing ${JSON.stringify({
       primary: metrics.primary?.text, secondary: metrics.secondary?.text, subline: metrics.subline?.text,
@@ -157,9 +158,13 @@ try {
       fail(`${shot.name}: subline bottom ${metrics.subline?.bottom} under chrome (limit ${limit})`);
     }
     if (!restDisc) fail(`${shot.name}: rest form is not the disc (${metrics.form})`);
+    if (!inkBelowCta) {
+      fail(`${shot.name}: ink should sit below the CTAs (blob top ${metrics.blob?.top}, actions bottom ${metrics.actions?.bottom})`);
+    }
     console.log(`PASS ${shot.name}`, {
       actionsBottom: Math.round(metrics.actions.bottom),
       sublineBottom: Math.round(metrics.subline.bottom),
+      blobTop: Math.round(metrics.blob.top),
       chromeTop: metrics.chromeTop,
       blob: Math.round(metrics.blob.height),
       pad: metrics.heroPad,
