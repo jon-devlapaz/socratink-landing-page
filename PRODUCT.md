@@ -75,20 +75,17 @@ Explicitly undecided: the exact retention-scheduling mechanism, any adaptive dia
 - Description: "A learning agent for hard material. It makes you do the thinking, keeps the evidence of what you produced, and is built to come back later to see whether the capability became yours."
 - Site: `https://socratink.ai`. App: `https://app.socratink.ai/`.
 - Voice (confirmed): precise and evidence-honest; plain about the method and its limits; no sales language, stock claims, or engagement copy.
-- Assets on hand: `public/brand/socratink_wordmark.png`, `public/brand/living-ink-poster.png`, `public/brand/ink-sphere-poster.png`, `artifacts/sphere/hero-sphere-ink.png`, `artifacts/sphere/hero-sphere-paper.png`.
+- Assets on hand: `public/brand/socratink_wordmark.png`, `public/brand/living-ink-poster.png`, `public/brand/ink-map-light.png`, `public/brand/ink-speak-light.png`, `public/brand/ink-teacher-light.png`.
 
 ## Evidence on Hand
 
 Real, with paths:
 
-- All marketing copy in `src/lib/content.ts` — site/hero/nav, 10 `orbitDisciplines` (target, AI trap, transfer ask), memory cards, final CTA, footer, notebook hero.
-- Session-loop copy in `src/components/site/how-it-works/steps.ts` (Pick your topic → Explain it from memory → See where the gaps are) plus preview data.
-- Living-ink renderer, lab, and symbol studies: `src/lib/ink/`, `src/components/ink/`, `src/app/ink-lab/`, `src/app/ink-lab-v2/`, `docs/living-ink.md`. Lab cues simulate learning moments; they are not wired to real learning events and are not assessments.
-- Architecture spike (validation pending, not doctrine): `docs/how-it-works-tabs-spec-2026-09-11.md`.
-- Proposal, explicitly not implemented or visitor-validated: `docs/method-overhaul-proposal.md`.
-- Retired history only (Method `#method` section removed; do not treat as current behavior): `docs/encounter-contract-slip-ship.md`.
+- Live marketing copy in `src/lib/content.ts` — site, hero, notebook invitation, map/speak/keep chapters, colophon, footer, 404.
+- Visitor page in `src/app/page.tsx` — nav, hero, folio sheets, colophon.
+- Living-ink renderer used by the hero and chapter marks: `src/lib/ink/`, `src/components/ink/InkSphere.tsx`, `src/components/ink/ChapterInk.tsx`.
 
-Absences future work must not fabricate: testimonials, customers, case studies, benchmarks or learning-gain numbers, mastery scores, pricing, licensing, press, and deployment claims. The ink-test performance numbers in `docs/living-ink.md` are desktop requestAnimationFrame intervals on one machine, not GPU timestamps or phone measurements; do not generalize them.
+Absences future work must not fabricate: testimonials, customers, case studies, benchmarks or learning-gain numbers, mastery scores, pricing, licensing, press, and deployment claims.
 
 ## Product Principles
 

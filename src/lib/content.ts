@@ -43,7 +43,6 @@ export const mapChapter = {
     "Use an explanation, a picture, or a counterexample when it helps.",
     "Return later, in a different setting, and see what still holds.",
   ],
-  mapAlt: "A small ink map. A few places joined by one path that runs off the edge of the paper.",
 } as const;
 
 /** Chapter 2. Facet 2 of the accepted direction. The constraint line lives here, not on the title page. */
@@ -52,7 +51,6 @@ export const speakChapter = {
   title: "You speak.\nIt teaches.",
   body: "The work is spoken. It listens for what you actually understand.",
   constraint: "It does not answer for you.",
-  markAlt: "One brushstroke. It starts faint and broken, then turns to solid ink and stops.",
 } as const;
 
 /** Chapter 3, the peak. Facet 3 of the accepted direction; the engram is how you are taught. */

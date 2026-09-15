@@ -1,13 +1,5 @@
 /**
- * Site hygiene regression check (no browser required).
- *
- * Guards the Sept 2026 touch-up batch:
- * - dead Method section stays deleted (EncounterStrip, its CSS, LandingInkDirector, contractSlip)
- * - docs stay in sync (no live claims about the removed section)
- * - viewport supports both color schemes with matching theme-colors
- * - social metadata ships an image (no platform-generated fallback)
- * - WebGL test orb skips SSR prerendering
- * - InkLab randomize stays memoized with complete effect deps
+ * Guards the live landing against workshop leftovers and copy/metadata drift.
  */
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -29,96 +21,76 @@ async function read(rel) {
 async function absent(rel) {
   try {
     await fs.access(path.join(root, rel));
-    fail(`dead file still present: ${rel}`);
+    fail(`workshop path still present: ${rel}`);
   } catch {
-    pass(`dead file absent: ${rel}`);
+    pass(`workshop path absent: ${rel}`);
   }
 }
 
-// 1. Dead files stay deleted.
+await absent("src/app/ink-lab/page.tsx");
+await absent("src/components/ink/InkLab.tsx");
+await absent("src/lib/ink/tool.ts");
+await absent("src/lib/ink/kinematics.ts");
+await absent("src/archive/landing/Orbit.tsx");
 await absent("src/components/site/EncounterStrip.tsx");
-await absent("src/components/site/encounter-strip.css");
-await absent("src/components/site/LandingInkDirector.tsx");
+await absent(".agents/skills/cro/SKILL.md");
+await absent("docs/north-star-scroll-hillclimb.md");
+await absent("spike-report.md");
+await absent("public/scrollcraft/scrollcraft.js");
+await absent("public/brand/ink-sphere-poster.png");
 
-// 2. No live references to the removed section.
-const [content, memory, hero, layout, inkLab, readme] = await Promise.all([
+const [content, page, layout, readme, agents, sphere] = await Promise.all([
   read("src/lib/content.ts"),
-  read("src/components/site/Memory.tsx"),
-  read("src/components/site/Hero.tsx"),
+  read("src/app/page.tsx"),
   read("src/app/layout.tsx"),
-  read("src/components/ink/InkLab.tsx"),
   read("README.md"),
+  read("AGENTS.md"),
+  read("src/components/ink/InkSphere.tsx"),
 ]);
-for (const [name, text] of [
-  ["src/lib/content.ts", content],
-  ["src/components/site/Memory.tsx", memory],
-]) {
-  if (/(EncounterStrip|contractSlip)/.test(text)) {
-    fail(`${name} still references the removed section`);
-  } else {
-    pass(`${name} has no removed-section references`);
-  }
-}
-const liveSrc = await Promise.all(
-  ["src/app/page.tsx", "src/components/site/Nav.tsx", "src/components/site/Footer.tsx"].map(read),
-);
-if (liveSrc.some((t) => /(EncounterStrip|LandingInkDirector|contractSlip)/.test(t))) {
-  fail("live component still imports the removed section");
-} else {
-  pass("live components have no removed-section imports");
-}
-if (/EncounterStrip/.test(readme) && /primary interactive/.test(readme)) {
-  fail("README still documents EncounterStrip as the page spine");
-} else {
-  pass("README no longer documents the removed spine");
-}
 
-// 3. Viewport supports the app's actual theme range.
+if (!content.includes('heroTitle: "Make the thinking')) {
+  fail("content.ts lost the live hero title");
+} else {
+  pass("content.ts still owns the live hero title");
+}
+if (!content.includes('cue: "404"')) {
+  fail("notFound.cue is no longer 404");
+} else {
+  pass("notFound.cue remains 404");
+}
+if (!page.includes("<Hero />") || !page.includes("<HowItWorks />") || !page.includes("<Colophon />")) {
+  fail("page.tsx is missing the live visitor spine");
+} else {
+  pass("page.tsx still mounts hero, folio, and colophon");
+}
+if (page.includes("InkLab") || page.includes("Orbit") || page.includes("Memory")) {
+  fail("page.tsx still mounts a retired section");
+} else {
+  pass("page.tsx has no retired sections");
+}
 if (/colorScheme:\s*["']light dark["']/.test(layout)) {
   pass('viewport colorScheme is "light dark"');
 } else {
   fail('viewport colorScheme is not "light dark"');
 }
-if (
-  /prefers-color-scheme: light/.test(layout) &&
-  /prefers-color-scheme: dark/.test(layout) &&
-  /#fffcf0/.test(layout) &&
-  /#100f0f/.test(layout)
-) {
-  pass("viewport themeColor covers light and dark");
-} else {
-  fail("viewport themeColor does not cover light and dark");
-}
-
-// 4. Social metadata ships a real image.
 if (/openGraph:[\s\S]*?images:/.test(layout) && /twitter:[\s\S]*?images:/.test(layout)) {
-  pass("openGraph and twitter metadata include images");
+  pass("social metadata includes images");
 } else {
   fail("social metadata is missing images");
 }
-
-// 5. WebGL test orb skips SSR prerendering.
-if (/\{\s*ssr:\s*false\s*\}/.test(hero)) {
-  pass("Hero dynamic orb import uses ssr: false");
+if (sphere.includes("createInkTool") || sphere.includes("LabInkSphere")) {
+  fail("InkSphere still carries the ink-lab tool path");
 } else {
-  fail("Hero dynamic orb import is missing ssr: false");
+  pass("InkSphere is the landing hero only");
 }
-
-// 6. InkLab randomize stays memoized with complete deps.
-if (/const randomize = useCallback\(/.test(inkLab)) {
-  pass("InkLab randomize is memoized");
+if (/workshop routes/.test(agents) && /src\/lib\/content\.ts/.test(readme)) {
+  pass("agent and human docs describe the live site");
 } else {
-  fail("InkLab randomize is not memoized");
-}
-if (/autoMorph,\s*tool,\s*paused,\s*randomize/.test(inkLab) && /\[\s*triggerSomatic,\s*randomize\s*\]/.test(inkLab)) {
-  pass("InkLab effects depend on randomize");
-} else {
-  fail("InkLab effects have incomplete deps");
+  fail("AGENTS.md or README.md no longer describe the live site");
 }
 
 if (failed > 0) {
   console.error(`\nverify-hygiene: ${failed} failure(s)`);
   process.exit(1);
-} else {
-  console.log("\nverify-hygiene: all checks passed");
 }
+console.log("\nverify-hygiene: all checks passed");

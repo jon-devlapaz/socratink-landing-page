@@ -1,9 +1,9 @@
 import { parseInkScene, type InkPart, type InkScene } from "./scene";
 
 export const INK_STUDIES = [
-  { id: "map", name: "Map", gesture: "One understanding opens into more.", description: "A shared root divides, then divides again. Four connected tips reach into a growing map of skills." },
-  { id: "speak", name: "Speak", gesture: "A voice moves through the ink.", description: "A ripple enters at the left, travels through the ribbon, and softens at the right. A phrase, then a breath." },
-  { id: "teacher", name: "Teacher", gesture: "A thought wakes another.", description: "A pooled presence on the paper. A slow swell wakes through the wet ink, then settles." },
+  { id: "map", name: "Map", description: "A shared root divides, then divides again. Four connected tips reach into a growing map of skills." },
+  { id: "speak", name: "Speak", description: "A ripple enters at the left, travels through the ribbon, and softens at the right. A phrase, then a breath." },
+  { id: "teacher", name: "Teacher", description: "A pooled presence on the paper. A slow swell wakes through the wet ink, then settles." },
 ] as const;
 export type InkStudy = (typeof INK_STUDIES)[number]["id"];
 export const STUDY_MORPH_SECONDS = 4.8;
@@ -77,12 +77,9 @@ function teacherParts(): InkPart[] {
 
 // Every pose retains the same fourteen union volumes, pigment and camera.
 // The renderer moves their bodies; no crossfade or topology switch is needed.
-export function inkStudyScene(study: InkStudy | "drop", gesture = false): InkScene {
+export function inkStudyScene(study: InkStudy, gesture = false): InkScene {
   const parts = study === "map" ? mapParts(gesture) : study === "teacher" ? teacherParts() : Array.from({ length: COUNT }, (_, i) => {
     const u = i / (COUNT - 1);
-    if (study === "drop") {
-      return volume(0.07 * Math.sin(u * Math.PI), -0.3 + u * 0.67, 0, 1.04 - u * 0.36);
-    }
     const diameter = 0.34 + 0.03 * Math.sin(u * Math.PI);
     const part = volume((u * 2 - 1) * 1.02, 0.08 * Math.sin(u * Math.PI), 0, diameter);
     part.scale = [diameter, diameter, diameter * 0.48];
@@ -93,13 +90,4 @@ export function inkStudyScene(study: InkStudy | "drop", gesture = false): InkSce
     material: { color: "#060709", roughness: 0.23, metalness: 0 },
     motion: { speed: 0.28, amplitude: 0.018, pointer: 0.06 }, parts,
   });
-}
-
-export function inkStudyDropScene(study: InkStudy): InkScene {
-  const drop = inkStudyScene("drop");
-  const anatomy = inkStudyScene(study);
-  // A capsule with equal dimensions is a sphere. Keep Map's primitive types
-  // through replay so its long branches never switch abruptly to ellipsoids.
-  drop.parts.forEach((part, i) => { part.shape = anatomy.parts[i].shape; });
-  return parseInkScene(drop);
 }
