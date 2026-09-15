@@ -36,7 +36,6 @@ export const hero = {
 
 /** Chapter 1. Title is facet 1 of the accepted direction; journey lines are the live How-it-works path. */
 export const mapChapter = {
-  cue: "01",
   title: "A map\nof the work",
   journey: [
     "Start with the question you actually have.",
@@ -48,7 +47,6 @@ export const mapChapter = {
 
 /** Chapter 2. Facet 2 of the accepted direction. The constraint line lives here, not on the title page. */
 export const speakChapter = {
-  cue: "02",
   title: "You speak.\nIt teaches.",
   body: "The work is spoken. It listens for what you actually understand.",
   constraint: "It does not answer for you.",
@@ -57,7 +55,6 @@ export const speakChapter = {
 
 /** Chapter 3, the peak. Facet 3 of the accepted direction; the engram is how you are taught. */
 export const keepChapter = {
-  cue: "03",
   title: "A teacher\nyou keep",
   body: "It stays, it pushes, it remembers.",
   engram: "You choose its engram, the personality it teaches with.",

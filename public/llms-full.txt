@@ -20,18 +20,18 @@ Socratink enforces the opposite: productive struggle, active retrieval, and unas
 
 ## 3. Product Architecture
 
-### Chapter 01 · A Map of the Work
+### A map of the work
 - The inquiry starts with the actual problem or ambiguity the learner possesses.
 - Visual representation of concepts using a minimalist sumi-ink graph topology.
 - Traversal from known foundational theorems to current uncertainties.
 
-### Chapter 02 · You Speak. It Teaches.
+### You speak. It teaches.
 - Voice-first conversational loop optimized for low-latency verbal deliberation.
 - The engine listens to the learner's vocabulary, precision, and hesitation.
 - It detects when a learner is regurgitating buzzwords versus articulating first principles.
 - Strict constraint: "It does not answer for you."
 
-### Chapter 03 · A Teacher You Keep
+### A teacher you keep
 - Long-term memory structure tracking the learner's specific misconceptions.
 - Spaced cognitive probes: Returning 3 days, 7 days, or 30 days later with a variant question to verify whether understanding has decayed.
 - Pedagogical engrams: Customizable instruction dynamics.
