@@ -1033,36 +1033,6 @@ html:has(:focus-visible) { scroll-behavior: auto; }
   }
 }
 
-.ink-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 16px;
-  height: 16px;
-  pointer-events: none;
-  z-index: 80;
-  opacity: 0;
-  will-change: transform;
-}
-.ink-cursor.is-on { opacity: 0.82; }
-.ink-cursor-drop {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  border-radius: 48% 52% 49% 51% / 52% 48%;
-  background: var(--mark-fill);
-  box-shadow:
-    inset 0 -1px 1px rgba(255, 255, 255, 0.1),
-    0 0.5px 2px rgba(16, 15, 15, 0.22);
-  transform: translate(-50%, -50%);
-  filter: blur(0.45px);
-}
-@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
-  .ink-cursor { display: none; }
-}
-
 .ink-poster, .ink-render { position: absolute; inset: 0; width: 100%; height: 100%; }
 .ink-lab { width: min(1240px, 100%); margin: auto; padding: 2rem; }
 .ink-lab header, .ink-lab-presets { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }

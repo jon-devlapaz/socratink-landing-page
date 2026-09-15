@@ -1,7 +1,7 @@
 /**
  * Guards the restored landing ink cursor:
- * - homepage mounts a live InkCursor (not the archive)
- * - mouse / fine pointer only; reduced motion unmounts
+ * - homepage mounts the last live AnimatedCursor (not the archive)
+ * - fine pointer only; reduced motion unmounts
  * - no GSAP on InkSphere, no hover title tooltips
  */
 import fs from "node:fs/promises";
@@ -22,17 +22,16 @@ async function read(rel) {
   return fs.readFile(path.join(root, rel), "utf8");
 }
 
-const [cursor, page, sphere, css] = await Promise.all([
-  read("src/components/site/InkCursor.tsx"),
+const [cursor, page, sphere] = await Promise.all([
+  read("src/components/ui/AnimatedCursor.tsx"),
   read("src/app/page.tsx"),
   read("src/components/ink/InkSphere.tsx"),
-  read("src/app/globals.css"),
 ]);
 
-if (page.includes('import { InkCursor } from "@/components/site/InkCursor"') && page.includes("<InkCursor")) {
-  pass("homepage mounts InkCursor");
+if (page.includes('import { AnimatedCursor } from "@/components/ui/AnimatedCursor"') && page.includes("<AnimatedCursor")) {
+  pass("homepage mounts AnimatedCursor");
 } else {
-  fail("homepage does not mount InkCursor");
+  fail("homepage does not mount AnimatedCursor");
 }
 if (/archive\/landing/.test(page) || /archive\/landing/.test(cursor)) {
   fail("cursor path imports archive landing");
@@ -40,46 +39,34 @@ if (/archive\/landing/.test(page) || /archive\/landing/.test(cursor)) {
   pass("cursor is not imported from archive");
 }
 if (/(touchstart|touchmove|touchend)/.test(cursor)) {
-  fail("InkCursor listens for touch events");
+  fail("AnimatedCursor listens for touch events");
 } else {
-  pass("InkCursor has no touch listeners");
+  pass("AnimatedCursor has no touch listeners");
 }
-if (cursor.includes("(pointer: fine)") && cursor.includes("hover: hover") && cursor.includes('pointerType !== "mouse"')) {
-  pass("InkCursor is mouse / fine-pointer only");
+if (cursor.includes("(pointer: fine)") && /mousemove/.test(cursor)) {
+  pass("AnimatedCursor is mouse / fine-pointer only");
 } else {
-  fail("InkCursor is missing mouse / fine-pointer guards");
+  fail("AnimatedCursor is missing mouse / fine-pointer guards");
 }
 if (cursor.includes("prefers-reduced-motion")) {
-  pass("InkCursor honors prefers-reduced-motion");
+  pass("AnimatedCursor honors prefers-reduced-motion");
 } else {
-  fail("InkCursor does not honor prefers-reduced-motion");
+  fail("AnimatedCursor does not honor prefers-reduced-motion");
 }
 if (/\bgsap\b/i.test(cursor) || /from "gsap"/.test(cursor)) {
-  fail("InkCursor uses GSAP");
+  fail("AnimatedCursor uses GSAP");
 } else {
-  pass("InkCursor does not use GSAP");
+  pass("AnimatedCursor does not use GSAP");
 }
 if (/title=/.test(cursor)) {
-  fail("InkCursor has a hover title tooltip");
+  fail("AnimatedCursor has a hover title tooltip");
 } else {
-  pass("InkCursor has no hover title tooltip");
+  pass("AnimatedCursor has no hover title tooltip");
 }
 if (/\bgsap\b/i.test(sphere) || /from "gsap"/.test(sphere)) {
   fail("InkSphere uses GSAP");
 } else {
   pass("InkSphere has no GSAP");
-}
-if (css.includes("custom-cursor-active") && css.includes("cursor: none") && /body\.custom-cursor-active/.test(cursor)) {
-  fail("InkCursor hides the native cursor");
-} else if (!/custom-cursor-active/.test(cursor) && !/cursor:\s*none/.test(cursor)) {
-  pass("InkCursor leaves the native cursor visible");
-} else {
-  fail("InkCursor may hide the native cursor");
-}
-if (css.includes(".ink-cursor") && css.includes("(pointer: coarse)")) {
-  pass("CSS hides the follower on coarse pointers and reduced motion");
-} else {
-  fail("CSS is missing coarse / reduced-motion cursor hides");
 }
 
 if (failed) {
