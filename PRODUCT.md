@@ -82,11 +82,11 @@ Explicitly undecided: the exact retention-scheduling mechanism, any adaptive dia
 Real, with paths:
 
 - All marketing copy in `src/lib/content.ts` — site/hero/nav, 10 `orbitDisciplines` (target, AI trap, transfer ask), memory cards, final CTA, footer, notebook hero.
-- Session-loop copy in `src/components/site/how-it-works/steps.ts` (Pick your topic → Explain it from memory → See where the gaps are) plus preview data.
-- Living-ink renderer, lab, and symbol studies: `src/lib/ink/`, `src/components/ink/`, `src/app/ink-lab/`, `src/app/ink-lab-v2/`, `docs/living-ink.md`. Lab cues simulate learning moments; they are not wired to real learning events and are not assessments.
-- Architecture spike (validation pending, not doctrine): `docs/how-it-works-tabs-spec-2026-09-11.md`.
-- Proposal, explicitly not implemented or visitor-validated: `docs/method-overhaul-proposal.md`.
-- Retired history only (Method `#method` section removed; do not treat as current behavior): `docs/encounter-contract-slip-ship.md`.
+- Session-loop copy in `src/archive/landing/how-it-works/steps.ts` (Pick your topic → Explain it from memory → See where the gaps are) plus preview data.
+- Living-ink renderer, lab, and symbol studies: `src/lib/ink/`, `src/components/ink/`, `src/app/ink-lab/`, `src/archive/landing/ink-lab-v2/`, `docs/living-ink.md`. Lab cues simulate learning moments; they are not wired to real learning events and are not assessments.
+- Architecture spike (validation pending, not doctrine): `docs/archive/how-it-works-tabs-spec-2026-09-11.md`.
+- Proposal, explicitly not implemented or visitor-validated: `docs/archive/method-overhaul-proposal.md`.
+- Retired history only (Method `#method` section removed; do not treat as current behavior): `docs/archive/encounter-contract-slip-ship.md`.
 
 Absences future work must not fabricate: testimonials, customers, case studies, benchmarks or learning-gain numbers, mastery scores, pricing, licensing, press, and deployment claims. The ink-test performance numbers in `docs/living-ink.md` are desktop requestAnimationFrame intervals on one machine, not GPU timestamps or phone measurements; do not generalize them.
 

@@ -16,3 +16,6 @@ The live homepage and app routes must not import this folder.
 - Section heading / reveal helpers used by leftover sections
 - `/positioning` diagnostic page
 - `/ink-lab-v2` workshop page (`/ink-lab` stays live and unlinked)
+- Unused `useActProgress` hook, leftover capture/verify scripts, and unused `scrollcraft.js` (`src/archive/scripts/`, `src/archive/scroll/`)
+
+Old hill-climb and Method docs live in `docs/archive/`.
