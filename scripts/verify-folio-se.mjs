@@ -1,20 +1,25 @@
 /**
  * iPhone SE folio sheets: no step numerals, titles clear the nav,
- * copy clear of a 49px Safari tab bar.
+ * marks and colophon footer links clear of a 49px Safari tab bar.
  *
  * INK_URL, INK_ARTIFACTS, CHROME_PATH override defaults.
  */
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { chromium } from "playwright-core";
 
 const url = process.env.INK_URL || "http://localhost:3001";
+const cloudStore = "/cursor/stores/bc-edfc75ec-0dca-4fb1-b60b-81343f438eef/media/iphone-se";
+const macStore =
+  "/Users/jondev/Library/Application Support/Cursor/AgentStores/cursor_agent_stores/bc-edfc75ec-0dca-4fb1-b60b-81343f438eef/files/media/iphone-se";
 const out = path.resolve(
   process.env.INK_ARTIFACTS ||
-    "/Users/jondev/Library/Application Support/Cursor/AgentStores/cursor_agent_stores/bc-edfc75ec-0dca-4fb1-b60b-81343f438eef/files/media/iphone-se",
+    (await fs.access(cloudStore).then(() => cloudStore).catch(() => macStore)),
 );
 const CHROME_PX = 49;
 const CLEARANCE = 8;
+const isMac = os.platform() === "darwin";
 await fs.mkdir(out, { recursive: true });
 
 const sheets = [
@@ -38,9 +43,13 @@ function fail(message) {
 const browser = await chromium.launch({
   executablePath:
     process.env.CHROME_PATH ||
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    (isMac
+      ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+      : "/usr/bin/google-chrome"),
   headless: true,
-  args: ["--use-gl=angle", "--use-angle=metal"],
+  args: isMac
+    ? ["--use-gl=angle", "--use-angle=metal"]
+    : ["--no-sandbox", "--disable-dev-shm-usage"],
 });
 
 try {
@@ -55,8 +64,9 @@ try {
       document.documentElement.dataset.theme = theme;
     }, shot.theme);
     await page.goto(url, { waitUntil: "domcontentloaded" });
-    await page.evaluate((theme) => {
+    await page.evaluate(async (theme) => {
       document.documentElement.dataset.theme = theme;
+      if (document.fonts?.ready) await document.fonts.ready;
     }, shot.theme);
     await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
 
@@ -68,6 +78,7 @@ try {
         const heading = document.querySelector(`#${id} h2, #${id} a`);
         const section = document.getElementById(id);
         const cue = document.querySelector(`#${id} .how-chapter-cue`);
+        const mark = document.querySelector(`#${id} .how-map, #${id} [data-chapter-ink]`);
         const box = (el) => {
           if (!el) return null;
           const r = el.getBoundingClientRect();
@@ -77,6 +88,7 @@ try {
           navBottom: nav?.getBoundingClientRect().bottom ?? 0,
           heading: box(heading),
           section: box(section),
+          mark: box(mark),
           cue: cue ? cue.textContent : null,
           body: section?.innerText ?? "",
           chromeTop: innerHeight - chromePx,
@@ -98,15 +110,14 @@ try {
       if (metrics.heading && metrics.heading.bottom > limit) {
         fail(`${sheet.name} ${shot.width} ${shot.theme}: heading under chrome (${metrics.heading.bottom} > ${limit})`);
       }
-      const footerLinks = await page.evaluate((chromePx) => {
+      if (metrics.mark && metrics.mark.bottom > limit) {
+        fail(`${sheet.name} ${shot.width} ${shot.theme}: mark under chrome (${metrics.mark.bottom} > ${limit})`);
+      }
+      const footerLinks = await page.evaluate(() => {
         if (!document.getElementById("colophon")) return null;
-        const links = [...document.querySelectorAll("#colophon .footerLinks a, #colophon footer a")];
-        if (!links.length) {
-          const any = [...document.querySelectorAll("footer a")];
-          return any.map((a) => a.getBoundingClientRect().bottom);
-        }
+        const links = [...document.querySelectorAll("#colophon footer a")];
         return links.map((a) => a.getBoundingClientRect().bottom);
-      }, CHROME_PX);
+      });
       if (sheet.id === "colophon") {
         const bottoms = footerLinks ?? [];
         if (!bottoms.length) fail("colophon: no footer links");
@@ -138,6 +149,7 @@ try {
       await page.screenshot({ path: file, fullPage: false });
       console.log("PASS", path.basename(file), {
         headingTop: Math.round(metrics.heading?.top ?? 0),
+        markBottom: Math.round(metrics.mark?.bottom ?? 0),
         navBottom: Math.round(metrics.navBottom),
         chromeTop: metrics.chromeTop,
       });
