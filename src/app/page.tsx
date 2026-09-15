@@ -1,5 +1,6 @@
 import { Colophon } from "@/components/site/Colophon";
 import { CinematicScroller } from "@/components/site/CinematicScroller";
+import { InkCursor } from "@/components/site/InkCursor";
 import { Hero } from "@/components/site/Hero";
 import { HowItWorks } from "@/components/site/how-it-works/HowItWorks";
 import { SpeakChapter } from "@/components/site/SpeakChapter";
@@ -37,6 +38,7 @@ export default function Home() {
         </div>
       </main>
       <CinematicScroller />
+      <InkCursor />
     </>
   );
 }
