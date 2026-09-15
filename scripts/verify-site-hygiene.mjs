@@ -43,7 +43,7 @@ await absent("src/components/site/LandingInkDirector.tsx");
 // 2. No live references to the removed section.
 const [content, memory, hero, layout, inkLab, readme] = await Promise.all([
   read("src/lib/content.ts"),
-  read("src/components/site/Memory.tsx"),
+  read("src/archive/landing/Memory.tsx"),
   read("src/components/site/Hero.tsx"),
   read("src/app/layout.tsx"),
   read("src/components/ink/InkLab.tsx"),
@@ -51,7 +51,7 @@ const [content, memory, hero, layout, inkLab, readme] = await Promise.all([
 ]);
 for (const [name, text] of [
   ["src/lib/content.ts", content],
-  ["src/components/site/Memory.tsx", memory],
+  ["src/archive/landing/Memory.tsx", memory],
 ]) {
   if (/(EncounterStrip|contractSlip)/.test(text)) {
     fail(`${name} still references the removed section`);
@@ -97,11 +97,11 @@ if (/openGraph:[\s\S]*?images:/.test(layout) && /twitter:[\s\S]*?images:/.test(l
   fail("social metadata is missing images");
 }
 
-// 5. WebGL test orb skips SSR prerendering.
-if (/\{\s*ssr:\s*false\s*\}/.test(hero)) {
-  pass("Hero dynamic orb import uses ssr: false");
+// 5. Hero uses the live ink renderer, not the archived organic sphere.
+if (hero.includes('from "@/components/ink/InkSphere"') && !/OrganicSphere/.test(hero)) {
+  pass("Hero uses InkSphere and not OrganicSphere");
 } else {
-  fail("Hero dynamic orb import is missing ssr: false");
+  fail("Hero is missing InkSphere or still references OrganicSphere");
 }
 
 // 6. InkLab randomize stays memoized with complete deps.
