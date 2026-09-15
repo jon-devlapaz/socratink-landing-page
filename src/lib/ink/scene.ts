@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { INK_KINEMATIC_KINDS } from "./kinematics";
 
 const vector = (min: number, max: number) =>
   z.tuple([
@@ -7,7 +6,7 @@ const vector = (min: number, max: number) =>
     z.number().min(min).max(max),
     z.number().min(min).max(max),
   ]);
-export const inkSceneSchema = z.strictObject({
+const inkSceneSchema = z.strictObject({
   version: z.literal(1),
   name: z.string().min(1).max(80),
   blend: z
@@ -25,12 +24,6 @@ export const inkSceneSchema = z.strictObject({
     amplitude: z.number().min(0).max(0.3),
     pointer: z.number().min(0).max(0.6),
   }),
-  kinematics: z
-    .enum(INK_KINEMATIC_KINDS)
-    .optional()
-    .describe(
-      "Kinematic motion driver evaluated by the renderer. Absent means plain ambient drift.",
-    ),
   parts: z
     .array(
       z.strictObject({

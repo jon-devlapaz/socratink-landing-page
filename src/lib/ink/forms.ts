@@ -3,7 +3,6 @@ import type { InkPart, InkScene } from "./scene";
 export const HERO_FORMS = [
   "sphere", "droplet", "ribbon", "crescent", "open circle", "branch", "confluence",
 ] as const;
-export type HeroForm = (typeof HERO_FORMS)[number];
 
 // Every form is the same ordered strand. Moving its volumes preserves a body
 // through the transition, including when the strand opens into a circle.

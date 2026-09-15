@@ -50,12 +50,6 @@
   justify-self: end;
 }
 
-.how-map svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 @media (max-width: 760px) {
   .how-chapter {
     display: block;

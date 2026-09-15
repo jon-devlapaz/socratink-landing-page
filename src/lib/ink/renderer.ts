@@ -2,14 +2,6 @@ import * as THREE from "three";
 import Raymarcher, { type Entity } from "three-raymarcher";
 import { type InkScene } from "./scene";
 import { applyInkFinish } from "./finish";
-import {
-  COALESCENCE_IMPULSE,
-  isCoalescenceTransition,
-  NO_KINEMATICS,
-  RESPIRATION_KINEMATICS,
-  resolveKinematicKind,
-  sampleKinematics,
-} from "./kinematics";
 
 const operation = { union: 0, subtract: 1, intersect: 2 };
 const INK_MORPH = 1.7;
@@ -72,7 +64,6 @@ export function mountInk(
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
     antialias: true,
-    preserveDrawingBuffer: true,
   });
   renderer.setClearColor(0, 0);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -114,10 +105,8 @@ export function mountInk(
   let intersecting = true;
   let lost = false;
   let destroyed = false;
-  let frozen = false;
   let reduced = options.respectReducedMotion !== false && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let theme = "light";
-  let renderCount = 0;
   let transition = 0;
   let morph = 0;
   let morphDuration = 0;
@@ -132,13 +121,8 @@ export function mountInk(
   const lastPointerPos = new THREE.Vector2();
   let lastPointerTime = 0;
   let splashImpulse = 0;
-  let scrollVelocity = 0;
-  let scrollStretch = 0;
-  const frameTimes: number[] = [];
   const motion = { ...recipe.motion };
 
-  // Shared hero volumes retarget from their current positions. Unrelated lab
-  // anatomies finish their distance-field blend before accepting the next.
   function setScene(next: InkScene) {
     const flowing = (options.continuous || (recipe.name.startsWith("Hero ink:") &&
       next.name.startsWith("Hero ink:"))) && entities.length === next.parts.length;
@@ -146,12 +130,10 @@ export function mountInk(
       pending = next;
       return;
     }
-    const prevKind = resolveKinematicKind(recipe);
     const prior = entities;
     const priorTargets = targets;
     flowBlendFrom = ink.userData.blending;
     recipe = structuredClone(next);
-    frameTimes.length = 0;
     targets = next.parts.map((p) => ({
       shape: Raymarcher.shapes[p.shape],
       operation: operation[p.operation],
@@ -160,14 +142,7 @@ export function mountInk(
       rotation: rotation(p.rotation),
       color: new THREE.Color(next.material.color),
     }));
-    if (
-      isCoalescenceTransition(prevKind, resolveKinematicKind(next)) &&
-      !reduced
-    ) {
-      motion.amplitude = COALESCENCE_IMPULSE.amplitude;
-      motion.speed = COALESCENCE_IMPULSE.speed;
-    }
-    flowFrom = flowing && !reduced && !frozen ? prior.map((entity) => ({
+    flowFrom = flowing && !reduced ? prior.map((entity) => ({
       ...entity, position: entity.position.clone(), scale: entity.scale.clone(), rotation: entity.rotation.clone(),
     })) : [];
     was = reduced || flowing ? [] : prior;
@@ -223,7 +198,7 @@ export function mountInk(
     schedule();
   }
   function draw(dt: number) {
-    const moving = !frozen && !reduced;
+    const moving = !reduced;
     const ease = reduced ? 1 : 1 - Math.exp(-dt * 7);
     motion.speed = THREE.MathUtils.lerp(
       motion.speed,
@@ -244,34 +219,20 @@ export function mountInk(
       time += dt * motion.speed;
       motionTime += dt;
     }
-    if (!frozen) pointer.lerp(reduced ? origin : pointerTarget,
+    pointer.lerp(reduced ? origin : pointerTarget,
       options.surfaceMotion && !reduced ? 1 - Math.exp(-dt * 2.2) : ease);
 
-    if (reduced || frozen) {
+    if (reduced) {
       pointerVelocity.set(0, 0);
       splashImpulse = 0;
-      scrollStretch = 0;
-      scrollVelocity = 0;
     } else {
       pointerVelocity.multiplyScalar(Math.exp(-dt * 4.5));
       if (splashImpulse > 0) {
         splashImpulse *= Math.exp(-dt * 3);
       }
-      scrollStretch = THREE.MathUtils.lerp(
-        scrollStretch,
-        scrollVelocity * 0.0008,
-        1 - Math.exp(-dt * 5),
-      );
-      scrollVelocity = THREE.MathUtils.lerp(
-        scrollVelocity,
-        0,
-        1 - Math.exp(-dt * 3.5),
-      );
     }
 
-    const kinematicKind = resolveKinematicKind(recipe);
     const hero = options.continuous || recipe.name.startsWith("Hero ink:");
-    const breathing = kinematicKind === RESPIRATION_KINEMATICS;
     const morphing = morph > 0;
     const morphU = morphing ? 1 - morph / morphDuration : 1;
     // Blending the two anatomies cuts through creases in each one's distance
@@ -317,64 +278,22 @@ export function mountInk(
       }
       const phase = locked ? 0 : i * 2.39996;
 
-      let x = target.position.x + Math.sin(time * 0.8 + phase) * a;
-      let y = target.position.y + Math.sin(time * 0.63 + phase * 1.3) * a;
-      let z = target.position.z + Math.cos(time * 0.7 + phase) * a * 0.6;
-      let scaleMult = 1 + Math.sin(time * 0.9 + phase) * a * 0.12;
-      let scaleOverride: THREE.Vector3 | null = null;
+      const x = target.position.x + Math.sin(time * 0.8 + phase) * a;
+      const y = target.position.y + Math.sin(time * 0.63 + phase * 1.3) * a;
+      const z = target.position.z + Math.cos(time * 0.7 + phase) * a * 0.6;
+      const scaleMult = 1 + Math.sin(time * 0.9 + phase) * a * 0.12;
 
-      let sample: ReturnType<typeof sampleKinematics> = null;
-      if (!locked && kinematicKind !== NO_KINEMATICS) {
-        sample = sampleKinematics(kinematicKind, {
-          time,
-          amplitude: a,
-          index: i,
-          partCount: targets.length,
-          targetX: target.position.x,
-          targetY: target.position.y,
-          targetZ: target.position.z,
-          targetScaleX: target.scale.x,
-          targetScaleY: target.scale.y,
-          targetScaleZ: target.scale.z,
-          baseX: x,
-          baseY: y,
-          baseZ: z,
-          baseScaleMult: scaleMult,
-          pointerX: pointer.x,
-          pointerY: pointer.y,
-        });
-        if (sample) {
-          x = sample.x;
-          y = sample.y;
-          z = sample.z;
-          scaleMult = sample.scaleMult;
-          if (sample.scaleOverride) {
-            scaleOverride = nextScale.set(...sample.scaleOverride);
-          }
-        }
-      }
-
-      const dynamic = !frozen && !reduced;
-      // Multi-harmonic microscopic fluid turbulence
-      const harmonicA = dynamic && !breathing ? Math.sin(time * 1.7 + phase * 1.5) * a * 0.25 : 0;
-      const harmonicB = dynamic && !breathing ? Math.cos(time * 2.5 + phase * 0.8) * a * 0.15 : 0;
-
-      // Viscous drag / velocity shear
-      const shearX = dynamic && !breathing && !locked ? pointerVelocity.x * 0.024 * (1 + (i % 3) * 0.15) : 0;
-      const shearY = dynamic && !breathing && !locked ? pointerVelocity.y * 0.024 * (1 + (i % 3) * 0.15) : 0;
-
+      const dynamic = !reduced;
+      const harmonicA = dynamic ? Math.sin(time * 1.7 + phase * 1.5) * a * 0.25 : 0;
+      const harmonicB = dynamic ? Math.cos(time * 2.5 + phase * 0.8) * a * 0.15 : 0;
+      const shearX = dynamic && !locked ? pointerVelocity.x * 0.024 * (1 + (i % 3) * 0.15) : 0;
+      const shearY = dynamic && !locked ? pointerVelocity.y * 0.024 * (1 + (i % 3) * 0.15) : 0;
       const splashWave =
         dynamic && splashImpulse > 0
-          ? breathing || locked
+          ? locked
             ? splashImpulse * 0.045
             : Math.sin(time * 22 + i * 1.4) * splashImpulse * 0.12
           : 0;
-
-      // Scroll inertial g-force stretch (volume conserving: stretch Y, compress XZ)
-      const gStretchY = dynamic
-        ? THREE.MathUtils.clamp(scrollStretch, -0.22, 0.32) * (breathing ? 0.15 : 1)
-        : 0;
-      const gStretchXZ = -gStretchY * 0.45;
 
       const pointerSpread = locked ? 0.3 : 0.3 + i * 0.15;
       entity.position.lerp(
@@ -385,39 +304,13 @@ export function mountInk(
         ),
         ease,
       );
-      const dynamicScaleMult = scaleMult + splashWave + harmonicB;
-      if (scaleOverride) {
-        entity.scale.lerp(
-          nextScale
-            .copy(scaleOverride)
-            .multiply(
-              new THREE.Vector3(1 + gStretchXZ, 1 + gStretchY, 1 + gStretchXZ),
-            ),
-          ease,
-        );
-      } else {
-        entity.scale.lerp(
-          nextScale
-            .copy(target.scale)
-            .multiplyScalar(dynamicScaleMult)
-            .multiply(
-              new THREE.Vector3(1 + gStretchXZ, 1 + gStretchY, 1 + gStretchXZ),
-            ),
-          ease,
-        );
-      }
-      let rotTarget = target.rotation;
-      if (sample?.rotationDeg) {
-        rotTarget = nextRotation.setFromEuler(
-          new THREE.Euler(
-            THREE.MathUtils.degToRad(sample.rotationDeg[0]),
-            THREE.MathUtils.degToRad(sample.rotationDeg[1]),
-            THREE.MathUtils.degToRad(sample.rotationDeg[2]),
-            "XYZ",
-          ),
-        );
-      }
-      entity.rotation.slerp(rotTarget, ease);
+      entity.scale.lerp(
+        nextScale
+          .copy(target.scale)
+          .multiplyScalar(scaleMult + splashWave + harmonicB),
+        ease,
+      );
+      entity.rotation.slerp(target.rotation, ease);
       entity.color.lerp(target.color, ease);
       extent = Math.max(
         extent,
@@ -459,7 +352,6 @@ export function mountInk(
     finish.bleed.value = bleed + meniscus * 0.22;
     finish.morph.value = morphU;
     renderer.render(scene, camera);
-    renderCount++;
     if (mount.dataset.inkReady !== "true") {
       mount.dataset.inkReady = "true";
       onReady?.(true);
@@ -471,27 +363,19 @@ export function mountInk(
     if (destroyed || lost || !visible || document.hidden) return;
     const elapsed = previous ? now - previous : 16.67;
     previous = now;
-    if (elapsed < 250 && elapsed > 0) {
-      frameTimes.push(elapsed);
-      if (frameTimes.length > 240) frameTimes.shift();
-    }
-    const clock = Number(new URLSearchParams(location.search).get("inkClock"));
-    const dt =
-      Math.min(elapsed / 1000, 0.06) * (clock > 0 && clock <= 1 ? clock : 1);
+    const dt = Math.min(elapsed / 1000, 0.06);
     transition = reduced ? 0 : Math.max(0, transition - dt);
-    if (!frozen) morph = reduced ? 0 : Math.max(0, morph - dt);
+    morph = reduced ? 0 : Math.max(0, morph - dt);
     if (morph === 0 && (was.length || flowFrom.length || pending)) settle();
     draw(dt);
     if (
-      (!frozen &&
-        !reduced &&
+      (!reduced &&
         (motion.speed > 0 ||
           pointer.distanceTo(pointerTarget) > 0.001 ||
           pointerVelocity.lengthSq() > 0.0001 ||
-          splashImpulse > 0.01 ||
-          Math.abs(scrollStretch) > 0.001)) ||
+          splashImpulse > 0.01)) ||
       transition > 0 ||
-      (!frozen && morph > 0)
+      morph > 0
     )
       schedule();
   }
@@ -601,12 +485,6 @@ export function mountInk(
       transition = 1.2;
       schedule();
     },
-    setScrollVelocity(v: number) {
-      if (reduced) return;
-      scrollVelocity = THREE.MathUtils.clamp(v, -1500, 1500);
-      transition = 0.8;
-      schedule();
-    },
     setTheme(value: string) {
       theme = value;
       finish.paper.value.setStyle(
@@ -615,54 +493,6 @@ export function mountInk(
       finish.bleed.value = value === "dark" ? 0.12 : 0.4;
       bleed = finish.bleed.value;
       transition = 1;
-      schedule();
-    },
-    setReduced(value: boolean) {
-      reduced = options.respectReducedMotion !== false && value;
-      transition = 1;
-      schedule();
-    },
-    setPaused(value: boolean) {
-      frozen = value;
-      if (value) {
-        pointerVelocity.set(0, 0);
-        splashImpulse = 0;
-        scrollStretch = 0;
-        scrollVelocity = 0;
-      }
-      transition = 1;
-      previous = 0;
-      schedule();
-    },
-    capture() {
-      if (lost || destroyed)
-        throw new Error(
-          "Renderer unavailable; retry when ink_get_scene reports ready.",
-        );
-      draw(0);
-      return renderer.domElement.toDataURL("image/png");
-    },
-    inspect() {
-      const sorted = frameTimes.slice().sort((a, b) => a - b);
-      return {
-        renderer: "three-raymarcher",
-        transitioning: transition > 0 || morph > 0 || pending !== null,
-        ready: renderCount > 0 && !lost,
-        paused: frozen,
-        reducedMotion: reduced,
-        visible,
-        time,
-        frames: renderCount,
-        canvas: [renderer.domElement.width, renderer.domElement.height],
-        resolution: ink.userData.resolution,
-        frameP50: sorted[Math.floor(sorted.length * 0.5)] ?? null,
-        frameP95: sorted[Math.floor(sorted.length * 0.95)] ?? null,
-      };
-    },
-    setResolution(value: number) {
-      ink.userData.resolution = value;
-      transition = 1;
-      frameTimes.length = 0;
       schedule();
     },
     destroy() {
@@ -688,4 +518,3 @@ export function mountInk(
     },
   };
 }
-export type InkRenderer = ReturnType<typeof mountInk>;

@@ -30,11 +30,14 @@ async function absent(rel) {
 await absent("src/app/ink-lab/page.tsx");
 await absent("src/components/ink/InkLab.tsx");
 await absent("src/lib/ink/tool.ts");
+await absent("src/lib/ink/kinematics.ts");
 await absent("src/archive/landing/Orbit.tsx");
 await absent("src/components/site/EncounterStrip.tsx");
 await absent(".agents/skills/cro/SKILL.md");
 await absent("docs/north-star-scroll-hillclimb.md");
 await absent("spike-report.md");
+await absent("public/scrollcraft/scrollcraft.js");
+await absent("public/brand/ink-sphere-poster.png");
 
 const [content, page, layout, readme, agents, sphere] = await Promise.all([
   read("src/lib/content.ts"),
