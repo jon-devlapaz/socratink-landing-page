@@ -1,3 +1,4 @@
+import { AnimatedCursor } from "@/components/ui/AnimatedCursor";
 import { Colophon } from "@/components/site/Colophon";
 import { CinematicScroller } from "@/components/site/CinematicScroller";
 import { Hero } from "@/components/site/Hero";
@@ -9,6 +10,7 @@ import { Nav } from "@/components/site/Nav";
 export default function Home() {
   return (
     <>
+      <AnimatedCursor />
       <a href="#main" className="skip-link">
         Skip to content
       </a>

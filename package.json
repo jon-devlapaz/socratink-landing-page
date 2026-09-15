@@ -17,7 +17,8 @@
     "test:ink": "node scripts/verify-ink.mjs",
     "test:ink-symbols": "node scripts/verify-ink-symbols.mjs",
     "test:ink-landing": "node scripts/verify-ink-landing.mjs",
-    "test:landing-fixes": "node scripts/verify-landing-audit-fixes.mjs"
+    "test:landing-fixes": "node scripts/verify-landing-audit-fixes.mjs",
+    "test:ink-cursor": "node scripts/verify-ink-cursor.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",
