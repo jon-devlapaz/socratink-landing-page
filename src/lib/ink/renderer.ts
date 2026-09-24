@@ -105,7 +105,7 @@ export function mountInk(
   let intersecting = true;
   let lost = false;
   let destroyed = false;
-  let reduced = options.respectReducedMotion !== false && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = options.respectReducedMotion !== false && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let theme = "light";
   let transition = 0;
   let morph = 0;

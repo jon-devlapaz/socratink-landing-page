@@ -21,7 +21,7 @@ Unlike general conversational AI assistants that autocomplete solutions, generat
 ## Method & Architecture
 
 - [Title · Make the thinking your own.](https://socratink.ai/#top): Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.
-- [Chapter 01 · A map of the work](https://socratink.ai/#how-it-works): Start with the question you actually have. Use an explanation, a picture, or a counterexample when it helps. Return later, in a different setting, and see what still holds.
-- [Chapter 02 · You speak. It teaches.](https://socratink.ai/#speak): The work is spoken. It listens for what you actually understand. It does not answer for you.
-- [Chapter 03 · A teacher you keep](https://socratink.ai/#keep): It stays, it pushes, it remembers. You choose its engram, the personality it teaches with.
+- [A map of the work](https://socratink.ai/#how-it-works): Start with the question you actually have. Use an explanation, a picture, or a counterexample when it helps. Return later, in a different setting, and see what still holds.
+- [You speak. It teaches.](https://socratink.ai/#speak): The work is spoken. It listens for what you actually understand. It does not answer for you.
+- [A teacher you keep](https://socratink.ai/#keep): It stays, it pushes, it remembers. You choose its engram, the personality it teaches with.
 - [Colophon](https://socratink.ai/#colophon): Start learning. You think · One teacher · It stays.

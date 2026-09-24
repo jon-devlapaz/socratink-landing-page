@@ -6,7 +6,6 @@ export function SpeakChapter() {
   return (
     <section id="speak" className="how-chapter" aria-labelledby="speak-title">
       <div className="how-chapter-text">
-        <span className="how-chapter-cue" aria-hidden="true">{speakChapter.cue}</span>
         <h2 id="speak-title">{speakChapter.title}</h2>
         <div className="how-chapter-journey">
           <p>{speakChapter.body}</p>
