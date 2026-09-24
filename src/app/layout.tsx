@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 import { Inter, Instrument_Serif } from "next/font/google";
 import { site } from "@/lib/content";
 import { themeBootScript } from "@/lib/theme";
@@ -85,7 +86,7 @@ const jsonLd = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html
       lang="en"

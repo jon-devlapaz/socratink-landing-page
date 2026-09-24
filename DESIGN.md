@@ -149,11 +149,9 @@ Two defined reserves (`--ui-3`, `--accent-deep` in `src/app/globals.css`) exist 
 
 ## Layout
 
-One centered measure governs the page: `.content-wrap` (max 72rem/1152px, 1rem gutters widening to 2rem at 640px). Sections below the hero are folio sheets in a bound deck — each shell holds near-viewport height (100svh minus the 3.5rem nav allowance), stacks in a rising z-ladder (retention 20, how-it-works 25, disciplines 30, memory 35, takeaway 40), and meets its neighbor with a top hairline plus the upward curtain shadow. The takeaway sheet is the deliberate exception: it top-aligns and caps at 44rem so the CTA and footer stack from the top instead of trapping slack between them.
+One centered measure governs the page: `.content-wrap`. Below the hero, chapters are folio sheets in a bound deck — each shell holds near-viewport height, stacks in a rising z-ladder, and meets its neighbor with a top hairline. The colophon top-aligns so the invitation and footer do not trap slack between them.
 
-Composition is two-column editorial that collapses honestly. The hero pairs copy (max 490px card) with the ink subject at 1.15fr/0.85fr, stacking to one column under 768px with the scene first and compacted. Disciplines, retention, and how-it-works all use 12-column grids on desktop (picker/ledger/tabs at 5, dossier/canvas/window at 7); memory runs three hairline-topped columns from 768px up. The close pairs the display headline with the CTA block at 1.2fr/0.8fr until 900px, then stacks.
-
-Breakpoints are content-driven, not device-driven: 640px swaps the nav CTA to its short label while widening gutters and lifting type steps; 768px collapses the hero, memory, and retention grids; 860–900px stacks the close and hides the horizon oval on phones; 1024px opens the discipline and window grids. Touch targets hold 44px minimums throughout, and every anchor section carries scroll margin for the fixed nav.
+The hero pairs copy with the ink subject, stacking to one column under 768px with the invitation first. Touch targets hold 44px minimums, and every anchor section carries scroll margin for the fixed nav.
 
 ## Elevation & Depth
 
@@ -217,34 +215,19 @@ Refined and restrained: controls answer every press in 180ms with a 0.96 scale s
 - **Neutral chips:** small rounded rectangles (paper-2 fill, 15% border, graphite text) for condition badges ("Free response", "No multiple choice").
 - **Mono tags:** uppercase tracked monospace kickers ("Diagnostic prompt", "Target curriculum") that head specimens and panels.
 
-### Orbit dial and dossier (signature)
+### Folio sheets
 
-- **Dial:** two dashed orbit rings (4px dashes at 12–15% ink) carry ten pill tabs that counter-rotate almost imperceptibly — inner ring counter-clockwise over 42s, outer clockwise over 62s. Motion pauses on hover or focus-within and freezes entirely under reduced-motion. A parchment hub with an ink core anchors the center.
-- **Tabs:** tile-based pills (0.75rem, 44px touch area) in graphite; the selected tab takes a Verdigris border, a 20% accent wash, semibold ink text, and a soft drop. Full roving-tabindex keyboard support with arrow/Home/End travel.
-- **Dossier:** the selected discipline renders as a specimen panel — a kicker rule with accent bead and mono stamp, a serif target headline, then two annotated blocks divided by a hairline: the trap (Signal Red label, italic graphite body) and the exam prompt (Verdigris label, ink body). A footer rule closes with a mono colophon and the accent CTA. The panel announces politely to assistive tech.
+- **Hero:** copy first on small screens, living-ink disc below; two-column on desktop. Invitation, two actions, one subline.
+- **Chapters:** map, speak, keep — title, short journey copy, then the chapter mark. Sheets stack as a bound folio.
+- **Colophon:** start-learning close, then brand and legal links. Footer links stay above the iPhone Safari tab bar.
 
-### Retention ledger and chart (signature)
+### How-it-works (retired)
 
-- **Ledger:** a milestone timeline on a 1px rail — mono day tags that ignite to semibold Verdigris when active, serif headlines that grow from graphite small to ink large, and accordion disclosures (grid-rows, zero layout shift) pairing each summary with solid-accent "unaided" and dashed-outline "passive" data points.
-- **Chart:** a high-DPI canvas drafting plane — 0.5px coordinate grid, monospace axis labels, a three-pass Verdigris ink stroke (aura, saturated core, fine spine) for unaided retrieval against a dashed graphite decay curve that sheds evaporating particles past the crossover. A dashed drafting leader calls out "The Crossover · ~Day 2"; end labels, a mono legend bar (0.8125rem semibold lead with Verdigris state mark, 0.6875rem receded passive, ticked model note), and an academic citation footer complete the instrument. Scroll scrubs the drawing on a pinned stage; reduced-motion renders the finished chart statically.
+Do not restore step numerals, orbit dials, retention charts, memory columns, or `/ink-lab` chrome. Those belong to earlier landings.
 
-### How-it-works tabs and window
+### Footer
 
-- **Tabs:** vertical step cards (1rem padding, 0.875rem radius) pairing a mono step number — graphite at rest, Verdigris when active — with a serif title and graphite description. The active tab fills parchment with a 14% border and soft drop; a 2.5px Verdigris progress bar sweeps each 5s cycle and an explicit pause control governs auto-advance.
-- **Window:** a 1rem diagnostic mockup shell — parchment body, traffic-dot chrome, mono title with Verdigris indicator — whose panels annotate with the 2px left rail: Verdigris for the selected target and recorded submission, ink-at-25% for the prompt, Signal-adjacent amber reserved for the identified-gap block. Panel swaps crossfade 220ms with a 6px rise, or instantly under reduced-motion.
-
-### Memory columns
-
-- **Record:** three hairline-topped columns, each opening with a plain 1.25rem sans title answered by a 1.1rem serif sub-line, a bespoke small illustration (fading-rail accumulation timeline with haloed terminal bead, open-format tiles with mono extension tags, agency ledger rows with dotted leaders), and graphite body. No cards, no boxes — the rule and the rhythm are the container.
-
-### Footer bands
-
-- **Rail:** brand lockup and a 0.72rem copyright line beside three bands (index, legal, attempt) divided by a 10% left rule on wider screens. Kickers are 0.62rem tracked capitals; links are graphite warming to ink; the legal band holds only the quiet line ("No newsletter. No social grid."); the attempt band closes the page with the underlined Verdigris CTA.
-
-### Preloader and cursor
-
-- **Preloader:** a 2px Verdigris bar sweeping the viewport top over 0.85s on first paint — compositor-only, pointer-transparent, hidden under reduced-motion.
-- **Cursor (fine pointers only):** a 10px organic ink-orb that trails the pointer with heavy easing; over type it dissolves into an 18px ink caret, over clickables it blooms to 1.6×, and every press breathes. The native cursor hides while it lives.
+- Brand lockup, copyright, and Privacy / Terms / Contact. No newsletter, no social grid.
 
 ## Do's and Don'ts
 
@@ -260,7 +243,7 @@ Refined and restrained: controls answer every press in 180ms with a 0.96 scale s
 
 ### Don't:
 
-- **Don't** introduce a second accent — Signal Red is functional (traps, failures), amber and the traffic-dot hues live only inside the diagnostic mock, and lab-only greens, violets, and ambers never leave `/ink-lab`.
+- **Don't** introduce a second accent. Signal Red is functional (failures) only.
 - **Don't** set body copy, UI chrome, or buttons in Instrument Serif, and don't set prose or headlines in monospace.
 - **Don't** put drop shadows on the WebGL sphere container or invent shadows outside the Shadow Vocabulary.
 - **Don't** draw proof the product doesn't have: no score badges, progress rings, mastery meters, or testimonial cards — evidence honesty is a visual constraint too.

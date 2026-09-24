@@ -26,7 +26,7 @@ export function Hero() {
         </div>
         <figure className="hero-scene">
           <div className="hero-subject">
-            <InkSphere autoCycle={false} interaction="pulse" />
+            <InkSphere />
           </div>
         </figure>
       </div>
