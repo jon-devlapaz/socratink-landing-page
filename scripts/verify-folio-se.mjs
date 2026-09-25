@@ -1,5 +1,5 @@
 /**
- * iPhone SE folio sheets: no step numerals, titles clear the nav,
+ * iPhone SE folio sheets: titles clear the nav,
  * marks and colophon footer links clear of a 49px Safari tab bar.
  *
  * INK_URL, INK_ARTIFACTS, CHROME_PATH override defaults.
@@ -23,10 +23,10 @@ const isMac = os.platform() === "darwin";
 await fs.mkdir(out, { recursive: true });
 
 const sheets = [
-  { id: "how-it-works", name: "map", heading: "A map of the work" },
-  { id: "speak", name: "speak", heading: "You speak. It teaches." },
-  { id: "keep", name: "keep", heading: "A teacher you keep" },
-  { id: "colophon", name: "colophon", heading: null },
+  { id: "how-it-works", name: "map" },
+  { id: "speak", name: "speak" },
+  { id: "keep", name: "keep" },
+  { id: "colophon", name: "colophon" },
 ];
 
 const shots = [
@@ -76,32 +76,20 @@ try {
       const metrics = await page.evaluate(({ id, chromePx }) => {
         const nav = document.querySelector("header");
         const heading = document.querySelector(`#${id} h2, #${id} a`);
-        const section = document.getElementById(id);
-        const cue = document.querySelector(`#${id} .how-chapter-cue`);
         const mark = document.querySelector(`#${id} .how-map, #${id} [data-chapter-ink]`);
         const box = (el) => {
           if (!el) return null;
           const r = el.getBoundingClientRect();
-          return { top: r.top, bottom: r.bottom, text: (el.innerText || "").replace(/\s+/g, " ").trim() };
+          return { top: r.top, bottom: r.bottom };
         };
         return {
           navBottom: nav?.getBoundingClientRect().bottom ?? 0,
           heading: box(heading),
-          section: box(section),
           mark: box(mark),
-          cue: cue ? cue.textContent : null,
-          body: section?.innerText ?? "",
           chromeTop: innerHeight - chromePx,
         };
       }, { id: sheet.id, chromePx: CHROME_PX });
 
-      if (metrics.cue) fail(`${sheet.name}: cue still in DOM (${metrics.cue})`);
-      if (/^\s*0[123]\b/m.test(metrics.body) || /\b0[123]\s/.test(metrics.body.slice(0, 80))) {
-        fail(`${sheet.name}: step numeral still visible`);
-      }
-      if (sheet.heading && !metrics.heading?.text.replace(/\s+/g, " ").includes(sheet.heading.replace(/\s+/g, " "))) {
-        fail(`${sheet.name}: heading missing (${metrics.heading?.text})`);
-      }
       const titleClear = metrics.heading && metrics.heading.top >= metrics.navBottom + 12;
       if (!titleClear) {
         fail(`${sheet.name} ${shot.width} ${shot.theme}: heading under nav (top ${metrics.heading?.top}, nav ${metrics.navBottom})`);

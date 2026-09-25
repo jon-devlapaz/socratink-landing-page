@@ -17,3 +17,9 @@ Public marketing site for [Socratink](https://socratink.ai). The product app liv
 - Product truth: `PRODUCT.md`. Design tokens and craft: `DESIGN.md`.
 - Do not invent testimonials, scores, customers, pricing, or colors.
 - Do not add workshop routes, skill copies, or hillclimb packets to this tree.
+
+## Testing
+
+- Never write unit tests after you write code.
+- Highly prefer E2E tests as the sole testing mechanism. Use them to verify complex features work. At the end of E2E tests, produce a verifiable and repeatable artifact.
+- If you must test a system in isolation, first write down all the ways it could fail, then write the code.
