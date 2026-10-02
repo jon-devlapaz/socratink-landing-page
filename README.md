@@ -13,7 +13,7 @@ The public site for [Socratink](https://socratink.ai). The product app is [app.s
 ```bash
 pnpm install
 pnpm dev          # http://localhost:3001
-pnpm check        # typecheck, lint, hygiene, production build
+pnpm check        # typecheck, lint, production build
 ```
 
 ## What ships
@@ -33,6 +33,5 @@ Copy is in [`src/lib/content.ts`](src/lib/content.ts). Privacy and terms are sep
 | :--- | :--- |
 | `pnpm run typecheck` | TypeScript |
 | `pnpm run lint` | ESLint |
-| `pnpm run test:hygiene` | Dead workshop files stay gone; live copy and metadata stay intact |
 | `pnpm run test:hero-se` | iPhone SE hero clearance (needs the dev server) |
-| `pnpm run check` | typecheck, lint, hygiene, production build |
+| `pnpm run check` | typecheck, lint, production build |

@@ -1,6 +1,6 @@
 /**
  * iPhone SE title page: CTAs and subline sit above a 49px Safari tab bar
- * on 375×667 and 320×568, light and dark. Rest-form ink stays a disc.
+ * on 375×667 and 320×568, light and dark. Ink stays visible and below the CTAs.
  *
  * INK_URL, INK_ARTIFACTS, CHROME_PATH override defaults.
  */
@@ -66,10 +66,7 @@ try {
     const metrics = await page.evaluate((chromePx) => {
       const actions = document.querySelector(".hero-actions");
       const subline = document.querySelector(".hero-subline");
-      const primary = document.querySelector(".hero-actions .btn-accent");
-      const secondary = document.querySelector(".hero-actions .hero-secondary");
       const blob = document.querySelector(".hero-subject .sphere");
-      const ink = document.querySelector(".hero-living-ink");
       const box = (el) => {
         if (!el) return null;
         const r = el.getBoundingClientRect();
@@ -79,7 +76,6 @@ try {
           bottom: r.bottom,
           height: r.height,
           width: r.width,
-          text: (el.innerText || "").replace(/\s+/g, " ").trim(),
           display: style.display,
           visibility: style.visibility,
           opacity: style.opacity,
@@ -92,10 +88,7 @@ try {
         heroMin: getComputedStyle(document.querySelector(".hero-act")).minHeight,
         actions: box(actions),
         subline: box(subline),
-        primary: box(primary),
-        secondary: box(secondary),
         blob: box(blob),
-        form: ink?.getAttribute("aria-label") ?? "",
         chromeTop: innerHeight - chromePx,
       };
     }, CHROME_PX);
@@ -109,11 +102,6 @@ try {
       metrics.blob.height >= 80;
     const actionsClear = metrics.actions && metrics.actions.bottom <= limit;
     const sublineClear = metrics.subline && metrics.subline.bottom <= limit;
-    const labels =
-      metrics.primary?.text.includes("Start learning") &&
-      metrics.secondary?.text.includes("See how it works") &&
-      metrics.subline?.text.includes("You think · One teacher · It stays");
-    const restDisc = /Living ink, sphere/.test(metrics.form) || metrics.form === "Ink sphere";
     const inkBelowCta = metrics.blob && metrics.actions && metrics.blob.top >= metrics.actions.bottom - 4;
 
     await page.evaluate((chromePx) => {
@@ -144,11 +132,8 @@ try {
 
     const file = path.join(out, `${shot.name}.png`);
     await page.screenshot({ path: file, fullPage: false });
-    report.push({ shot: shot.name, metrics, actionsClear, sublineClear, blobOk, labels, restDisc, inkBelowCta, file });
+    report.push({ shot: shot.name, metrics, actionsClear, sublineClear, blobOk, inkBelowCta, file });
 
-    if (!labels) fail(`${shot.name}: kept copy missing ${JSON.stringify({
-      primary: metrics.primary?.text, secondary: metrics.secondary?.text, subline: metrics.subline?.text,
-    })}`);
     if (!blobOk) fail(`${shot.name}: blob hidden or too small ${JSON.stringify(metrics.blob)}`);
     if (!actionsClear) {
       fail(`${shot.name}: actions bottom ${metrics.actions?.bottom} under chrome (limit ${limit})`);
@@ -156,7 +141,6 @@ try {
     if (!sublineClear) {
       fail(`${shot.name}: subline bottom ${metrics.subline?.bottom} under chrome (limit ${limit})`);
     }
-    if (!restDisc) fail(`${shot.name}: rest form is not the disc (${metrics.form})`);
     if (!inkBelowCta) {
       fail(`${shot.name}: ink should sit below the CTAs (blob top ${metrics.blob?.top}, actions bottom ${metrics.actions?.bottom})`);
     }

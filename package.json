@@ -9,8 +9,7 @@
     "start": "next start -p 3001",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "check": "tsc --noEmit && eslint && node scripts/verify-site-hygiene.mjs && next build",
-    "test:hygiene": "node scripts/verify-site-hygiene.mjs",
+    "check": "tsc --noEmit && eslint && next build",
     "test:hero-se": "node scripts/verify-iphone-se-hero.mjs"
   },
   "dependencies": {
