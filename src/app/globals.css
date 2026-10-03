@@ -177,6 +177,15 @@ body {
   isolation: isolate;
 }
 
+@media (pointer: fine) {
+  body.custom-cursor-active,
+  body.custom-cursor-active *,
+  body.custom-cursor-active *::before,
+  body.custom-cursor-active *::after {
+    cursor: none !important;
+  }
+}
+
 /* Paper grain layer from app.socratink.ai, positioned behind UI so backdrop-filter can blur it */
 body::before {
   content: "";
