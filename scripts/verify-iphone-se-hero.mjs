@@ -74,6 +74,8 @@ try {
         return {
           top: r.top,
           bottom: r.bottom,
+          left: r.left,
+          right: r.right,
           height: r.height,
           width: r.width,
           display: style.display,
@@ -140,6 +142,9 @@ try {
     }
     if (!sublineClear) {
       fail(`${shot.name}: subline bottom ${metrics.subline?.bottom} under chrome (limit ${limit})`);
+    }
+    if (await page.locator('.hero-subject > button').count() !== 1) {
+      fail(`${shot.name}: only the interactive ink should remain; no separate playback button`);
     }
     if (!inkBelowCta) {
       fail(`${shot.name}: ink should sit below the CTAs (blob top ${metrics.blob?.top}, actions bottom ${metrics.actions?.bottom})`);

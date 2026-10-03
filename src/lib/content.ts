@@ -58,6 +58,21 @@ export const keepChapter = {
   engram: "You choose its engram, the personality it teaches with.",
 } as const;
 
+export const inkArtwork = {
+  hero: {
+    label: "Living ink",
+    still: "Ink sphere",
+    reshape: "Click or press Enter to reshape. Escape returns to the sphere.",
+    pause: "Press Space to pause animation.",
+    play: "Press Space to resume animation.",
+  },
+  studies: [
+    { id: "map", name: "Map", description: "A growing ink branch with three unfolding leaves. Unequal reaches leave open space between each possibility." },
+    { id: "speak", name: "Speak", description: "A broad brushstroke, a pause, and a smaller answering gesture. The first voice remains its own." },
+    { id: "teacher", name: "Teacher", description: "An anchored ink stone and a smaller companion settling beside it. Separate forms, held in quiet relation." },
+  ],
+} as const;
+
 export const colophon = {
   button: { label: hero.primary.label, href: site.appUrl },
   subline: hero.subline,

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import Raymarcher, { type Entity } from "three-raymarcher";
-import { type InkScene } from "./scene";
+import type { InkPart, InkScene } from "./scene";
 import { applyInkFinish } from "./finish";
 
 const operation = { union: 0, subtract: 1, intersect: 2 };
@@ -50,15 +50,21 @@ function createEnvironment(renderer: THREE.WebGLRenderer) {
   return environment;
 }
 
+export type InkEntrance = { duration: number } & (
+  | { pose: (part: InkPart, index: number, progress: number) => InkPart; reveal?: never }
+  | { pose?: never; reveal: (part: InkPart, index: number, progress: number) => [number, number, number, number] }
+);
+
 export function mountInk(
   mount: HTMLElement,
   initial: InkScene,
-  onFrame?: (dt: number) => void,
+  onFrame?: (dt: number) => boolean | void,
   onReady?: (ready: boolean) => void,
   options: {
     continuous?: boolean; morphDuration?: number; respectReducedMotion?: boolean;
     surfaceMotion?: keyof typeof SURFACE_MOTION;
     checkOcclusion?: boolean;
+    entrance?: InkEntrance;
   } = {},
 ) {
   const renderer = new THREE.WebGLRenderer({
@@ -105,7 +111,14 @@ export function mountInk(
   let intersecting = true;
   let lost = false;
   let destroyed = false;
+  let paused = false;
+  let dirty = true;
+  let shadersReady: (() => boolean) | undefined;
   const reduced = options.respectReducedMotion !== false && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let entranceTime = 0;
+  let entranceTarget: number | null = null;
+  mount.dataset.inkEntrance = options.entrance && !reduced ? "pending" : "settled";
+  mount.dataset.inkProgress = options.entrance && !reduced ? "0" : "1";
   let theme = "light";
   let transition = 0;
   let morph = 0;
@@ -161,9 +174,14 @@ export function mountInk(
     }));
     morphDuration = flowFrom.length ? (options.morphDuration ?? 1.6) : was.length ? INK_MORPH : 0;
     morph = morphDuration;
+    mount.dataset.inkMorphing = String(morph > 0);
     finish.morph.value = 0;
     finish.morphSplit.value = was.length;
     ink.userData.layers = [was.concat(entities)];
+    // Match the shader's high-water MAX_ENTITIES size, including morph layers.
+    while (finish.inkReveal.value.length < was.length + entities.length) {
+      finish.inkReveal.value.push(new THREE.Vector4(0, 0, 0, 1));
+    }
     if (!flowing) ink.userData.blending = next.blend;
     ink.userData.roughness = next.material.roughness;
     ink.userData.metalness = next.material.metalness;
@@ -177,6 +195,7 @@ export function mountInk(
     finish.morph.value = 1;
     finish.morphSplit.value = 0;
     ink.userData.layers = [entities];
+    mount.dataset.inkMorphing = "false";
     if (pending) {
       const next = pending;
       pending = null;
@@ -194,6 +213,7 @@ export function mountInk(
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
+    dirty = true;
     updateExposure();
     schedule();
   }
@@ -262,8 +282,21 @@ export function mountInk(
       });
     }
     let extent = 0;
+    const entranceU = reduced || !options.entrance ? 1 : Math.min(1, entranceTime / options.entrance.duration);
+    finish.revealEnabled.value = options.entrance?.reveal && entranceU < 1 ? 1 : 0;
     entities.forEach((entity, i) => {
       const target = targets[i];
+      if (options.entrance?.reveal && entranceU < 1) {
+        finish.inkReveal.value[i].set(...options.entrance.reveal(recipe.parts[i], i, entranceU));
+      }
+      if (options.entrance?.pose && entranceU < 1) {
+        const part = options.entrance.pose(recipe.parts[i], i, entranceU);
+        entity.position.set(...part.position);
+        entity.scale.set(...part.scale);
+        entity.rotation.copy(rotation(part.rotation));
+        extent = Math.max(extent, target.position.length() + target.scale.length() * 0.5);
+        return;
+      }
       if (hero) {
         // A small delay down the strand lets a gesture travel through the ink.
         const u = THREE.MathUtils.clamp((morphU - i / targets.length * 0.12) / 0.88, 0, 1);
@@ -346,7 +379,7 @@ export function mountInk(
     finish.surfaceStrength.value = THREE.MathUtils.lerp(
       finish.surfaceStrength.value, recipe.name === initial.name ? 1 : 0, 1 - Math.exp(-dt * 1.4),
     );
-    finish.living.value = options.surfaceMotion ? 0 : hero ? 1 : 0;
+    finish.living.value = recipe.name.startsWith("Hero ink:") ? 1 : 0;
     finish.pointer.value.copy(pointer).multiplyScalar(motion.pointer);
     finish.impulse.value = splashImpulse;
     finish.bleed.value = bleed + meniscus * 0.22;
@@ -356,28 +389,77 @@ export function mountInk(
       mount.dataset.inkReady = "true";
       onReady?.(true);
     }
-    onFrame?.(dt);
+  }
+  function prepareShaders() {
+    const gl = renderer.getContext();
+    const parallel = gl.getExtension("KHR_parallel_shader_compile");
+    if (!parallel) return;
+    const { raymarcher, target, layers } = ink.userData;
+    const layer = layers.reduce((largest, current) => current.length > largest.length ? current : largest, [] as Entity[]);
+    // The library normally provisions these on the first draw, too late to compile ahead.
+    const capacity = raymarcher.material.defines.MAX_ENTITIES;
+    if (typeof capacity !== "number") throw new Error("Raymarcher requires a numeric entity capacity");
+    if (capacity < layer.length) {
+      raymarcher.material.defines.MAX_ENTITIES = layer.length;
+      raymarcher.material.uniforms.entities.value = layer.map(Raymarcher.cloneEntity);
+      raymarcher.material.needsUpdate = true;
+    }
+    renderer.setRenderTarget(target);
+    renderer.compile(raymarcher, camera, scene);
+    renderer.setRenderTarget(null);
+    renderer.compile(scene, camera);
+    const programs = renderer.info.programs!.map(({ program }) => {
+      if (!(program instanceof WebGLProgram)) throw new Error("Ink shader compilation did not create a program");
+      return program;
+    });
+    // Poll on our cancellable frame loop; no blocking link-status query or orphaned timer.
+    shadersReady = () => programs.every(program => gl.getProgramParameter(program, parallel.COMPLETION_STATUS_KHR));
   }
   function animate(now: number) {
     frame = 0;
     if (destroyed || lost || !visible || document.hidden) return;
+    if (shadersReady) {
+      if (!shadersReady()) {
+        schedule();
+        return;
+      }
+      shadersReady = undefined;
+    }
     const elapsed = previous ? now - previous : 16.67;
     previous = now;
-    const dt = Math.min(elapsed / 1000, 0.06);
+    const dt = paused ? 0 : Math.min(elapsed / 1000, 0.06);
+    const moving = !reduced && (motion.speed > 0 ||
+      pointer.distanceTo(pointerTarget) > 0.001 ||
+      pointerVelocity.lengthSq() > 0.0001 || splashImpulse > 0.01);
+    const entering = !reduced && !!options.entrance &&
+      entranceTime < (entranceTarget ?? 1) * options.entrance.duration;
+    if (entering && !paused && options.entrance) {
+      if (entranceTarget === null) {
+        entranceTime = Math.min(options.entrance.duration, entranceTime + elapsed / 1000);
+      } else {
+        const target = entranceTarget * options.entrance.duration;
+        entranceTime += (target - entranceTime) * (1 - Math.exp(-elapsed / 40));
+        if (target - entranceTime < options.entrance.duration * 0.001) entranceTime = target;
+      }
+      updateEntranceState();
+    }
+    const needsDraw = dirty || moving || entering || transition > 0 || morph > 0;
     transition = reduced ? 0 : Math.max(0, transition - dt);
     morph = reduced ? 0 : Math.max(0, morph - dt);
     if (morph === 0 && (was.length || flowFrom.length || pending)) settle();
-    draw(dt);
-    if (
-      (!reduced &&
-        (motion.speed > 0 ||
-          pointer.distanceTo(pointerTarget) > 0.001 ||
-          pointerVelocity.lengthSq() > 0.0001 ||
-          splashImpulse > 0.01)) ||
-      transition > 0 ||
-      morph > 0
-    )
-      schedule();
+    if (needsDraw) {
+      dirty = false;
+      draw(dt);
+    }
+    // Keep a visible-time clock without repainting the GPU during quiet holds.
+    const ticking = !reduced && !paused && onFrame?.(dt) === true;
+    if (!paused && (ticking || moving || entering || transition > 0 || morph > 0)) schedule();
+  }
+  function updateEntranceState() {
+    const progress = reduced || !options.entrance ? 1 : entranceTime / options.entrance.duration;
+    mount.dataset.inkEntrance = progress >= 1 ? "settled" : progress > 0 ? "entering" : "pending";
+    mount.dataset.inkProgress = progress.toFixed(3);
+    if (entranceTarget !== null) mount.dataset.inkTarget = entranceTarget.toFixed(3);
   }
   function schedule() {
     if (!frame && !destroyed && !lost && visible && !document.hidden)
@@ -390,10 +472,12 @@ export function mountInk(
   }
   function updateExposure() {
     if (!options.checkOcclusion && !initial.name.startsWith("Hero ink:")) return;
-    // The folio's later sheets cover sticky ink without moving it outside
-    // the viewport. IntersectionObserver alone cannot detect that occlusion.
+    // Sticky sheets can move or cover one another between observer notifications.
+    // Use live bounds and hit testing, not a potentially stale intersection flag.
     const rect = mount.getBoundingClientRect();
-    const exposed = intersecting && [[0.5, 0.5], [0.5, 0.25], [0.5, 0.75], [0.25, 0.5], [0.75, 0.5]].some(([x, y]) =>
+    const inViewport = rect.width > 0 && rect.height > 0 && rect.bottom > 0 &&
+      rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth;
+    const exposed = inViewport && [[0.5, 0.5], [0.5, 0.25], [0.5, 0.75], [0.25, 0.5], [0.75, 0.5]].some(([x, y]) =>
       mount.parentElement?.contains(document.elementFromPoint(rect.left + rect.width * x, rect.top + rect.height * y)),
     );
     if (visible === exposed) return;
@@ -410,6 +494,7 @@ export function mountInk(
     schedule();
   });
   const pointerMove = (event: PointerEvent) => {
+    if (reduced || recipe.motion.pointer === 0) return;
     const rect = mount.getBoundingClientRect();
     const nextX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     const nextY = 1 - ((event.clientY - rect.top) / rect.height) * 2;
@@ -436,12 +521,13 @@ export function mountInk(
     schedule();
   };
   const pointerDown = () => {
-    if (reduced) return;
+    if (reduced || recipe.motion.pointer === 0) return;
     splashImpulse = 1.0;
     transition = 1.2;
     schedule();
   };
   const pointerLeave = () => {
+    if (reduced || recipe.motion.pointer === 0) return;
     pointerTarget.set(0, 0);
     pointerVelocity.set(0, 0);
     lastPointerTime = 0;
@@ -451,6 +537,7 @@ export function mountInk(
   const contextLost = (event: Event) => {
     event.preventDefault();
     lost = true;
+    shadersReady = undefined;
     cancelAnimationFrame(frame);
     frame = 0;
     mount.dataset.inkReady = "false";
@@ -462,6 +549,11 @@ export function mountInk(
     ink.userData.envMap = environment.texture;
     lost = false;
     previous = 0;
+    // Recovery follows the finished fallback, never rewinds a growing mark.
+    entranceTime = options.entrance?.duration ?? 0;
+    if (entranceTarget !== null) entranceTarget = 1;
+    updateEntranceState();
+    prepareShaders();
     transition = 1;
     schedule();
   };
@@ -477,8 +569,26 @@ export function mountInk(
   document.addEventListener("visibilitychange", visibility);
   setScene(initial);
   resize();
+  prepareShaders();
   return {
     setScene,
+    setEntranceProgress(value: number) {
+      if (!options.entrance) throw new Error("Controlled progress requires an ink entrance");
+      if (!Number.isFinite(value) || value < 0 || value > 1) throw new RangeError("Ink progress must be between 0 and 1");
+      const target = reduced ? 1 : Math.max(value, entranceTarget ?? 0);
+      if (entranceTarget === target) return;
+      // First paint reflects the current scroll position, including deep links.
+      if (entranceTarget === null) entranceTime = target * options.entrance.duration;
+      entranceTarget = target;
+      updateEntranceState();
+      dirty = true;
+      schedule();
+    },
+    setPaused(value: boolean) {
+      paused = value;
+      previous = 0;
+      schedule();
+    },
     triggerImpulse(magnitude = 1.0) {
       if (reduced) return;
       splashImpulse = magnitude;
@@ -487,10 +597,10 @@ export function mountInk(
     },
     setTheme(value: string) {
       theme = value;
-      finish.paper.value.setStyle(
-        getComputedStyle(document.documentElement).getPropertyValue("--paper").trim(),
-      );
-      finish.bleed.value = value === "dark" ? 0.12 : 0.4;
+      const tokens = getComputedStyle(document.documentElement);
+      finish.paper.value.setStyle(tokens.getPropertyValue("--paper").trim());
+      finish.pigment.value.setStyle(tokens.getPropertyValue("--ink").trim());
+      finish.bleed.value = value === "dark" ? 0.2 : 0.3;
       bleed = finish.bleed.value;
       transition = 1;
       schedule();
@@ -515,6 +625,7 @@ export function mountInk(
       environment.dispose();
       renderer.dispose();
       renderer.domElement.remove();
+      mount.dataset.inkReady = "false";
     },
   };
 }

@@ -71,8 +71,18 @@ try {
     await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
 
     for (const sheet of sheets) {
-      await page.locator(`#${sheet.id}`).scrollIntoViewIfNeeded();
+      await page.evaluate((id) => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+        const top = document.getElementById(id).closest(".folio-section-track").getBoundingClientRect().top;
+        window.scrollTo({ top: Math.ceil(top), behavior: "instant" });
+      }, sheet.id);
       await page.waitForTimeout(350);
+      if (sheet.id !== "colophon") {
+        await page.waitForFunction((id) => {
+          const mark = document.querySelector(`#${id} [data-study]`);
+          return mark?.dataset.inkReady === "true" && mark.dataset.inkEntrance === "settled";
+        }, sheet.id);
+      }
       const metrics = await page.evaluate(({ id, chromePx }) => {
         const nav = document.querySelector("header");
         const heading = document.querySelector(`#${id} h2, #${id} a`);
@@ -111,6 +121,15 @@ try {
         if (!bottoms.length) fail("colophon: no footer links");
         const worst = Math.max(...bottoms);
         if (worst > limit) fail(`colophon ${shot.width}: footer links under chrome (${worst} > ${limit})`);
+        const signature = await page.locator("[data-printers-mark]").evaluate((mark) => {
+          const rect = mark.getBoundingClientRect();
+          const text = mark.previousElementSibling.getBoundingClientRect();
+          return { gap: rect.top - text.bottom, inset: rect.left - text.left, bottom: rect.bottom, right: rect.right };
+        });
+        if (signature.gap < 20 || signature.gap > 32 || signature.inset < -16 || signature.inset > 0) {
+          fail(`colophon ${shot.width}: signature must sit below and align with the closing copy ${JSON.stringify(signature)}`);
+        }
+        if (signature.bottom > limit || signature.right > shot.width) fail(`colophon ${shot.width}: signature outside usable viewport`);
       }
 
       await page.evaluate((chromePx) => {

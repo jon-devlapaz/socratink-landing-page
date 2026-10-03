@@ -6,6 +6,7 @@ const INK_UNIFORMS = `
 uniform float roughness;
 uniform float time;
 uniform vec3 paper;
+uniform vec3 pigment;
 uniform float bleed;
 uniform float morph;
 uniform int morphSplit;
@@ -15,11 +16,25 @@ uniform float impulse;
 uniform float surfaceMotion;
 uniform float surfaceStrength;
 uniform float motionTime;
+uniform float revealEnabled;
+uniform vec4 inkReveal[MAX_ENTITIES];
 
-// Slow, shallow undulation of the ink skin so light moves across the body
-// while the silhouette holds still.
+float inkNoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  vec4 n = sin(vec4(
+    dot(i, vec2(127.1, 311.7)),
+    dot(i + vec2(1.0, 0.0), vec2(127.1, 311.7)),
+    dot(i + vec2(0.0, 1.0), vec2(127.1, 311.7)),
+    dot(i + vec2(1.0, 1.0), vec2(127.1, 311.7))
+  )) * 43758.5453;
+  n = fract(n);
+  return mix(mix(n.x, n.y, f.x), mix(n.z, n.w, f.x), f.y);
+}
+
 float skin(const in vec3 p) {
-  return 0.01 * (
+  return 0.003 * (
     sin(p.x * 4.1 + time * 0.7) * sin(p.y * 3.7 - time * 0.5)
     + 0.5 * sin((p.x + p.y) * 5.3 + p.z * 2.0 + time * 0.9)
   );
@@ -40,8 +55,24 @@ float spring(const in float c) {
 const PARTS_SIGNATURE = `SDF map(const in vec3 p) {
   SDF scene = sdEntity(p, entities[0]);
   for (int i = 1, l = min(numEntities, MAX_ENTITIES); i < l; i++) {`;
-const PARTS_RANGE = `SDF mapParts(const in vec3 p, const in int first, const in int end) {
-  SDF scene = sdEntity(p, entities[first]);
+const PARTS_RANGE = `SDF inkEntity(const in vec3 p, const in int index) {
+  SDF ink = sdEntity(p, entities[index]);
+  if (revealEnabled > 0.0) {
+    vec4 reveal = inkReveal[index];
+    if (reveal.w <= 0.0) return SDF(1000.0, ink.color);
+    if (reveal.w < 1.0) {
+      // Reveal the intact form; collapsing an ellipsoid makes its SDF unstable.
+      vec3 local = applyQuaternion(p - entities[index].position, normalize(entities[index].rotation));
+      float extent = dot(entities[index].scale, abs(reveal.xyz)) * 0.5;
+      float edge = mix(-extent, extent, reveal.w);
+      ink.distance = max(ink.distance, dot(local, reveal.xyz) - edge);
+    }
+  }
+  return ink;
+}
+
+SDF mapParts(const in vec3 p, const in int first, const in int end) {
+  SDF scene = inkEntity(p, first);
   for (int i = first + 1, l = min(end, MAX_ENTITIES); i < l; i++) {`;
 
 const INK_MAP = `
@@ -50,10 +81,10 @@ SDF map(const in vec3 position) {
   // One continuous deformation field: an inhale lifts the shoulder while
   // the belly yields. The pointer draws the upper surface with a soft lag.
   float breath = sin(time * 1.15) + 0.22 * sin(time * 2.3 - 0.6);
-  float stretch = 1.0 + living * (0.038 * breath + 0.025 * impulse);
+  float stretch = 1.0 + living * (0.012 * breath + 0.012 * impulse);
   p.y /= stretch;
   p.xz *= sqrt(stretch);
-  float turn = living * (0.09 * sin(time * 0.47) + p.y * 0.07 * sin(time * 0.61));
+  float turn = living * (0.025 * sin(time * 0.47) + p.y * 0.018 * sin(time * 0.61));
   p.xy = mat2(cos(turn), -sin(turn), sin(turn), cos(turn)) * p.xy;
   p.x -= living * (0.055 * sin(p.y * 2.1 + time * 0.82) + pointer.x * (0.3 + 0.22 * p.y));
   p.y -= living * (0.035 * sin(p.x * 2.5 - time * 0.67) + pointer.y * 0.35);
@@ -97,7 +128,7 @@ SDF map(const in vec3 position) {
   } else {
     scene = mapParts(p, 0, numEntities);
   }
-  scene.distance += skin(p) * (1.0 + living * 0.6);
+  scene.distance += skin(p) + (inkNoise(p.xy * 72.0) - 0.5) * 0.003;
   if (surfaceMotion == 1.0) {
     scene.distance -= voice * 0.07;
   }
@@ -133,14 +164,21 @@ const PBR_SIGNATURE =
 const PBR_RETURN =
   "  return reflectedLight.indirectDiffuse + reflectedLight.indirectSpecular;\n}\n";
 
-// Pooled pigment: dense in the core, thinning toward the meniscus where the
-// paper starts to show through.
+// Uneven pigment and paper tooth, not a reflection of a studio light.
 const INK_LIGHT = `${PBR_RETURN}
 vec3 getLight(const in vec3 position, const in vec3 normal, const in vec3 diffuse) {
   vec3 viewDir = normalize(cameraPosition - position);
   float grazing = 1.0 - saturate(dot(normal, viewDir));
-  vec3 pigment = mix(diffuse, paper, pow(grazing, 3.0) * bleed);
-  return getLightPbr(position, normal, pigment);
+  vec2 p = position.xy;
+  float cloud = inkNoise(p * 2.8 + vec2(3.2, 7.1)) * 0.6
+    + inkNoise(p * 7.5) * 0.28 + inkNoise(p * 19.0) * 0.12;
+  float tooth = inkNoise(p * 240.0);
+  float wash = smoothstep(-0.65, 0.85, p.y + p.x * 0.32);
+  float density = 0.96 - wash * (0.3 + cloud * 0.25)
+    - pow(grazing, 2.4) * bleed + (tooth - 0.5) * 0.055;
+  vec4 ground = sRGBTransferOETF(vec4(paper, 1.0));
+  vec4 ink = sRGBTransferOETF(vec4(pigment, 1.0));
+  return sRGBTransferEOTF(mix(ground, ink, clamp(density, 0.18, 0.99))).rgb;
 }
 `;
 
@@ -148,6 +186,7 @@ export function applyInkFinish(material: THREE.RawShaderMaterial) {
   const finish = {
     time: { value: 0 },
     paper: { value: new THREE.Color() },
+    pigment: { value: new THREE.Color() },
     bleed: { value: 0 },
     morph: { value: 1 },
     morphSplit: { value: 0 },
@@ -157,11 +196,14 @@ export function applyInkFinish(material: THREE.RawShaderMaterial) {
     surfaceMotion: { value: 0 },
     surfaceStrength: { value: 1 },
     motionTime: { value: 0 },
+    revealEnabled: { value: 0 },
+    inkReveal: { value: [] as THREE.Vector4[] },
   };
   Object.assign(material.uniforms, finish);
   material.fragmentShader = material.fragmentShader
     .replace("uniform float roughness;", INK_UNIFORMS)
     .replace(PARTS_SIGNATURE, PARTS_RANGE)
+    .replaceAll("sdEntity(p, entities[i])", "inkEntity(p, i)")
     .replace("vec3 getNormal(", INK_MAP)
     .replace(PBR_SIGNATURE, PBR_SIGNATURE.replace("getLight", "getLightPbr"))
     .replace(PBR_RETURN, INK_LIGHT);

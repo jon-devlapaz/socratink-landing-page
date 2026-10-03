@@ -10,7 +10,13 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "check": "tsc --noEmit && eslint && next build",
-    "test:hero-se": "node scripts/verify-iphone-se-hero.mjs"
+    "test:hero-se": "node scripts/verify-iphone-se-hero.mjs",
+    "test:ink": "node scripts/verify-ink-artwork.mjs",
+    "test:chapters": "node scripts/verify-chapter-ink.mjs",
+    "test:ink-reveal": "node scripts/verify-ink-reveal.mjs",
+    "test:ink-delivery": "node scripts/verify-ink-delivery.mjs",
+    "prepare:ink-assets": "node scripts/prepare-ink-assets.mjs",
+    "record:ink": "node scripts/record-ink.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",

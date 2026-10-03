@@ -1,27 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getStoredTheme, resolveTheme, THEME_CHANGE_EVENT } from "@/lib/theme";
 import { HERO_FORMS, heroInkScene } from "@/lib/ink/forms";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
+import { inkArtwork } from "@/lib/content";
+import { afterInkPosterPaint } from "@/lib/ink/poster";
 
-const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
-
-function subscribeReducedMotion(callback: () => void) {
-  const media = window.matchMedia(REDUCED_MOTION);
-  media.addEventListener("change", callback);
-  return () => media.removeEventListener("change", callback);
-}
+const HOLD_SECONDS = 4.8;
+const MORPH_SECONDS = 4.2;
 
 export function InkSphere({ size = 560 }: { size?: number }) {
   const mount = useRef<HTMLDivElement>(null);
   const interact = useRef<(reset?: boolean) => void>(() => {});
+  const playback = useRef<(paused: boolean) => void>(() => {});
+  const pausedRef = useRef(false);
+  const [paused, setPaused] = useState(false);
   const [form, setForm] = useState(0);
   const [available, setAvailable] = useState(false);
-  const reduceMotion = useSyncExternalStore(
-    subscribeReducedMotion,
-    () => window.matchMedia(REDUCED_MOTION).matches,
-    () => false,
-  );
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const element = mount.current;
@@ -29,20 +26,36 @@ export function InkSphere({ size = 560 }: { size?: number }) {
     let disposed = false;
     let cleanup = () => {};
 
-    import("@/lib/ink/renderer").then(({ mountInk }) => {
+    const start = () => import("@/lib/ink/renderer").then(({ mountInk }) => {
       if (disposed) return;
-      let onIdleFrame: (dt: number) => void = () => {};
-      const renderer = mountInk(element, heroInkScene(0), (dt) => onIdleFrame(dt), setAvailable);
       let current = 0;
-      let untilNextForm = 6;
-      const show = (next: number) => {
+      let untilNextForm = HOLD_SECONDS;
+      const renderer = mountInk(element, heroInkScene(0), (dt) => {
+        if (pausedRef.current) {
+          untilNextForm = Math.max(HOLD_SECONDS, untilNextForm - dt);
+          return false;
+        }
+        untilNextForm -= dt;
+        if (untilNextForm <= 0) {
+          show((current + 1) % HERO_FORMS.length);
+          untilNextForm = MORPH_SECONDS + HOLD_SECONDS;
+        }
+        return true;
+      }, (ready) => {
+        if (!disposed) setAvailable(ready);
+      }, { morphDuration: MORPH_SECONDS });
+      function show(next: number) {
         current = next;
         renderer.setScene(heroInkScene(next));
         setForm(next);
-      };
+      }
+      renderer.setPaused(pausedRef.current);
+      playback.current = renderer.setPaused;
       interact.current = (reset = false) => {
-        untilNextForm = 12;
-        renderer.triggerImpulse(0.35);
+        untilNextForm = MORPH_SECONDS + HOLD_SECONDS;
+        // An explicit gesture can still reshape the ink while autoplay is paused.
+        renderer.setPaused(false);
+        renderer.triggerImpulse(0.12);
         show(reset ? 0 : (current + 1) % HERO_FORMS.length);
       };
       const updateTheme = () => renderer.setTheme(resolveTheme(getStoredTheme()));
@@ -53,17 +66,9 @@ export function InkSphere({ size = 560 }: { size?: number }) {
       theme.addEventListener("change", updateTheme);
       setForm(0);
 
-      // Count visible animation time, so returning to the page never skips
-      // ahead. Give each gesture a quiet hold before the next one unfolds.
-      onIdleFrame = (dt) => {
-        if (element.parentElement?.matches(":hover, :focus-within")) return;
-        untilNextForm -= dt;
-        if (untilNextForm > 0) return;
-        show((current + 1) % HERO_FORMS.length);
-        untilNextForm = current === 0 ? 10 : 8;
-      };
       cleanup = () => {
         interact.current = () => {};
+        playback.current = () => {};
         window.removeEventListener(THEME_CHANGE_EVENT, updateTheme);
         window.removeEventListener("storage", updateTheme);
         theme.removeEventListener("change", updateTheme);
@@ -73,9 +78,12 @@ export function InkSphere({ size = 560 }: { size?: number }) {
       if (!disposed) setAvailable(false);
     });
 
+    const cancelStartup = afterInkPosterPaint(element.previousElementSibling as HTMLElement, start);
     return () => {
       disposed = true;
+      cancelStartup();
       cleanup();
+      setAvailable(false);
     };
   }, [reduceMotion]);
 
@@ -86,16 +94,25 @@ export function InkSphere({ size = 560 }: { size?: number }) {
       className="sphere ink-sphere hero-living-ink"
       style={{ width: size, height: size, padding: 0, border: 0, borderRadius: 0, overflow: "visible", background: "transparent", color: "var(--tx-2)", cursor: interactive ? "pointer" : "default", touchAction: "pan-y" }}
       aria-label={interactive
-        ? `Living ink, ${HERO_FORMS[form]}. Click or press Enter to reshape. Escape returns to the sphere.`
-        : "Ink sphere"}
+        ? `${inkArtwork.hero.label}, ${HERO_FORMS[form]}. ${inkArtwork.hero.reshape} ${paused ? inkArtwork.hero.play : inkArtwork.hero.pause}`
+        : inkArtwork.hero.still}
       aria-disabled={!interactive}
+      aria-keyshortcuts={interactive ? "Space" : undefined}
       tabIndex={interactive ? 0 : -1}
       onClick={() => { if (interactive) interact.current(); }}
       onKeyDown={(event) => {
-        if (event.key === "Escape" && interactive) interact.current(true);
+        if (!interactive) return;
+        if (event.key === "Escape") interact.current(true);
+        if (event.key === " ") {
+          event.preventDefault();
+          if (event.repeat) return;
+          pausedRef.current = !pausedRef.current;
+          setPaused(pausedRef.current);
+          playback.current(pausedRef.current);
+        }
       }}
     >
-      <img className="ink-poster" src="/brand/living-ink-poster.png" alt="" width={560} height={560}
+      <span className="ink-poster" aria-hidden="true"
         style={{ opacity: interactive ? 0 : 1, pointerEvents: "none" }} />
       <div ref={mount} className="ink-render" style={{ visibility: reduceMotion ? "hidden" : "visible" }} />
       <span className="hero-ink-focus" aria-hidden="true" />

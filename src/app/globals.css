@@ -314,7 +314,7 @@ main {
   The ink sphere (WebGL, ported from the app). The canvas is transparent.
   Do not use filter: drop-shadow on this square container — it composites a
   visible rectangular halo against cream paper (#fffcf0). Depth is sold by the
-  shader lighting plus .hero-subject::before below.
+  the ink finish itself.
 */
 .sphere {
   position: relative;
@@ -573,24 +573,6 @@ textarea:disabled { cursor: not-allowed; }
   box-sizing: border-box;
 }
 
-:root[data-theme="dark"] .hero-act::after,
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .hero-act::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 32%;
-    width: min(750px, 90vw);
-    height: min(750px, 90vw);
-    translate: -50% -50%;
-    border-radius: 50%;
-    background: radial-gradient(circle at center, rgba(58, 169, 159, 0.065) 0%, rgba(16, 15, 15, 0) 70%);
-    pointer-events: none;
-    z-index: 0;
-    filter: blur(48px);
-  }
-}
-
 /* Let the invitation sit directly on the page. */
 .hero-copy {
   position: relative;
@@ -661,48 +643,6 @@ textarea:disabled { cursor: not-allowed; }
 
 .hero-scene { min-width: 0; }
 .hero-subject { position: relative; height: 560px; overflow: visible; }
-.hero-subject::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 54%;
-  width: min(22rem, 78%);
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  background: radial-gradient(
-    circle at 50% 52%,
-    rgba(16, 15, 15, 0.1) 0%,
-    rgba(16, 15, 15, 0.04) 42%,
-    transparent 68%
-  );
-}
-
-:root[data-theme="dark"] .hero-subject::before {
-  width: min(24rem, 82%);
-  background: radial-gradient(
-    circle at 48% 50%,
-    rgba(255, 255, 255, 0.035) 0%,
-    rgba(12, 11, 10, 0.22) 38%,
-    rgba(8, 7, 6, 0.08) 58%,
-    transparent 72%
-  );
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .hero-subject::before {
-    width: min(24rem, 82%);
-    background: radial-gradient(
-      circle at 48% 50%,
-      rgba(255, 255, 255, 0.035) 0%,
-      rgba(12, 11, 10, 0.22) 38%,
-      rgba(8, 7, 6, 0.08) 58%,
-      transparent 72%
-    );
-  }
-}
 .hero-subject .sphere { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 1; }
 @media (prefers-reduced-motion: no-preference) {
   .hero-subject { transform: translateY(calc(var(--act-p, 0) * 20px)); }
@@ -741,7 +681,6 @@ textarea:disabled { cursor: not-allowed; }
     height: min(16rem, 62vw, 34dvh);
     overflow: visible;
   }
-  .hero-subject::before { display: none; }
   .hero-subject .sphere {
     width: min(16rem, 62vw, 34dvh) !important;
     height: min(16rem, 62vw, 34dvh) !important;
@@ -871,6 +810,27 @@ textarea:disabled { cursor: not-allowed; }
 }
 html:has(:focus-visible) { scroll-behavior: auto; }
 .ink-poster, .ink-render { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ink-poster {
+  --hero-poster-light: url('/brand/living-ink-light-1120.webp');
+  --hero-poster-dark: url('/brand/living-ink-dark-1120.webp');
+  background: var(--hero-poster-light) center / contain no-repeat;
+}
+:root[data-theme="dark"] .ink-poster { background-image: var(--hero-poster-dark); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ink-poster { background-image: var(--hero-poster-dark); }
+}
+@media (max-width: 767px) {
+  .ink-poster {
+    --hero-poster-light: url('/brand/living-ink-light-512.webp');
+    --hero-poster-dark: url('/brand/living-ink-dark-512.webp');
+  }
+}
+@media (max-width: 767px) and (min-resolution: 2.01dppx) {
+  .ink-poster {
+    --hero-poster-light: url('/brand/living-ink-light-768.webp');
+    --hero-poster-dark: url('/brand/living-ink-dark-768.webp');
+  }
+}
 
 /* ==========================================================================
    Cinematic Scroll Storytelling (Lenis + GSAP Kinetic Typography & Stacking)

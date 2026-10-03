@@ -7,6 +7,7 @@ declare module "three-raymarcher" {
     RawShaderMaterial,
     Texture,
     Vector3,
+    WebGLRenderTarget,
   } from "three";
   export type Entity = {
     color: Color;
@@ -31,6 +32,7 @@ declare module "three-raymarcher" {
       roughness?: number;
     });
     static shapes: Record<"sphere" | "capsule" | "box", number>;
+    static cloneEntity(entity: Entity): Entity;
     static operations: Record<
       "union" | "substraction" | "intersection",
       number
@@ -45,6 +47,7 @@ declare module "three-raymarcher" {
       resolution: number;
       roughness: number;
       raymarcher: Mesh<PlaneGeometry, RawShaderMaterial>;
+      target: WebGLRenderTarget;
     };
     dispose(): void;
   }

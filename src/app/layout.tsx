@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Inter, Instrument_Serif } from "next/font/google";
 import { site } from "@/lib/content";
 import { themeBootScript } from "@/lib/theme";
+import { inkPosterPreloadScript } from "@/lib/ink/poster";
 import "./globals.css";
 
 const inter = Inter({
@@ -99,6 +100,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
           dangerouslySetInnerHTML={{ __html: themeBootScript }}
           suppressHydrationWarning
         />
+        <script dangerouslySetInnerHTML={{ __html: inkPosterPreloadScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

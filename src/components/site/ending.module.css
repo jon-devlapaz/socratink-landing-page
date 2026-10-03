@@ -12,6 +12,22 @@
   justify-items: start;
   padding-block: clamp(4rem, 12vh, 8rem) clamp(3rem, 8vh, 5rem);
 }
+.printersMark {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.6rem;
+  margin-inline-start: -0.75rem;
+  color: var(--tx-2);
+  pointer-events: none;
+}
+.printersMark span {
+  width: 3rem;
+  aspect-ratio: 4 / 3;
+  background: currentColor;
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+}
 .colophonInvite a {
   display: inline-flex;
   align-items: center;
