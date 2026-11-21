@@ -4,7 +4,7 @@ import { speakChapter } from "@/lib/content";
 
 export function SpeakChapter() {
   return (
-    <section id="speak" className="how-chapter" aria-labelledby="speak-title">
+    <section id="speak" className="content-wrap how-chapter" aria-labelledby="speak-title">
       <div className="how-chapter-text">
         <h2 id="speak-title">{speakChapter.title}</h2>
         <div className="how-chapter-journey">
