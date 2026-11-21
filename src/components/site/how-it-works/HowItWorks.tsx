@@ -4,7 +4,7 @@ import { mapChapter } from "@/lib/content";
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="how-chapter" aria-labelledby="how-it-works-title">
+    <section id="how-it-works" className="content-wrap how-chapter" aria-labelledby="how-it-works-title">
       <div className="how-chapter-text">
         <h2 id="how-it-works-title">{mapChapter.title}</h2>
         <div className="how-chapter-journey">

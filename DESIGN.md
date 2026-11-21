@@ -153,6 +153,14 @@ One centered measure governs the page: `.content-wrap`. Below the hero, chapters
 
 The hero pairs copy with the ink subject, stacking to one column under 768px with the invitation first. Touch targets hold 44px minimums, and every anchor section carries scroll margin for the fixed nav.
 
+### Landing page edges
+
+Recorded by Codex on November 21, 2026. The header, hero, chapters, closing invitation, and footer use the edges of `.content-wrap`. This measure is at most 72rem wide, with 1rem padding on each side below 640px and 2rem from 640px up.
+
+- The header wordmark dot sits on the leading edge. The appearance button's 44px hit area ends on the trailing edge. Its visible circle sits 6px inside that edge. Both controls share the row center.
+- The hero title, body, and primary button box begin at the leading edge. The button label keeps its inset. The chapter text uses the same leading edge. Chapter artwork frames end at the trailing edge in two columns and sit centered in one column.
+- The closing invitation and footer brand start at the leading edge. On desktop, the last legal link's text ends at the trailing edge. Below 768px, the first legal link's text starts at the leading edge. The link padding extends past the text edge to keep the existing hit area.
+
 ## Elevation & Depth
 
 Flat folio, seamed. Surfaces rest flat and depth is carried by tonal steps, hairline rules, and the paper grain itself — a fixed full-page SVG turbulence layer (multiply at 38% opacity on light, overlay at 50% on dark) that gives every sheet tooth, with backdrop blur on the hero card so grain shows through frosted glass. Shadows are small, few, and functional: inset top highlights sell light on paper, 1px token rings (`--shadow-border`) bound the hero card and toggle glyph, and buttons carry a shallow press lift. The single large shadow in the system is the upward curtain seam (`0 -28px 56px -12px`) thrown where each folio sheet overlaps the last — depth as binding, not floating.
