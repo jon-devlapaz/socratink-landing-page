@@ -544,7 +544,11 @@ textarea:disabled { cursor: not-allowed; }
 }
 
 .folio-track-how { z-index: 20; }
-.folio-track-leaf { z-index: 21; }
+.folio-track-leaf {
+  z-index: 21;
+  /* Let a tall leaf scroll to its bottom before the next chapter covers it. */
+  top: min(0px, calc(100dvh - var(--leaf-height)));
+}
 .folio-track-speak { z-index: 22; }
 .folio-track-keep { z-index: 24; }
 .folio-track-takeaway { z-index: 26; }

@@ -10,6 +10,12 @@ export function CinematicScroller() {
       return;
     }
 
+    const leaf = document.getElementById("one-leaf");
+    const leafSize = new ResizeObserver(([entry]) => {
+      leaf?.style.setProperty("--leaf-height", `${entry.borderBoxSize[0].blockSize}px`);
+    });
+    if (leaf) leafSize.observe(leaf);
+
     let disposed = false;
     let cleanupFn = () => {};
     let started = false;
@@ -104,6 +110,8 @@ export function CinematicScroller() {
 
     return () => {
       disposed = true;
+      leafSize.disconnect();
+      leaf?.style.removeProperty("--leaf-height");
       if (idleId !== null && typeof win.cancelIdleCallback === "function") {
         win.cancelIdleCallback(idleId);
       }

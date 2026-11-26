@@ -21,8 +21,15 @@
   text-wrap: pretty;
 }
 
-.chapter .next {
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 1.25rem;
   margin-top: 1.05rem;
+}
+
+.actions :is(button, a) {
   padding: 0;
   cursor: pointer;
 }
@@ -101,7 +108,7 @@
 @media (max-width: 760px) {
   .chapter:global(.how-chapter) { gap: 1.1rem; }
   .exchange { margin-top: 1.35rem; }
-  .chapter .next { margin-top: 0.55rem; }
+  .actions { margin-top: 0.55rem; }
   .chapter .branch { margin-top: 0; }
 }
 
