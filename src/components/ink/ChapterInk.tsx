@@ -11,6 +11,7 @@ export function ChapterInk({ study }: { study: InkStudy }) {
   const hasEntered = useRef(false);
   const furthest = useRef(0);
   const [ready, setReady] = useState(false);
+  const poster = study === "map" ? "pine" : study;
   const reduceMotion = useReducedMotion();
   const description = inkArtwork.studies.find((item) => item.id === study)!;
 
@@ -31,6 +32,7 @@ export function ChapterInk({ study }: { study: InkStudy }) {
     let started = false;
     let painted = false;
     let frame = 0;
+    let stillFrame = 0;
     let advance: ((progress: number) => void) | undefined;
     let cleanup = () => {};
     const updateProgress = () => {
@@ -43,6 +45,16 @@ export function ChapterInk({ study }: { study: InkStudy }) {
           innerHeight - (mark.bottom - sheet.top) + mark.height * 0.15));
         element.dataset.inkScrollRange = range.toFixed(3);
         furthest.current = Math.max(furthest.current, Math.min(1, Math.max(0, 1 - sheet.top / range)));
+      }
+      if (study === "map" && !stillFrame && furthest.current > 0 && figure.dataset.inkState === "preparing") {
+        stillFrame = requestAnimationFrame(() => {
+          stillFrame = 0;
+          if (figure.dataset.inkState !== "preparing") return;
+          // The reader reached a cold renderer. Once the whole print is shown, never erase it.
+          figure.dataset.inkState = "fallback";
+          furthest.current = 1;
+          advance?.(1);
+        });
       }
       advance?.(furthest.current);
     };
@@ -71,7 +83,7 @@ export function ChapterInk({ study }: { study: InkStudy }) {
             painted = true;
             hasEntered.current = true;
             figure.dataset.inkState = "ready";
-          } else if (painted) {
+          } else if (painted || study === "map") {
             furthest.current = 1;
             figure.dataset.inkState = "fallback";
             scheduleProgress();
@@ -95,6 +107,7 @@ export function ChapterInk({ study }: { study: InkStudy }) {
       observer.disconnect();
       resize.disconnect();
       cancelAnimationFrame(frame);
+      cancelAnimationFrame(stillFrame);
       window.removeEventListener("scroll", scheduleProgress);
       window.removeEventListener("resize", scheduleProgress);
       cleanup();
@@ -107,8 +120,8 @@ export function ChapterInk({ study }: { study: InkStudy }) {
     <figure className={`how-map ${styles.figure}`} role="img"
       aria-label={`${description.name}. ${description.description}`} data-chapter-ink={study} data-ready={ready && !reduceMotion}
       style={{
-        "--study-poster-light": `url('/brand/ink-${study}-light.webp')`,
-        "--study-poster-dark": `url('/brand/ink-${study}-dark.webp')`,
+        "--study-poster-light": `url('/brand/ink-${poster}-light.webp')`,
+        "--study-poster-dark": `url('/brand/ink-${poster}-dark.webp')`,
       } as CSSProperties}>
       <div ref={mount} className={styles.canvas} data-study={study} />
       <div className={styles.poster} aria-hidden="true" />

@@ -1,4 +1,6 @@
 .figure { position: relative; aspect-ratio: 4 / 3; align-self: center; isolation: isolate; }
+.figure[data-chapter-ink="map"] { aspect-ratio: 512 / 377; }
+.figure[data-chapter-ink="map"][data-ink-state="fallback"] .canvas { visibility: hidden; }
 .canvas, .poster { position: absolute; inset: 0; }
 .poster { background: var(--study-poster-light) center / contain no-repeat; pointer-events: none; }
 .figure[data-ink-state="preparing"] .poster,
@@ -13,4 +15,5 @@
 }
 @media (max-width: 760px) {
   .figure { margin-inline: auto; }
+  .figure[data-chapter-ink="map"] { width: min(100%, 224px, 34dvh); }
 }

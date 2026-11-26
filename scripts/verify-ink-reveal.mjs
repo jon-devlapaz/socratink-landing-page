@@ -72,13 +72,10 @@ try {
             for (let xx = Math.max(0, x - 2); xx <= Math.min(width - 1, x + 2); xx++) support[yy * width + xx] = 1;
           }
         }
-        const measurements = frames.map((frame, index) => {
-          let outside = 0, erased = 0, fragments = 0;
+        function eachStroke(alpha, visit) {
           const seen = new Uint8Array(width * height);
-          for (let i = 0; i < frame.alpha.length; i++) {
-            if (frame.alpha[i] > 32 && !support[i]) outside++;
-            if (index && frames[index - 1].alpha[i] > 160 && frame.alpha[i] < 32) erased++;
-            if (seen[i] || frame.alpha[i] <= 32) continue;
+          for (let i = 0; i < alpha.length; i++) {
+            if (seen[i] || alpha[i] <= 32) continue;
             const queue = [i];
             seen[i] = 1;
             for (let j = 0; j < queue.length; j++) {
@@ -86,13 +83,37 @@ try {
               for (let yy = Math.max(0, y - 1); yy <= Math.min(height - 1, y + 1); yy++) {
                 for (let xx = Math.max(0, x - 1); xx <= Math.min(width - 1, x + 1); xx++) {
                   const n = yy * width + xx;
-                  if (!seen[n] && frame.alpha[n] > 32) { seen[n] = 1; queue.push(n); }
+                  if (!seen[n] && alpha[n] > 32) { seen[n] = 1; queue.push(n); }
                 }
               }
             }
-            if (queue.length > 4) fragments++;
+            if (queue.length > 4) visit(queue);
           }
-          return { index, progress: frame.progress, outside, erased, fragments };
+        }
+
+        // The pine lifts the brush for its crown. Each finished stroke must
+        // still grow as one connected piece, including before the crown appears.
+        const strokeIds = new Uint8Array(width * height);
+        let finalStrokes = 0;
+        eachStroke(final.alpha, pixels => {
+          finalStrokes++;
+          for (const pixel of pixels) strokeIds[pixel] = finalStrokes;
+        });
+        const measurements = frames.map((frame, index) => {
+          let outside = 0, erased = 0, fragments = 0;
+          for (let i = 0; i < frame.alpha.length; i++) {
+            if (frame.alpha[i] > 32 && !support[i]) outside++;
+            if (index && frames[index - 1].alpha[i] > 160 && frame.alpha[i] < 32) erased++;
+          }
+          const drawn = new Set();
+          let splitStroke = false;
+          eachStroke(frame.alpha, pixels => {
+            fragments++;
+            const id = strokeIds[pixels.find(pixel => strokeIds[pixel])] || 0;
+            if (!id || drawn.has(id)) splitStroke = true;
+            drawn.add(id);
+          });
+          return { index, progress: frame.progress, outside, erased, fragments, splitStroke };
         });
         const worst = measurements.reduce((a, b) => b.outside > a.outside ? b : a);
         const canvas = document.createElement("canvas");
@@ -104,7 +125,7 @@ try {
         });
         ctx.putImageData(image, 0, 0);
         const coverage = final.alpha.reduce((count, alpha) => count + Number(alpha > 32), 0) / final.alpha.length;
-        return { frames: frames.length, finished: final.progress, coverage, measurements, worstFrame: canvas.toDataURL() };
+        return { frames: frames.length, finished: final.progress, finalStrokes, coverage, measurements, worstFrame: canvas.toDataURL() };
       }, study);
       const { worstFrame, ...report } = result;
       await fs.writeFile(path.join(out, `${study}-${theme}.json`), JSON.stringify(report, null, 2));
@@ -114,7 +135,9 @@ try {
       assert.ok(result.coverage > 0.005 && result.coverage < 0.4, `${study}: the reference must contain ink and unpainted space`);
       const outside = Math.max(...result.measurements.map((m) => m.outside));
       const erased = Math.max(...result.measurements.map((m) => m.erased));
-      const stray = result.measurements.filter((m) => m.fragments > (study === "speak" && m.progress >= 0.73 ? 2 : 1));
+      assert.equal(result.finalStrokes, 2, `${study}: preserve the space between the two finished strokes`);
+      const stray = result.measurements.filter(m => m.splitStroke || m.fragments > result.finalStrokes ||
+        (study === "speak" && m.progress < 0.73 && m.fragments > 1));
       if (outside > 4) failures.push(`${study}/${theme}: ${outside} pixels escaped the finished silhouette`);
       if (erased > 8) failures.push(`${study}/${theme}: ${erased} opaque pixels disappeared between frames`);
       if (stray.length) failures.push(`${study}/${theme}: ${stray.length} frames contained detached fragments`);
