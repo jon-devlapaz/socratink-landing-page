@@ -14,7 +14,7 @@ colors:
   error: "#d14d41"
 typography:
   display:
-    fontFamily: "Instrument Serif, Georgia, serif"
+    fontFamily: "Newsreader, ui-serif, Georgia, serif"
     fontSize: "clamp(2.5rem, 4vw, 4rem)"
     fontWeight: 400
     lineHeight: 1.06
@@ -26,7 +26,7 @@ typography:
     lineHeight: 1.08
     letterSpacing: "-0.03em"
   title:
-    fontFamily: "Instrument Serif, Georgia, serif"
+    fontFamily: "Newsreader, ui-serif, Georgia, serif"
     fontSize: "1.5rem / 1.875rem / 2.25rem"
   body:
     fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
@@ -126,16 +126,16 @@ Two defined reserves (`--ui-3`, `--accent-deep` in `src/app/globals.css`) exist 
 
 ## Typography
 
-**Display Font:** Instrument Serif (with Georgia fallback)
+**Display Font:** Newsreader (ui-serif, Georgia, serif)
 **Body Font:** Inter (with system sans fallback)
 **Label/Mono Font:** system monospace stack (ui-monospace, SFMono-Regular, Menlo, Consolas, monospace)
 
-**Character:** a scholarly duet — Inter states the plain fact in weight 400 with tight tracking, and Instrument Serif answers with the voice worth remembering. Both render at weight 400 almost everywhere; emphasis comes from the voice switch, size, and position, never from bold shouting. Antialiased, synthesis off, paragraphs wrapped pretty and display lines balanced.
+**Character:** a scholarly duet — Inter states the plain fact in weight 400 with tight tracking, and Newsreader answers with the voice worth remembering. Both render at weight 400 almost everywhere; emphasis comes from the voice switch, size, and position, never from bold shouting. Antialiased, synthesis off, paragraphs wrapped pretty and display lines balanced.
 
 ### Hierarchy
 
-- **Display** (400, clamp(2.5rem, 4vw, 4rem), 1.06, −0.025em): hero and close headlines in Instrument Serif. The hero card sets it slightly smaller (clamp(2.15rem, 3.2vw, 2.75rem), 1.08); phones drop to clamp(2rem, 8.5vw, 2.5rem).
-- **Headline** (400, 2rem → 3rem across sm/lg, 1.08): section headings as a two-voice pair — a plain Inter line at −0.03em stacked over an Instrument Serif line at −0.01em. A compact variant sets 1.5rem → 1.75rem at 1.15.
+- **Display** (400, clamp(2.5rem, 4vw, 4rem), 1.06, −0.025em): hero and section titles in Newsreader. The hero card sets it slightly smaller (clamp(2.15rem, 3.2vw, 2.75rem), 1.08); phones drop to clamp(2rem, 8.5vw, 2.5rem).
+- **Headline** (400, 2rem → 3rem across sm/lg, 1.08): section headings as a two-voice pair — a plain Inter line at −0.03em stacked over a Newsreader line at −0.01em. A compact variant sets 1.5rem → 1.75rem at 1.15.
 - **Title** (serif, 400–500, 2xl → 4xl, tight): standalone serif section titles ("How a session works", "Why studying without notes sticks under pressure") and specimen targets (serif medium, snug, 1.25–1.85rem for questions and dossiers).
 - **Body** (400, 1rem/1.6, −0.01em): reading text in Inter, held to narrow measures (hero 42ch, ledger 54ch, dossier 65ch). Detail text steps down to 0.875rem; captions, trust lines, and quiet notes to 0.75rem.
 - **Label** (400, 0.75rem, 0.18em, uppercase): eyebrows and kickers in tracked-out sans — graphite at rest, semibold Verdigris in the hero card. Footer kickers shrink to 0.62rem at 0.14em.
@@ -144,7 +144,7 @@ Two defined reserves (`--ui-3`, `--accent-deep` in `src/app/globals.css`) exist 
 ### Named Rules (optional)
 
 **The Two Voices Rule.** Section headlines always pair one plain sans line with one serif line — never two sans, never two serif, never a single shout.
-**The Serif Reserve Rule.** Instrument Serif is for display, questions, quotations, and specimen targets. Body copy, UI chrome, and buttons are always Inter.
+**The Serif Reserve Rule.** Newsreader is for display, questions, quotations, and specimen targets. Body copy, UI chrome, and buttons are always Inter.
 **The Mono Instrument Rule.** Monospace is for instrument labels only — kickers, tags, legends, chart annotations, citations. It never sets prose, and prose never sets labels.
 
 ## Layout
@@ -203,7 +203,7 @@ Refined and restrained: controls answer every press in 180ms with a 0.96 scale s
 
 ### Navigation
 
-- **Bar:** fixed, paper at 80% with extra-large backdrop blur, a 5% bottom hairline, and a 2.5rem inner row inside the 72rem measure. Safe-area aware.
+- **Bar:** fixed, paper at 80% with extra-large backdrop blur, a 10% bottom hairline, and a 2.5rem inner row inside the 72rem measure. Safe-area aware.
 - **Links:** small graphite items that warm to ink on hover; keyboard focus shows the standard ring. Under 768px they collapse behind a 20px three-line menu button (1.75px rounded strokes) into a paper-95% dropdown with 44px rows.
 - **Trailing cluster:** appearance toggle, ghost Log in (hidden on small phones), and the primary CTA — which swaps to its short label under 640px.
 
@@ -226,7 +226,7 @@ Refined and restrained: controls answer every press in 180ms with a 0.96 scale s
 ### Folio sheets
 
 - **Hero:** copy first on small screens, living-ink disc below; two-column on desktop. Invitation, two actions, one subline.
-- **Chapters:** map, speak, keep — title, short journey copy, then the chapter mark. Sheets stack as a bound folio.
+- **Chapters:** map, leaf exchange, speak, keep. The exchange follows “A map of the work.” A selected leaf shows one scripted learner answer and the recorded tutor response. The other leaves fade. Sheets stack as a bound folio.
 - **Colophon:** start-learning close, then brand and legal links. Footer links stay above the iPhone Safari tab bar.
 
 ### How-it-works (retired)
@@ -252,7 +252,7 @@ Do not restore step numerals, orbit dials, retention charts, memory columns, or 
 ### Don't:
 
 - **Don't** introduce a second accent. Signal Red is functional (failures) only.
-- **Don't** set body copy, UI chrome, or buttons in Instrument Serif, and don't set prose or headlines in monospace.
+- **Don't** set body copy, UI chrome, or buttons in Newsreader, and don't set prose or headlines in monospace.
 - **Don't** put drop shadows on the WebGL sphere container or invent shadows outside the Shadow Vocabulary.
 - **Don't** draw proof the product doesn't have: no score badges, progress rings, mastery meters, or testimonial cards — evidence honesty is a visual constraint too.
 - **Don't** use solid gray borders, flat gray text, or unthemed hard-coded hexes in new UI.

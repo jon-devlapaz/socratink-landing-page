@@ -44,6 +44,36 @@ export const mapChapter = {
   ],
 } as const;
 
+// Recorded tutor evaluation: try-once-more-no-notes, run 1, prod-eval-after-build-4.
+export const leafChapter = {
+  title: "Why is the\nsky blue?",
+  learnerLabel: "Scripted learner",
+  tutorLabel: site.name,
+  branchLabel: "Choose a leaf on the branch",
+  nextLabel: "Next leaf",
+  firstLabel: "First leaf",
+  exchanges: [
+    {
+      position: "upper",
+      label: "The ocean",
+      learner: "Because it reflects the ocean.",
+      tutor: "If the blue came from the ocean reflecting light back up, what would you expect to happen in a place with no ocean anywhere near — say, a desert or a high mountain plateau?",
+    },
+    {
+      position: "left",
+      label: "The air",
+      learner: "Because air itself is blue, like paint.",
+      tutor: 'If you look at a distant mountain through many miles of this "blue paint" air, what should happen to the mountain\'s color as it gets farther away — and is that what you actually see?',
+    },
+    {
+      position: "right",
+      label: "The Sun",
+      learner: "Maybe the Sun is blue?",
+      tutor: "If the Sun were blue, the light landing on things would be blue-tinted. Is the sunlight you see white, or blue?",
+    },
+  ],
+} as const;
+
 /** Chapter 2. Facet 2 of the accepted direction. The constraint line lives here, not on the title page. */
 export const speakChapter = {
   title: "You speak.\nIt teaches.",

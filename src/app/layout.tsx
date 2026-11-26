@@ -15,6 +15,7 @@ const inter = Inter({
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
   subsets: ["latin"],
+  preload: false,
   weight: "400",
   style: ["normal", "italic"],
   display: "swap",
@@ -95,6 +96,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       suppressHydrationWarning
     >
       <head>
+        <link rel="preload" href="/fonts/newsreader.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="describedby" href="/llms.txt" />
         <script
           dangerouslySetInnerHTML={{ __html: themeBootScript }}
