@@ -10,7 +10,7 @@
 
 .how-chapter h2 {
   margin: 0;
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-serif);
   font-size: clamp(2rem, 3vw, 2.5rem);
   font-weight: 400;
   line-height: 1.08;

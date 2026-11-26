@@ -32,7 +32,7 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-instrument);
   font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 400;
   line-height: 1.08;
@@ -63,7 +63,7 @@
   align-items: center;
   gap: 2rem;
   margin-top: auto;
-  border-top: 1px solid var(--ui-2);
+  border-top: 1px solid var(--rule);
   padding-block: 2rem max(2rem, env(safe-area-inset-bottom));
 }
 .footerBrand { display: grid; gap: 0.75rem; }
