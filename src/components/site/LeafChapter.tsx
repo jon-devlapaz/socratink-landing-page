@@ -21,10 +21,15 @@ export function LeafChapter() {
           <dt>{leafChapter.tutorLabel}</dt>
           <dd className={styles.question}>{exchange.tutor}</dd>
         </dl>
-        <button className={`hero-secondary ${styles.next}`} type="button" aria-controls="leaf-exchange"
-          onClick={() => setSelected(next)}>
-          {next === 0 ? leafChapter.firstLabel : leafChapter.nextLabel} <span aria-hidden="true">→</span>
-        </button>
+        <div className={styles.actions}>
+          <button className="hero-secondary" type="button" aria-controls="leaf-exchange"
+            onClick={() => setSelected(next)}>
+            {next === 0 ? leafChapter.firstLabel : leafChapter.nextLabel} <span aria-hidden="true">→</span>
+          </button>
+          <a className="hero-secondary" href={leafChapter.askQuestion.href}>
+            {leafChapter.askQuestion.label} <span aria-hidden="true">↗</span>
+          </a>
+        </div>
       </div>
       <div className={`how-map ${styles.branch}`} role="group" aria-label={leafChapter.branchLabel}>
         {exchanges.map((leaf, index) => (

@@ -52,6 +52,7 @@ export const leafChapter = {
   branchLabel: "Choose a leaf on the branch",
   nextLabel: "Next leaf",
   firstLabel: "First leaf",
+  askQuestion: { label: "Ask your own question", href: site.appUrl },
   exchanges: [
     {
       position: "upper",
