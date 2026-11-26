@@ -44,6 +44,13 @@ async function amount(page, study) {
   return Number(await page.locator(`[data-study="${study}"]`).getAttribute("data-ink-progress"));
 }
 
+async function enterChapter(page, track, study) {
+  const range = await chapterRange(page, track, study);
+  await scrollChapter(page, range, 0);
+  await settledScroll(page, study);
+  return range;
+}
+
 try {
   for (const theme of ["light", "dark"]) {
     const page = await makePage(theme);
@@ -129,9 +136,25 @@ try {
     await page.close();
   }
 
+  // If the brush has not loaded when the reader arrives, the finished print stays in place.
+  const cold = await makePage("light");
+  let releaseBrush;
+  const brush = new Promise(resolve => { releaseBrush = resolve; });
+  await cold.route("**/ink-pine-reveal.webp", async route => { await brush; await route.continue(); });
+  const coldRange = await chapterRange(cold, "how", "map");
+  await scrollChapter(cold, coldRange, 0.6);
+  await cold.waitForFunction(() => document.querySelector('[data-chapter-ink="map"]').dataset.inkState === "fallback");
+  const visiblePoster = cold.locator('[data-chapter-ink="map"] > :last-child');
+  assert.equal(await visiblePoster.evaluate(el => getComputedStyle(el).opacity), "1");
+  await cold.screenshot({ path: path.join(out, "map-slow-start.png") });
+  releaseBrush();
+  await settledScroll(cold, "map");
+  assert.equal(await amount(cold, "map"), 1, "Starting late must never erase the finished pine");
+  await cold.close();
+
   // Failures and layout changes must not resurrect a partly drawn illustration.
   const recovery = await makePage("light");
-  const range = await chapterRange(recovery, "how", "map");
+  const range = await enterChapter(recovery, "how", "map");
   await scrollChapter(recovery, range, 0.4);
   await settledScroll(recovery, "map");
   const partial = await amount(recovery, "map");
@@ -153,7 +176,7 @@ try {
   await recovery.close();
 
   const preference = await makePage("dark");
-  const preferenceRange = await chapterRange(preference, "how", "map");
+  const preferenceRange = await enterChapter(preference, "how", "map");
   await scrollChapter(preference, preferenceRange, 0.4);
   await settledScroll(preference, "map");
   await preference.emulateMedia({ reducedMotion: "reduce" });
@@ -167,7 +190,7 @@ try {
   for (const [width, height, theme] of [[375, 667, "light"], [320, 568, "dark"]]) {
     const page = await makePage(theme, { width, height });
     for (const [track, study] of chapters) {
-      const range = await chapterRange(page, track, study);
+      const range = await enterChapter(page, track, study);
       await scrollChapter(page, range, 0.4);
       await settledScroll(page, study);
       const partial = await amount(page, study);
@@ -188,7 +211,7 @@ try {
 
   for (const touch of [false, true]) {
     const page = await makePage("light", touch ? { width: 375, height: 667 } : { width: 1440, height: 1000 }, { hasTouch: touch, isMobile: touch });
-    const range = await chapterRange(page, "how", "map");
+    const range = await enterChapter(page, "how", "map");
     await scrollChapter(page, range, 0.3);
     await settledScroll(page, "map");
     const start = await amount(page, "map");

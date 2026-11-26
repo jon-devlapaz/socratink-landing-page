@@ -1,9 +1,10 @@
+import { mountPine } from "./pine-renderer";
 import { mountInk } from "./renderer";
 import { inkStudyEntrance, inkStudyScene, type InkStudy } from "./studies";
 import { getStoredTheme, resolveTheme, THEME_CHANGE_EVENT } from "@/lib/theme";
 
 export function mountInkStudy(mount: HTMLElement, study: InkStudy, onReady: (ready: boolean) => void) {
-  const renderer = mountInk(mount, inkStudyScene(study), undefined, onReady, {
+  const renderer = study === "map" ? mountPine(mount, onReady) : mountInk(mount, inkStudyScene(study), undefined, onReady, {
     continuous: true, checkOcclusion: true,
     entrance: inkStudyEntrance(study),
   });

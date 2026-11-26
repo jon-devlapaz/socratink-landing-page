@@ -98,7 +98,7 @@ export const inkArtwork = {
     play: "Press Space to resume animation.",
   },
   studies: [
-    { id: "map", name: "Map", description: "A growing ink branch with three unfolding leaves. Unequal reaches leave open space between each possibility." },
+    { id: "map", name: "Map", description: "A crescent of ink above a bent trunk. One long branch tapers to the right." },
     { id: "speak", name: "Speak", description: "A broad brushstroke, a pause, and a smaller answering gesture. The first voice remains its own." },
     { id: "teacher", name: "Teacher", description: "An anchored ink stone and a smaller companion settling beside it. Separate forms, held in quiet relation." },
   ],
