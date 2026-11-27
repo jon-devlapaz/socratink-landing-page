@@ -58,9 +58,20 @@ for (const theme of ["light", "dark"]) {
 await savePineReveal();
 
 // The map chapter draws the pine, so its closing mark is cut from the pine print.
-for (const [study, source] of [["map", "pine"], ["speak", "speak"], ["teacher", "teacher"]]) {
-  const alpha = await sharp(path.join(brand, `ink-${source}-light.png`))
-    .resize(144, 108, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+// The pine carries far more ink than the other prints, so its mark is drawn smaller
+// (48px of ink tall) and set centred on the same baseline as the stones (y = 71).
+async function pineMark() {
+  const pine = await sharp(path.join(brand, "ink-pine-light.png")).trim().resize({ height: 48 }).png().toBuffer();
+  const { width, height } = await sharp(pine).metadata();
+  return sharp({ create: { width: 144, height: 108, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+    .composite([{ input: pine, left: Math.round((144 - width) / 2), top: 71 - height }]);
+}
+
+for (const study of ["map", "speak", "teacher"]) {
+  const print = study === "map"
+    ? await pineMark()
+    : sharp(path.join(brand, `ink-${study}-light.png`)).resize(144, 108);
+  const alpha = await sharp(await print.png().toBuffer())
     .ensureAlpha().extractChannel("alpha").raw().toBuffer();
   const rgba = Buffer.alloc(alpha.length * 4, 255);
   for (let i = 0; i < alpha.length; i++) rgba[i * 4 + 3] = alpha[i];
