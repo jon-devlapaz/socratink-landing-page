@@ -73,11 +73,6 @@ export const inkArtwork = {
   ],
 } as const;
 
-export const colophon = {
-  button: { label: hero.primary.label, href: site.appUrl },
-  subline: hero.subline,
-} as const;
-
 export const footer = {
   legal: [
     { label: "Privacy", href: "/privacy" },

@@ -39,6 +39,11 @@
   justify-self: end;
 }
 
+@media (min-width: 768px) {
+  /* Land at the top of the sheet, where the ink finishes drawing. */
+  .how-chapter { scroll-margin-top: var(--sheet-padding); }
+}
+
 @media (max-width: 760px) {
   .how-chapter {
     display: flex;
