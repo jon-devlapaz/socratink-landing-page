@@ -16,6 +16,7 @@ const eslintConfig = defineConfig([
     ".cursor/**",
     ".codex/**",
     ".agents/**",
+    ".claude/**",
   ]),
 ]);
 
