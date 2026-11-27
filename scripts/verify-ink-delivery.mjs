@@ -109,8 +109,7 @@ try {
         return getContext.call(this, type, ...args);
       };
     });
-    let release;
-    const held = new Promise(resolve => { release = resolve; });
+    const { promise: held, resolve: release } = Promise.withResolvers();
     await page.route("**/brand/living-ink-*.webp", async route => {
       await held;
       if (mode === "missing") await route.abort("failed");
