@@ -3,7 +3,6 @@ import { Colophon } from "@/components/site/Colophon";
 import { CinematicScroller } from "@/components/site/CinematicScroller";
 import { Hero } from "@/components/site/Hero";
 import { HowItWorks } from "@/components/site/how-it-works/HowItWorks";
-import { LeafChapter } from "@/components/site/LeafChapter";
 import { SpeakChapter } from "@/components/site/SpeakChapter";
 import { KeepChapter } from "@/components/site/KeepChapter";
 import { Nav } from "@/components/site/Nav";
@@ -21,11 +20,6 @@ export default function Home() {
         <div className="folio-section-track folio-track-how">
           <div className="folio-section-shell">
             <HowItWorks />
-          </div>
-        </div>
-        <div className="folio-section-track folio-track-leaf" id="one-leaf">
-          <div className="folio-section-shell">
-            <LeafChapter />
           </div>
         </div>
         <div className="folio-section-track folio-track-speak">

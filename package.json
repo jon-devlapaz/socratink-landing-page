@@ -13,7 +13,6 @@
     "test:hero-se": "node scripts/verify-iphone-se-hero.mjs",
     "test:ink": "node scripts/verify-ink-artwork.mjs",
     "test:chapters": "node scripts/verify-chapter-ink.mjs",
-    "test:leaves": "node scripts/verify-leaf-exchanges.mjs",
     "test:ink-reveal": "node scripts/verify-ink-reveal.mjs",
     "test:ink-delivery": "node scripts/verify-ink-delivery.mjs",
     "prepare:ink-assets": "node scripts/prepare-ink-assets.mjs",

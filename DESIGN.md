@@ -226,7 +226,7 @@ Refined and restrained: controls answer every press in 180ms with a 0.96 scale s
 ### Folio sheets
 
 - **Hero:** copy first on small screens, living-ink disc below; two-column on desktop. Invitation, two actions, one subline.
-- **Chapters:** map, leaf exchange, speak, keep. The exchange follows “A map of the work.” A selected leaf shows one scripted learner answer and the recorded tutor response. The other leaves fade. Sheets stack as a bound folio.
+- **Chapters:** map, speak, keep. Sheets stack as a bound folio.
 - **Colophon:** start-learning close, then brand and legal links. Footer links stay above the iPhone Safari tab bar.
 
 ### How-it-works (retired)
