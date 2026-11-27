@@ -75,11 +75,11 @@ const jsonLd = {
   description: site.description,
   url: site.url,
   featureList: [
-    "Voice-first Socratic dialogue",
-    "Refusal to autocomplete answers",
-    "Conceptual knowledge topology cartography",
-    "Adaptive pedagogical engrams",
-    "Zero tracking cookies & sovereign privacy",
+    "Socratic questions, one at a time",
+    "A skill map with levels you earn",
+    "Hints kept separate from your own work",
+    "Type or dictate your answers",
+    "Conversation history across devices when signed in",
   ],
   author: {
     "@type": "Organization",

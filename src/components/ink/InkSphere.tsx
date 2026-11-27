@@ -93,9 +93,11 @@ export function InkSphere({ size = 560 }: { size?: number }) {
       type="button"
       className="sphere ink-sphere hero-living-ink"
       style={{ width: size, height: size, padding: 0, border: 0, borderRadius: 0, overflow: "visible", background: "transparent", color: "var(--tx-2)", cursor: interactive ? "pointer" : "default", touchAction: "pan-y" }}
+      // Until the live ink can be reshaped, the sphere is decoration, not a dead control.
+      aria-hidden={interactive ? undefined : true}
       aria-label={interactive
         ? `${inkArtwork.hero.label}, ${HERO_FORMS[form]}. ${inkArtwork.hero.reshape} ${paused ? inkArtwork.hero.play : inkArtwork.hero.pause}`
-        : inkArtwork.hero.still}
+        : undefined}
       aria-disabled={!interactive}
       aria-keyshortcuts={interactive ? "Space" : undefined}
       tabIndex={interactive ? 0 : -1}

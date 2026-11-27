@@ -1,46 +1,43 @@
 # Socratink · Comprehensive Specification & Educational Philosophy
 
-> The learning engine that refuses to do the thinking for you. Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.
+> The learning engine that refuses to do the thinking for you. An AI tutor that asks one question at a time and won't hand you the answer.
 
 ## 1. System Overview
 
-Socratink is a voice-first learning engine built for adults acquiring difficult technical, formal, or professional bodies of knowledge (systems programming, applied mathematics, medicine, jurisprudence, distributed systems, machine learning).
+Socratink is a conversation-first Socratic tutor, with optional dictation, built for adults acquiring difficult technical, formal, or professional bodies of knowledge (systems programming, applied mathematics, medicine, jurisprudence, distributed systems, machine learning).
 
 The core thesis of Socratink is that conventional conversational AI interfaces act as "autocomplete for cognition." When a student asks ChatGPT or Claude to explain a concept or debug a proof, the model provides an effortless, fluent narrative. While this creates a psychological feeling of immediate fluency ("I understand this now"), cognitive science demonstrates that passive recognition fails to produce durable mental models. Under cold examination or novel application without the prompt present, the knowledge evaporates.
 
-Socratink enforces the opposite: productive struggle, active retrieval, and unassisted synthesis.
+Socratink is built for the opposite: productive struggle, active retrieval, and the learner's own explanation.
 
 ## 2. Core Pedagogical Invariants
 
-1. **Refusal to Autocomplete**: Socratink never produces direct solutions upon initial inquiry. It interrogates the learner's assumptions, requires the learner to formulate the governing axioms, and guides through counterexamples and targeted Socratic dialogue.
+1. **Refusal to Autocomplete**: Socratink does not hand over the answer. It asks one question at a time, probes the learner's assumptions, and can use an explanation, a picture, or a counterexample when that helps.
 2. **Desirable Difficulties (Bjork Framework)**: Learning that feels hard, effortful, and spaced produces long-term retention. Immediate performance is deliberately traded for long-term transfer.
-3. **Learner-Authored Work as Sole Evidence**: Merely nodding along or answering multiple-choice prompts is not evidence of capability. The learner must speak, write, or diagram their own explanation.
-4. **Cognitive Frontier Mapping**: Rather than a linear curriculum or gamified quiz streak, knowledge is mapped as an active frontier of concepts, boundaries, and decay intervals.
-5. **Adaptive Engrams**: The teacher persona adapts to the learner's intellectual style (formal, intuitive, adversarial, dialectical) and maintains memory across sessions, periodically returning to past points of confusion days later in unfamiliar contexts.
+3. **Learner-Authored Work as Sole Evidence**: Nodding along is not evidence of capability. The learner explains in their own words, typed or dictated, and a lucky guess gets another question, not a pass.
+4. **Skill Map**: Rather than a linear curriculum or gamified quiz streak, the tutor breaks a topic into skills, and the learner earns a level from 0 to 5 on each.
+5. **Marked Assistance**: Hints and "I don't know" are explicit choices, and hints are marked separately from the learner's own work, so every level reflects the learner's own thinking.
 
 ## 3. Product Architecture
 
-### A map of the work
-- The inquiry starts with the actual problem or ambiguity the learner possesses.
-- Visual representation of concepts using a minimalist sumi-ink graph topology.
-- Traversal from known foundational theorems to current uncertainties.
+### A map you earn
+- The inquiry starts with the question the learner actually has.
+- The tutor breaks the idea into skills, each earned from 0 to 5.
 
-### You speak. It teaches.
-- Voice-first conversational loop optimized for low-latency verbal deliberation.
-- The engine listens to the learner's vocabulary, precision, and hesitation.
-- It detects when a learner is regurgitating buzzwords versus articulating first principles.
-- Strict constraint: "It does not answer for you."
+### You explain. It asks.
+- One question at a time; the learner types or dictates an answer.
+- A lucky guess gets another question, not a pass.
+- Strict constraint: it does not answer for you.
 
-### A teacher you keep
-- Long-term memory structure tracking the learner's specific misconceptions.
-- Spaced cognitive probes: Returning 3 days, 7 days, or 30 days later with a variant question to verify whether understanding has decayed.
-- Pedagogical engrams: Customizable instruction dynamics.
+### Pick up where you left off
+- Hints are marked, so every level is the learner's own thinking.
+- History reopens past conversations, across devices once signed in.
+- No account is needed to start.
 
-## 4. Privacy, Security, & Sovereign Architecture
+## 4. Privacy & Learner Control
 
-- **Zero Tracking Cookies**: No marketing pixels, Google Analytics, or third-party behavioral trackers.
-- **Cookieless Infrastructure**: Eliminates consent modals, cookie walls, and cross-site tracking.
-- **Data Sovereignty**: Learner dialogues and conceptual maps belong strictly to the learner. Telemetry is strictly functional and anonymous.
+- **No Ad Tracking**: No third-party ad tracking, pixel scraping, or cross-site telemetry.
+- **Learner Control**: Learners control their history. Deleting a session or an account removes that data from operational storage. See https://socratink.ai/privacy.
 
 ## 5. Canonical Endpoints
 
