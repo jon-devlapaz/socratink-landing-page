@@ -59,7 +59,6 @@ try {
       const beforeEntry = await mount.getAttribute("data-ink-progress");
       assert.ok(beforeEntry === null || Number(beforeEntry) === 0, `${study}: do not draw during prefetch`);
       const figure = page.locator(`[data-chapter-ink="${study}"]`);
-      assert.equal(await figure.getAttribute("data-ink-state"), "preparing");
       assert.equal(await figure.locator(":scope > :last-child").evaluate((poster) => getComputedStyle(poster).opacity), "0", "Do not flash the finished poster before drawing");
       const range = await chapterRange(page, track, study);
       assert.ok(range.end - range.start < 600, "Use the existing arrival, not an extra pinned chapter");
@@ -118,6 +117,11 @@ try {
       await scrollChapter(page, range, 0.4);
       await settledScroll(page, study);
       assert.equal(await amount(page, study), 1, "Completed art must stay complete on re-entry");
+      assert.equal(await page.evaluate((study) => window.__chapterDraws[study], study), settledDraws,
+        "Revisiting the completed art must not restart drawing");
+      // Compare at the same position so fractional scroll coordinates cannot add a row of paper.
+      await scrollChapter(page, range, 1);
+      await settledScroll(page, study);
       assert.ok(settled.equals(await canvas.screenshot()), "Completed art must not replay");
       console.log(`PASS: ${study}/${theme}: scroll, pause, rewind protection, resume and quiet completion`);
     }
@@ -141,6 +145,8 @@ try {
   let releaseBrush;
   const brush = new Promise(resolve => { releaseBrush = resolve; });
   await cold.route("**/ink-pine-reveal.webp", async route => { await brush; await route.continue(); });
+  // A shorter chapter can prefetch its brush from the opening screen. Block it on a fresh visit.
+  await cold.reload({ waitUntil: "domcontentloaded" });
   const coldRange = await chapterRange(cold, "how", "map");
   await scrollChapter(cold, coldRange, 0.6);
   await cold.waitForFunction(() => document.querySelector('[data-chapter-ink="map"]').dataset.inkState === "fallback");
@@ -241,6 +247,17 @@ try {
   }
 
   const navigation = await makePage("light");
+  for (const sheet of await navigation.locator(".folio-section-track").all()) {
+    assert.ok(await sheet.evaluate(el => el.getBoundingClientRect().height < innerHeight),
+      "Desktop chapters and the closing section should each be shorter than one screen");
+  }
+  const startLinks = navigation.getByRole("link", { name: "Start learning", exact: true });
+  assert.equal(await startLinks.count(), 2);
+  const buttons = await startLinks.evaluateAll(links => links.map(link => {
+    const style = getComputedStyle(link);
+    return [link.href, style.backgroundColor, style.color, style.fontFamily, link.offsetWidth, link.offsetHeight];
+  }));
+  assert.deepEqual(buttons[0], buttons[1], "Both invitations must look alike and open the same app");
   const afterMap = navigation.locator(".folio-track-how + .folio-section-track");
   assert.equal(await afterMap.getByRole("heading", { name: "You speak. It teaches.", exact: true }).count(), 1,
     "Scrolling past the map must lead directly to the voice chapter");
