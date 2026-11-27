@@ -57,9 +57,11 @@ for (const theme of ["light", "dark"]) {
 
 await savePineReveal();
 
-for (const study of ["map", "speak", "teacher"]) {
-  const alpha = await sharp(path.join(brand, `ink-${study}-light.png`))
-    .resize(144, 108).ensureAlpha().extractChannel("alpha").raw().toBuffer();
+// The map chapter draws the pine, so its closing mark is cut from the pine print.
+for (const [study, source] of [["map", "pine"], ["speak", "speak"], ["teacher", "teacher"]]) {
+  const alpha = await sharp(path.join(brand, `ink-${source}-light.png`))
+    .resize(144, 108, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .ensureAlpha().extractChannel("alpha").raw().toBuffer();
   const rgba = Buffer.alloc(alpha.length * 4, 255);
   for (let i = 0; i < alpha.length; i++) rgba[i * 4 + 3] = alpha[i];
   await save(sharp(rgba, { raw: { width: 144, height: 108, channels: 4 } }), `signature-${study}.webp`);
