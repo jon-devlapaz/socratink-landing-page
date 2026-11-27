@@ -8,8 +8,7 @@ export function KeepChapter() {
       <div className="how-chapter-text">
         <h2 id="keep-title">{keepChapter.title}</h2>
         <div className="how-chapter-journey">
-          <p>{keepChapter.body}</p>
-          <p>{keepChapter.engram}</p>
+          {keepChapter.journey.map((line) => <p key={line}>{line}</p>)}
         </div>
       </div>
       <ChapterInk study="teacher" />

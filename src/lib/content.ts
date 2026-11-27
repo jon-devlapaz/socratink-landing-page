@@ -18,7 +18,7 @@ export const site = {
   name: "Socratink",
   tagline: "The learning engine that refuses to do the thinking for you",
   description:
-    "Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.",
+    "An AI tutor that asks one question at a time and won't hand you the answer.",
   url: "https://socratink.ai",
   appUrl: "https://app.socratink.ai/",
   year: new Date().getFullYear(),
@@ -31,37 +31,38 @@ export const site = {
 export const hero = {
   primary: { label: "Start learning", href: site.appUrl },
   secondary: { label: "See how it works", href: "#how-it-works" },
-  subline: "You think · One teacher · It stays",
+  subline: "You think · It asks · You earn it",
 } as const;
 
 /** Chapter 1. Title is facet 1 of the accepted direction; journey lines are the live How-it-works path. */
 export const mapChapter = {
-  title: "A map\nof the work",
+  title: "A map\nyou earn",
   journey: [
     "Start with the question you actually have.",
-    "Use an explanation, a picture, or a counterexample when it helps.",
-    "Return later, in a different setting, and see what still holds.",
+    "It breaks the idea into skills, each earned from 0 to 5.",
   ],
 } as const;
 
 /** Chapter 2. Facet 2 of the accepted direction. The constraint line lives here, not on the title page. */
 export const speakChapter = {
-  title: "You speak.\nIt teaches.",
-  body: "The work is spoken. It listens for what you actually understand.",
-  constraint: "It does not answer for you.",
+  title: "You explain.\nIt asks.",
+  body: "One question at a time, typed or dictated.",
+  constraint: "A lucky guess gets another question, not a pass.",
 } as const;
 
-/** Chapter 3, the peak. Facet 3 of the accepted direction; the engram is how you are taught. */
+/** Chapter 3, the peak. Facet 3 of the accepted direction: the work stays yours and stays reachable. */
 export const keepChapter = {
-  title: "A teacher\nyou keep",
-  body: "It stays, it pushes, it remembers.",
-  engram: "You choose its engram, the personality it teaches with.",
+  title: "Pick up where\nyou left off",
+  journey: [
+    "Hints are marked, so every level is your own thinking.",
+    "Reopen past conversations on any device once you sign in.",
+    "Or just start. No account needed.",
+  ],
 } as const;
 
 export const inkArtwork = {
   hero: {
     label: "Living ink",
-    still: "Ink sphere",
     reshape: "Click or press Enter to reshape. Escape returns to the sphere.",
     pause: "Press Space to pause animation.",
     play: "Press Space to resume animation.",
@@ -87,7 +88,7 @@ export const footer = {
 export const notebook = {
   heroTitle: "Make the thinking\nyour own.",
   heroBody:
-    "Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.",
+    "An AI tutor that asks one question at a time and won't hand you the answer.",
 } as const;
 
 export const notFound = {

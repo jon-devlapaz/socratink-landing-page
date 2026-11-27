@@ -1,27 +1,27 @@
 # Socratink
 
-> The learning engine that refuses to do the thinking for you. Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.
+> The learning engine that refuses to do the thinking for you. An AI tutor that asks one question at a time and won't hand you the answer.
 
-Socratink is a voice-first, high-friction Socratic learning engine designed for adults facing consequential performance demands in technical and academic disciplines (engineering, mathematics, medicine, law, systems architecture).
+Socratink is a conversation-first Socratic tutor, with optional dictation, designed for adults facing consequential performance demands in technical and academic disciplines (engineering, mathematics, medicine, law, systems architecture).
 
 Unlike general conversational AI assistants that autocomplete solutions, generate summaries, or provide immediate answers—inducing the "fluency trap" where passive exposure is mistaken for durable capability—Socratink operates under strict cognitive constraints:
-- Refusal to autocomplete: It does not supply the answer. It asks the learner to frame hypotheses, derive proofs, and defend conclusions.
+- Refusal to autocomplete: It does not supply the answer. It asks one question at a time and asks the learner to explain, frame hypotheses, and defend conclusions.
 - Productive struggle: Grounded in Robert Bjork's desirable difficulties and cognitive science; durable learning requires effortful retrieval.
-- Evidence of mastery: Learner-authored work is the only recognized evidence of understanding. Immediate fluency is untrusted until demonstrated cold.
-- Persistent memory & engrams: The learning partner remembers past misconceptions, tracks the frontier of the learner's knowledge, and tests recall across time and context.
-- Sovereign & cookieless: Built without third-party tracking scripts or advertising cookies. Respects learner attention and intellectual sovereignty.
+- Evidence of understanding: Learner-authored work is the only recognized evidence. A lucky guess gets another question, not a pass.
+- Skill map and History: The tutor breaks a topic into skills and tracks the learner's level on each, from 0 to 5, within a conversation. Hints are marked separately from the learner's own work. History reopens past conversations, across devices once signed in.
+- No third-party ad tracking or cross-site telemetry.
 
 ## Core Documentation
 
-- [Prospectus & Overview](https://socratink.ai/): Overview of the method, the three-part sequence (Map, Speak, Keep), and the live interactive demonstration.
-- [Web Application](https://app.socratink.ai/): The live learning interface for spoken inquiry and conceptual cartography.
-- [Privacy Policy](https://socratink.ai/privacy): Sovereign privacy architecture: zero tracking cookies, minimal telemetry, user data sovereignty.
+- [Prospectus & Overview](https://socratink.ai/): Overview of the method and the three-part sequence (Map, Explain, Pick up where you left off).
+- [Web Application](https://app.socratink.ai/): The live learning interface for Socratic conversation and a skill map. No account needed to start.
+- [Privacy Policy](https://socratink.ai/privacy): How learner data is handled: no third-party ad tracking, learner control over history.
 - [Terms of Service](https://socratink.ai/terms): Terms governing access, acceptable use, and intellectual property ownership.
 
 ## Method & Architecture
 
-- [Title · Make the thinking your own.](https://socratink.ai/#top): Work through hard ideas with an AI learning partner that asks you to explain, question, and think for yourself.
-- [A map of the work](https://socratink.ai/#how-it-works): Start with the question you actually have. Use an explanation, a picture, or a counterexample when it helps. Return later, in a different setting, and see what still holds.
-- [You speak. It teaches.](https://socratink.ai/#speak): The work is spoken. It listens for what you actually understand. It does not answer for you.
-- [A teacher you keep](https://socratink.ai/#keep): It stays, it pushes, it remembers. You choose its engram, the personality it teaches with.
-- [Colophon](https://socratink.ai/#colophon): Start learning. You think · One teacher · It stays.
+- [Title · Make the thinking your own.](https://socratink.ai/#top): An AI tutor that asks one question at a time and won't hand you the answer.
+- [A map you earn](https://socratink.ai/#how-it-works): Start with the question you actually have. It breaks the idea into skills, each earned from 0 to 5.
+- [You explain. It asks.](https://socratink.ai/#speak): One question at a time, typed or dictated. A lucky guess gets another question, not a pass.
+- [Pick up where you left off](https://socratink.ai/#keep): Hints are marked, so every level is your own thinking. Reopen past conversations on any device once you sign in. Or just start. No account needed.
+- [Colophon](https://socratink.ai/#colophon): Start learning. You think · It asks · You earn it.
