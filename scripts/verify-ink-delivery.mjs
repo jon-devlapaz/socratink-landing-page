@@ -32,7 +32,7 @@ for (const theme of ["light", "dark"]) {
     await samePixels(sharp(original).resize(size), name);
     assert.ok((await fs.stat(path.join(brand, name))).size < (size === 512 ? 50000 : 200000), `${name}: image budget`);
   }
-  for (const study of ["map", "pine", "speak", "teacher"]) {
+  for (const study of ["pine", "speak", "teacher"]) {
     await samePixels(sharp(path.join(brand, `ink-${study}-${theme}.png`)), `ink-${study}-${theme}.webp`);
   }
 }

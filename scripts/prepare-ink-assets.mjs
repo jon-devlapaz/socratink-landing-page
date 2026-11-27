@@ -50,7 +50,7 @@ for (const theme of ["light", "dark"]) {
   for (const size of [512, 768, 1120]) {
     await save(sharp(original).resize(size), `living-ink-${theme}-${size}.webp`);
   }
-  for (const study of ["map", "pine", "speak", "teacher"]) {
+  for (const study of ["pine", "speak", "teacher"]) {
     await save(sharp(path.join(brand, `ink-${study}-${theme}.png`)), `ink-${study}-${theme}.webp`);
   }
 }
