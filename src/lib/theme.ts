@@ -27,8 +27,13 @@ export function applyTheme(theme: Theme): void {
   const freeze = document.createElement("style");
   freeze.appendChild(document.createTextNode("*,*::before,*::after{transition:none !important}"));
   document.head.appendChild(freeze);
-  document.documentElement.dataset.theme = theme;
-  localStorage.setItem(THEME_STORAGE_KEY, theme);
+  if (theme === resolveTheme(null)) {
+    delete document.documentElement.dataset.theme;
+    localStorage.removeItem(THEME_STORAGE_KEY);
+  } else {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", themeColor(theme));
   window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
