@@ -15,6 +15,7 @@
     "test:chapters": "node scripts/verify-chapter-ink.mjs",
     "test:ink-reveal": "node scripts/verify-ink-reveal.mjs",
     "test:ink-delivery": "node scripts/verify-ink-delivery.mjs",
+    "test:theme": "node scripts/verify-theme-toggle.mjs",
     "prepare:ink-assets": "node scripts/prepare-ink-assets.mjs",
     "record:ink": "node scripts/record-ink.mjs"
   },

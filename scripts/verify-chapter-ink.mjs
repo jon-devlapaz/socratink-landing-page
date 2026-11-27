@@ -142,8 +142,7 @@ try {
 
   // If the brush has not loaded when the reader arrives, the finished print stays in place.
   const cold = await makePage("light");
-  let releaseBrush;
-  const brush = new Promise(resolve => { releaseBrush = resolve; });
+  const { promise: brush, resolve: releaseBrush } = Promise.withResolvers();
   await cold.route("**/ink-pine-reveal.webp", async route => { await brush; await route.continue(); });
   // A shorter chapter can prefetch its brush from the opening screen. Block it on a fresh visit.
   await cold.reload({ waitUntil: "domcontentloaded" });
