@@ -678,32 +678,21 @@ textarea:disabled { cursor: not-allowed; }
   .hero-subject .sphere { scale: 0.8; }
 }
 @media (max-width: 767px) {
-  /* Invitation first; ink sits in the leftover sheet above Safari's tab bar. */
   .hero-act {
-    justify-content: flex-start;
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4.75rem);
+    min-height: 100svh;
+    padding-block: calc(3.5rem + env(safe-area-inset-top, 0px)) calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
   .hero-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    align-items: stretch;
-    gap: 0.75rem;
-    padding-top: 4.25rem;
-    padding-bottom: 0;
-    min-height: 0;
-    flex: 1 1 auto;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding-block: 1.5rem;
   }
-  .hero-scene {
-    margin: 0;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    min-height: 0;
-  }
-  .hero-copy { max-width: 100%; padding-block: 0.35rem 0; }
+  .hero-scene { margin: 0; }
+  .hero-copy { max-width: 100%; }
   .hero-copy .hero-title.notebook-display { font-size: clamp(2rem, 8.5vw, 2.5rem); margin-bottom: 0.75rem; }
   .hero-copy p { font-size: 0.9375rem; margin-bottom: 0.875rem; }
   .hero-subject {
+    margin-inline: auto;
     width: min(16rem, 62vw, 34dvh);
     height: min(16rem, 62vw, 34dvh);
     overflow: visible;
@@ -712,6 +701,28 @@ textarea:disabled { cursor: not-allowed; }
     width: min(16rem, 62vw, 34dvh) !important;
     height: min(16rem, 62vw, 34dvh) !important;
   }
+}
+
+/* Let the entire opening scroll away before the map takes its place. */
+@media (max-width: 767px), (pointer: coarse) and (orientation: landscape) and (max-height: 480px) {
+  .hero-act { position: relative; }
+
+  @supports (animation-timeline: view()) {
+    .hero-title {
+      /* Clear the 3.5rem header and its rule before either line goes behind it. */
+      --title-exit: 1.25rem;
+      animation: hero-title-exit linear both;
+      animation-timeline: view(block calc(env(safe-area-inset-top, 0px) + 3.5rem + 1px + var(--title-exit)) 0px);
+      animation-range: exit 0px exit var(--title-exit);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-title { animation-timing-function: steps(1, end); }
+    }
+  }
+}
+@keyframes hero-title-exit {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 @media (max-width: 860px) {

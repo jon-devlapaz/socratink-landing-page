@@ -4,7 +4,7 @@ import { Wordmark } from "@/components/ui/Wordmark";
 export function Nav() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)]">
-      <div className="border-b border-rule bg-paper/80 backdrop-blur-xl py-2">
+      <div className="border-b border-rule bg-paper md:bg-paper/80 backdrop-blur-xl py-2">
         <div className="content-wrap flex h-10 items-center justify-between">
           <Wordmark />
           <AppearanceToggle />

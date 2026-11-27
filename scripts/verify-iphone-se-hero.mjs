@@ -1,6 +1,6 @@
 /**
  * iPhone SE title page: CTAs and subline sit above a 49px Safari tab bar
- * on 375×667 and 320×568, light and dark. Ink stays visible and below the CTAs.
+ * on short and tall phones in both themes. The map must never cut across the headline.
  *
  * INK_URL, INK_ARTIFACTS, CHROME_PATH override defaults.
  */
@@ -26,6 +26,10 @@ const browser = await chromium.launch({
 });
 
 const shots = [
+  { name: "390-light", width: 390, height: 844, theme: "light" },
+  { name: "390-dark", width: 390, height: 844, theme: "dark" },
+  { name: "500-light", width: 500, height: 844, theme: "light" },
+  { name: "500-dark", width: 500, height: 844, theme: "dark" },
   { name: "375-light", width: 375, height: 667, theme: "light" },
   { name: "375-dark", width: 375, height: 667, theme: "dark" },
   { name: "320-light", width: 320, height: 568, theme: "light" },
@@ -158,6 +162,18 @@ try {
       pad: metrics.heroPad,
       min: metrics.heroMin,
     });
+    // Stop where an incoming sheet used to cut the pinned heading in half.
+    const handoff = await page.evaluate(async () => {
+      const title = document.querySelector("h1");
+      const map = document.querySelector(".folio-track-how");
+      const initial = title.getBoundingClientRect();
+      window.scrollTo({ top: map.getBoundingClientRect().top - initial.top - initial.height / 2, behavior: "instant" });
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { titleBottom: title.getBoundingClientRect().bottom, mapTop: map.getBoundingClientRect().top };
+    });
+    if (handoff.titleBottom > handoff.mapTop) fail(`${shot.name}: the map overlaps the headline`);
+    // The image contains transparent paper around the ink. Only a small gap is needed outside its box.
+    if (metrics.blob.top - metrics.subline.bottom > 32) fail(`${shot.name}: ink is separated from the invitation`);
     await page.close();
   }
 
