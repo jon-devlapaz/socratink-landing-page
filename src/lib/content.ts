@@ -4,7 +4,7 @@ export const site = {
   name: "Socratink",
   tagline: headline.replace("\n", " "),
   description:
-    "Pick something you wish you could explain to a friend. Talk it through with an AI tutor. Your skill map shows what you can do with help and what you can do on your own.",
+    "Talk through a hard idea with an AI tutor. See what you can explain on your own.",
   features: [
     "A skill map that shows what you can do with help and on your own",
     "Questions about your reasoning, with hints and direct answers on request",

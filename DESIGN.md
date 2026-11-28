@@ -83,7 +83,7 @@ Socratink reads as a restrained archival instrument: cream paper with real grain
 
 Density is editorial and unhurried. Each section is a full folio sheet in a bound stack, separated from its neighbor by a hairline rule and one upward curtain shadow; inside, content reads top-down as a record — kicker rules, two-voice headlines, ledger rows, annotated specimens. Motion is restrained throughout (180ms presses, slow orbital drifts, scroll-drawn ink), and every animated decision honors reduced-motion with a static, fully readable fallback. The dark theme is a true ink inversion of the same ramp, never a dimmed afterthought.
 
-The landing asks the reader to pick something they wish they could explain to a friend. The skill map describes what the learner has shown in a conversation, including work done with help. Use the ink studies as illustrations. Reserve claims about the learner for their own work in the app.
+The skill map describes what the learner has shown in a conversation, including work done with help. Use the ink studies as illustrations. Reserve claims about the learner for their own work in the app.
 
 **Key Characteristics:**
 
