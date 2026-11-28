@@ -28,18 +28,18 @@ export const hero = {
 } as const;
 
 export const mapChapter = {
-  title: "Map out\nyour idea",
+  title: "A map of\nwhat you know",
   journey: [
-    "Your tutor breaks your topic into skills and rates each from 0 to 5.",
-    "Level 3 means you can do the task with help. At level 4, you can do it on your own.",
+    "Say you’ve just explained how the Moon blocks the Sun. A friend asks, “Why don’t we get a solar eclipse every month?”",
+    "Your tutor maps the skills behind your answer. A 3 means you worked it out with help. At 4, you can explain it yourself.",
   ],
 } as const;
 
 export const speakChapter = {
   title: "Put it in\nyour own words",
   journey: [
-    "Type or dictate your explanation. Your tutor asks how you got there.",
-    "When you get stuck, ask for a hint, a worked example, or the answer.",
+    "Type what you think, or say it out loud. The tutor might ask, “What makes you think that?”",
+    "Ask for a hint when you want one. If you’d rather see the answer, ask the tutor to walk you through it.",
   ],
 } as const;
 
@@ -47,7 +47,7 @@ export const keepChapter = {
   title: "Pick up where\nyou left off",
   journey: [
     "Open History to revisit your answers and the hints you asked for.",
-    "When you’re signed in, you can reopen your conversations on another device.",
+    "If you’re signed in, you can start on your laptop and pick up on your phone.",
   ],
 } as const;
 
@@ -77,6 +77,6 @@ export const footer = {
 export const notFound = {
   cue: "404",
   title: "Page not found",
-  body: "This link may be old or incomplete.",
-  action: { label: "Back to Socratink home", href: "/" },
+  body: "Check the address for a typo, or head back to the home page.",
+  action: { label: "Back to Socratink", href: "/" },
 } as const;
