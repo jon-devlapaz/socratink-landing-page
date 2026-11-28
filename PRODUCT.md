@@ -24,21 +24,21 @@ Pick something you wish you could explain to a friend. Talk it through with an A
 
 1. Bring a question to the tutor. It breaks the topic into skills and asks about what the learner already knows.
 2. Type or dictate an explanation. The tutor asks the learner to give reasons, make a prediction, or try an idea on a new problem. The learner can ask for a hint or a direct answer.
-3. Look at the skill map. The tutor rates each skill from 0 to 5 based on the conversation. For example, level 2 means the learner can follow along, level 3 means they can do the task with help, and level 4 means they can do it on their own. [Tutor’s skill scale](https://github.com/jon-devlapaz/socratink/blob/main/src/learning/socratic-tutor.ts#L55-L60)
+3. Look at the skill map. The tutor rates each skill from 0 to 5 based on the conversation. The learner uses the map to choose what to practice next. [Tutor’s skill scale](https://github.com/jon-devlapaz/socratink/blob/main/src/learning/socratic-tutor.ts#L55-L60)
 
 The public site introduces the tutor. “Start learning” opens the app in the browser. A guest can start without an account. Signing in lets learners reopen their conversations across devices. [App capabilities](https://github.com/jon-devlapaz/socratink/blob/main/PRODUCT.md)
 
 ## Capabilities and Constraints
 
 - Describe what the learner demonstrated in the conversation. A skill level is the tutor’s judgment about that work. Claims about retention on another day or readiness for an exam need separate evidence.
-- Attribute explanations and answers to their author. The tutor records help such as hints and worked examples. An example shown on the landing must be labeled as an example.
+- Attribute explanations and answers to their author. The tutor records help such as hints and worked examples.
 - Verify export and deletion features against the app before promising them. The privacy policy states that Socratink never uses private sessions to train public models. Describe data handling within the terms of that policy. [Privacy policy](https://socratink.ai/privacy)
 - Use evidence for any testimonials, customers, benchmarks, learning gains, pricing, licensing, press, or deployment claims. Keep planned features and unverified outcomes out of current product descriptions.
 
 ## Brand Commitments
 
 - **Name** Socratink, pronounced “so-cre-tink” (`soʊ krə tɪŋk`).
-- **Voice** Speak to the learner in plain language. Name the action they can take and what they can see as a result.
+- **Voice** Speak to the learner in plain language. Give each chapter one short paragraph about what the learner can do. The reference guide holds the full skill scale.
 - **Site and app** [socratink.ai](https://socratink.ai) introduces the method. The learner’s conversation takes place at [app.socratink.ai](https://app.socratink.ai/).
 
 ## Evidence on Hand

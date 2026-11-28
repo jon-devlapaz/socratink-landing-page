@@ -7,9 +7,7 @@ export function KeepChapter() {
     <section id="keep" className="content-wrap how-chapter" aria-labelledby="keep-title">
       <div className="how-chapter-text">
         <h2 id="keep-title">{keepChapter.title}</h2>
-        <div className="how-chapter-journey">
-          {keepChapter.journey.map((line) => <p key={line}>{line}</p>)}
-        </div>
+        <p>{keepChapter.body}</p>
       </div>
       <ChapterInk study="teacher" />
     </section>

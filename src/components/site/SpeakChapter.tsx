@@ -7,9 +7,7 @@ export function SpeakChapter() {
     <section id="speak" className="content-wrap how-chapter" aria-labelledby="speak-title">
       <div className="how-chapter-text">
         <h2 id="speak-title">{speakChapter.title}</h2>
-        <div className="how-chapter-journey">
-          {speakChapter.journey.map((line) => <p key={line}>{line}</p>)}
-        </div>
+        <p>{speakChapter.body}</p>
       </div>
       <ChapterInk study="speak" />
     </section>

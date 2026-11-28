@@ -29,26 +29,17 @@ export const hero = {
 
 export const mapChapter = {
   title: "A map of\nwhat you know",
-  journey: [
-    "Say you’ve just explained how the Moon blocks the Sun. A friend asks, “Why don’t we get a solar eclipse every month?”",
-    "Your tutor maps the skills behind your answer. A 3 means you worked it out with help. At 4, you can explain it yourself.",
-  ],
+  body: "See where you needed help and choose what to practice next.",
 } as const;
 
 export const speakChapter = {
   title: "Put it in\nyour own words",
-  journey: [
-    "Type what you think, or say it out loud. The tutor might ask, “What makes you think that?”",
-    "Ask for a hint when you want one. If you’d rather see the answer, ask the tutor to walk you through it.",
-  ],
+  body: "Type or speak. Ask for a hint or the answer when you want one.",
 } as const;
 
 export const keepChapter = {
   title: "Pick up where\nyou left off",
-  journey: [
-    "Open History to revisit your answers and the hints you asked for.",
-    "If you’re signed in, you can start on your laptop and pick up on your phone.",
-  ],
+  body: "Reopen a conversation in History. Sign in to continue on another device.",
 } as const;
 
 export const inkArtwork = {
