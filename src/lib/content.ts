@@ -29,7 +29,7 @@ export const hero = {
 
 export const mapChapter = {
   title: "A map of\nwhat you know",
-  body: "See where you needed help and choose what to practice next.",
+  body: "Bring a question to your tutor. Your map shows where you needed help, so you can choose what to practice next.",
 } as const;
 
 export const speakChapter = {
