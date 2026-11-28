@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "check": "tsc --noEmit && eslint && next build",
     "test:hero-se": "node scripts/verify-iphone-se-hero.mjs",
+    "test:scroll-return": "node scripts/verify-scroll-return.mjs",
     "test:ink": "node scripts/verify-ink-artwork.mjs",
     "test:chapters": "node scripts/verify-chapter-ink.mjs",
     "test:ink-reveal": "node scripts/verify-ink-reveal.mjs",

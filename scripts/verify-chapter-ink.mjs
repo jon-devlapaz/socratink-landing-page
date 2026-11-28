@@ -265,7 +265,7 @@ try {
   await navigation.waitForFunction(() => Number(document.querySelector('[data-study="map"]').dataset.inkProgress) === 1);
   await navigation.keyboard.press("End");
   await navigation.waitForFunction(() => Math.abs(scrollY - (document.documentElement.scrollHeight - innerHeight)) <= 1);
-  await navigation.waitForFunction(() => getComputedStyle(document.querySelector("[data-colophon]")).opacity === "1");
+  await navigation.waitForFunction(() => getComputedStyle(document.querySelector("[data-printers-mark]")).opacity === "1");
   const signature = await navigation.locator("[data-printers-mark]").evaluate(async (mark) => {
     const parts = [...mark.children];
     await Promise.all(parts.map(async (part) => {

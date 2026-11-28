@@ -49,17 +49,13 @@ export function CinematicScroller() {
           gsap.ticker.lagSmoothing(0);
         }
 
-        // The chapter canvases own their living motion. Only the closing
-        // invitation uses this one-time scroll reveal.
         const inkEase = CustomEase.create("ink", "0.2, 0, 0, 1");
 
-        gsap.utils.toArray<HTMLElement>("[data-colophon]").forEach((el) => {
-          gsap.from(el, {
-            opacity: 0,
-            duration: 0.5,
-            ease: inkEase,
-            scrollTrigger: { trigger: el, start: "top 75%", once: true },
-          });
+        gsap.from("[data-printers-mark]", {
+          opacity: 0,
+          duration: 0.5,
+          ease: inkEase,
+          scrollTrigger: { trigger: "[data-colophon]", start: "top 75%", once: true },
         });
 
         const revealFocus = (event: FocusEvent) => {

@@ -726,11 +726,11 @@ textarea:disabled { cursor: not-allowed; }
 
   @supports (animation-timeline: view()) {
     .hero-title {
-      /* Clear the 3.5rem header and its rule before either line goes behind it. */
-      --title-exit: 1.25rem;
-      animation: hero-title-exit linear both;
-      animation-timeline: view(block calc(env(safe-area-inset-top, 0px) + 3.5rem + 1px + var(--title-exit)) 0px);
-      animation-range: exit 0px exit var(--title-exit);
+      /* Fade before the fixed header, then release opacity once the title is offscreen. */
+      --header-height: calc(env(safe-area-inset-top, 0px) + 3.5rem + 1px);
+      animation: hero-title-exit linear;
+      animation-timeline: view(block var(--header-height) 0px);
+      animation-range: exit -1.25rem exit calc(100% + var(--header-height));
     }
     @media (prefers-reduced-motion: reduce) {
       .hero-title { animation-timing-function: steps(1, end); }
@@ -739,6 +739,7 @@ textarea:disabled { cursor: not-allowed; }
 }
 @keyframes hero-title-exit {
   from { opacity: 1; }
+  exit 0% { opacity: 0; }
   to { opacity: 0; }
 }
 
