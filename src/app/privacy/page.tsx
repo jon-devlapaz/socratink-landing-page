@@ -52,7 +52,7 @@ export default function PrivacyPage() {
               2. Data Ownership & Portability
             </h2>
             <p>
-              We believe learner-authored work is first-class evidence of capability, not corporate telemetry.
+              Your study records include your answers and the hints you request.
               All your study records, gap analyses, and session logs can be exported at any time in portable, plain-text Markdown or structured JSON.
             </p>
           </section>

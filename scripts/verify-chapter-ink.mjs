@@ -258,7 +258,7 @@ try {
   }));
   assert.deepEqual(buttons[0], buttons[1], "Both invitations must look alike and open the same app");
   const afterMap = navigation.locator(".folio-track-how + .folio-section-track");
-  assert.equal(await afterMap.getByRole("heading", { name: "You speak. It teaches.", exact: true }).count(), 1,
+  assert.equal(await afterMap.getByRole("heading", { name: "Put it in your own words", exact: true }).count(), 1,
     "Scrolling past the map must lead directly to the voice chapter");
   await navigation.getByRole("link", { name: "See how it works", exact: true }).click();
   await settledScroll(navigation, "map");

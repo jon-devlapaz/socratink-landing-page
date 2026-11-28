@@ -7,9 +7,7 @@ export function HowItWorks() {
     <section id="how-it-works" className="content-wrap how-chapter" aria-labelledby="how-it-works-title">
       <div className="how-chapter-text">
         <h2 id="how-it-works-title">{mapChapter.title}</h2>
-        <div className="how-chapter-journey">
-          {mapChapter.journey.map((line) => <p key={line}>{line}</p>)}
-        </div>
+        <p>{mapChapter.body}</p>
       </div>
       <ChapterInk study="map" />
     </section>

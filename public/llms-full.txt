@@ -1,49 +1,39 @@
-# Socratink · Comprehensive Specification & Educational Philosophy
+# Socratink
 
-> The learning engine that refuses to do the thinking for you. An AI tutor that asks one question at a time and won't hand you the answer.
+> Make the thinking your own.
 
-## 1. System Overview
+Talk through a hard idea with an AI tutor. See what you can explain on your own.
 
-Socratink is a conversation-first Socratic tutor, with optional dictation, built for adults acquiring difficult technical, formal, or professional bodies of knowledge (systems programming, applied mathematics, medicine, jurisprudence, distributed systems, machine learning).
+## Work through an idea
 
-The core thesis of Socratink is that conventional conversational AI interfaces act as "autocomplete for cognition." When a student asks ChatGPT or Claude to explain a concept or debug a proof, the model provides an effortless, fluent narrative. While this creates a psychological feeling of immediate fluency ("I understand this now"), cognitive science demonstrates that passive recognition fails to produce durable mental models. Under cold examination or novel application without the prompt present, the knowledge evaporates.
+Bring a question about something you want to understand. The tutor breaks the topic into skills and suggests where to start. Type or dictate what you think. The tutor might ask you to predict what happens next, explain why, or apply the idea to a new case.
 
-Socratink is built for the opposite: productive struggle, active retrieval, and the learner's own explanation.
+You can ask for a hint, a worked example, or a direct answer. If you choose Hint on a question card, Socratink saves that request with the question.
 
-## 2. Core Pedagogical Invariants
+## Read your skill map
 
-1. **Refusal to Autocomplete**: Socratink does not hand over the answer. It asks one question at a time, probes the learner's assumptions, and can use an explanation, a picture, or a counterexample when that helps.
-2. **Desirable Difficulties (Bjork Framework)**: Learning that feels hard, effortful, and spaced produces long-term retention. Immediate performance is deliberately traded for long-term transfer.
-3. **Learner-Authored Work as Sole Evidence**: Nodding along is not evidence of capability. The learner explains in their own words, typed or dictated, and a lucky guess gets another question, not a pass.
-4. **Skill Map**: Rather than a linear curriculum or gamified quiz streak, the tutor breaks a topic into skills, and the learner earns a level from 0 to 5 on each.
-5. **Marked Assistance**: Hints and "I don't know" are explicit choices, and hints are marked separately from the learner's own work, so every level reflects the learner's own thinking.
+Each level reflects the tutor’s judgment of your work on one skill in this conversation.
 
-## 3. Product Architecture
+| Level | What it means |
+| --- | --- |
+| 0 | The skill is new to you. |
+| 1 | You have heard of it. |
+| 2 | You can follow an explanation. |
+| 3 | You can do it with help. |
+| 4 | You can do it on your own. |
+| 5 | You can teach it or handle unusual cases. |
 
-### A map you earn
-- The inquiry starts with the question the learner actually has.
-- The tutor breaks the idea into skills, each earned from 0 to 5.
+Ask to see your skill map during the conversation. Choose a skill to practice next.
 
-### You explain. It asks.
-- One question at a time; the learner types or dictates an answer.
-- A lucky guess gets another question, not a pass.
-- Strict constraint: it does not answer for you.
+## Pick up where you left off
 
-### Pick up where you left off
-- Hints are marked, so every level is the learner's own thinking.
-- History reopens past conversations, across devices once signed in.
-- No account is needed to start.
+You can start as a guest. Open History in the app menu to return to a conversation from that guest session. When you sign in, you can open your account’s conversations on another device.
 
-## 4. Privacy & Learner Control
+## Links
 
-- **No Ad Tracking**: No third-party ad tracking, pixel scraping, or cross-site telemetry.
-- **Learner Control**: Learners control their history. Deleting a session or an account removes that data from operational storage. See https://socratink.ai/privacy.
-
-## 5. Canonical Endpoints
-
-- **Main Domain**: https://socratink.ai/
-- **Web Application**: https://app.socratink.ai/
-- **Privacy Statement**: https://socratink.ai/privacy
-- **Terms of Service**: https://socratink.ai/terms
-- **AI Agent Manifest**: https://socratink.ai/llms.txt
-- **AI Full Documentation**: https://socratink.ai/llms-full.txt
+- [Socratink landing page](https://socratink.ai/)
+- [Invitation to start](https://socratink.ai/#colophon)
+- [Open the tutor](https://app.socratink.ai/)
+- [Privacy policy](https://socratink.ai/privacy)
+- [Terms of service](https://socratink.ai/terms)
+- [Short guide](https://socratink.ai/llms.txt)

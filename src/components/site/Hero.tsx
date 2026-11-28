@@ -1,6 +1,6 @@
 import { StartLearningLink } from "@/components/site/StartLearningLink";
 import { InkSphere } from "@/components/ink/InkSphere";
-import { hero, notebook } from "@/lib/content";
+import { hero, site } from "@/lib/content";
 
 export function Hero() {
   return (
@@ -8,9 +8,9 @@ export function Hero() {
       <div className="hero-grid content-wrap">
         <div className="hero-copy">
           <h1 className="hero-title notebook-display">
-            {notebook.heroTitle}
+            {hero.title}
           </h1>
-          <p>{notebook.heroBody}</p>
+          <p>{site.description}</p>
           <div className="hero-actions">
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <StartLearningLink />

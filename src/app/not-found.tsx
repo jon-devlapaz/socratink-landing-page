@@ -19,7 +19,7 @@ export default function NotFound() {
       <main id="main" className="flex-1 flex flex-col items-center justify-center px-4 pt-28 pb-16 text-center">
         <div className="max-w-md mx-auto space-y-6">
           <span className="inline-block font-instrument text-sm tracking-[0.2em] uppercase text-tx-2" aria-hidden="true">
-            {notFound.cue} · Unwritten
+            {notFound.cue}
           </span>
 
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal leading-[1.1] tracking-[-0.025em] text-balance">
