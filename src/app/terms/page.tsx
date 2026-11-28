@@ -42,7 +42,7 @@ export default function TermsPage() {
               1. Purpose of the Service
             </h2>
             <p>
-              Socratink is a learning partner for hard technical and academic material. It is built to help you explain ideas, see what holds, and keep the work.
+              Socratink is an AI tutor for technical and academic subjects. You explain your reasoning, ask for help, and use a skill map to see what you can do on your own.
             </p>
           </section>
 

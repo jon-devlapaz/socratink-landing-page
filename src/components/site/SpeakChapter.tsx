@@ -8,8 +8,7 @@ export function SpeakChapter() {
       <div className="how-chapter-text">
         <h2 id="speak-title">{speakChapter.title}</h2>
         <div className="how-chapter-journey">
-          <p>{speakChapter.body}</p>
-          <p>{speakChapter.constraint}</p>
+          {speakChapter.journey.map((line) => <p key={line}>{line}</p>)}
         </div>
       </div>
       <ChapterInk study="speak" />

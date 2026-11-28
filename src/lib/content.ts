@@ -1,24 +1,16 @@
-/*
-  All marketing copy lives here. Components render it; they don't own it.
-
-  Grounded in the Socratink Brain (CONSTITUTION → NORTH-STAR → Canon):
-  - optimize for independently demonstrated durable capability;
-  - learner-authored work is the evidence; assistance provenance survives;
-  - exposure ≠ evidence, immediate performance ≠ durable learning;
-  - product language must not exceed available evidence (DEC-0003), so this
-    copy describes the method and what Socratink is built to do, and avoids
-    mastery scores, manufactured progress, or engagement language.
-
-  Wedge (Company Thesis): adults facing consequential performance demands in
-  difficult technical or academic material: self-directed learners, university
-  and certification learners, professionals acquiring hard bodies of knowledge.
-*/
+const headline = "Make the thinking\nyour own.";
 
 export const site = {
   name: "Socratink",
-  tagline: "The learning engine that refuses to do the thinking for you",
+  tagline: headline.replace("\n", " "),
   description:
-    "An AI tutor that asks one question at a time and won't hand you the answer.",
+    "Pick something you wish you could explain to a friend. Talk it through with an AI tutor. Your skill map shows what you can do with help and what you can do on your own.",
+  features: [
+    "A skill map that shows what you can do with help and on your own",
+    "Questions about your reasoning, with hints and direct answers on request",
+    "Typed or dictated explanations",
+    "Conversation history across devices when signed in",
+  ],
   url: "https://socratink.ai",
   appUrl: "https://app.socratink.ai/",
   year: new Date().getFullYear(),
@@ -29,34 +21,33 @@ export const site = {
 } as const;
 
 export const hero = {
+  title: headline,
   primary: { label: "Start learning", href: site.appUrl },
   secondary: { label: "See how it works", href: "#how-it-works" },
-  subline: "You think · It asks · You earn it",
+  subline: "No account needed to start.",
 } as const;
 
-/** Chapter 1. Title is facet 1 of the accepted direction; journey lines are the live How-it-works path. */
 export const mapChapter = {
-  title: "A map\nyou earn",
+  title: "Map out\nyour idea",
   journey: [
-    "Start with the question you actually have.",
-    "It breaks the idea into skills, each earned from 0 to 5.",
+    "Your tutor breaks your topic into skills and rates each from 0 to 5.",
+    "Level 3 means you can do the task with help. At level 4, you can do it on your own.",
   ],
 } as const;
 
-/** Chapter 2. Facet 2 of the accepted direction. The constraint line lives here, not on the title page. */
 export const speakChapter = {
-  title: "You explain.\nIt asks.",
-  body: "One question at a time, typed or dictated.",
-  constraint: "A lucky guess gets another question, not a pass.",
+  title: "Put it in\nyour own words",
+  journey: [
+    "Type or dictate your explanation. Your tutor asks how you got there.",
+    "When you get stuck, ask for a hint, a worked example, or the answer.",
+  ],
 } as const;
 
-/** Chapter 3, the peak. Facet 3 of the accepted direction: the work stays yours and stays reachable. */
 export const keepChapter = {
   title: "Pick up where\nyou left off",
   journey: [
-    "Hints are marked, so every level is your own thinking.",
-    "Reopen past conversations on any device once you sign in.",
-    "Or just start. No account needed.",
+    "Open History to revisit your answers and the hints you asked for.",
+    "When you’re signed in, you can reopen your conversations on another device.",
   ],
 } as const;
 
@@ -83,17 +74,9 @@ export const footer = {
   legalNote: "All rights reserved.",
 } as const;
 
-
-/** Minimal hero invitation: the learner does the thinking. */
-export const notebook = {
-  heroTitle: "Make the thinking\nyour own.",
-  heroBody:
-    "An AI tutor that asks one question at a time and won't hand you the answer.",
-} as const;
-
 export const notFound = {
   cue: "404",
-  title: "You walked off\nthe edge of the paper.",
-  body: "There is no inquiry recorded at this address. The ink has not touched this sheet.",
-  action: { label: "Return to the map", href: "/" },
+  title: "Page not found",
+  body: "This link may be old or incomplete.",
+  action: { label: "Back to Socratink home", href: "/" },
 } as const;

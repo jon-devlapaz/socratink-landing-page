@@ -1,6 +1,6 @@
 ---
 name: Socratink
-description: Know what you actually know
+description: Make the thinking your own.
 colors:
   paper: "#fffcf0"
   paper-2: "#f2f0e9"
@@ -83,7 +83,7 @@ Socratink reads as a restrained archival instrument: cream paper with real grain
 
 Density is editorial and unhurried. Each section is a full folio sheet in a bound stack, separated from its neighbor by a hairline rule and one upward curtain shadow; inside, content reads top-down as a record — kicker rules, two-voice headlines, ledger rows, annotated specimens. Motion is restrained throughout (180ms presses, slow orbital drifts, scroll-drawn ink), and every animated decision honors reduced-motion with a static, fully readable fallback. The dark theme is a true ink inversion of the same ramp, never a dimmed afterthought.
 
-The visual language encodes the product's epistemic stance: solid verdigris marks what is durable and confirmed, while dashed rings, muted ink, and evaporating particles mark what is passive, assisted, or fading. Nothing on the page claims more than the evidence supports — there are no score badges, progress rings, or mastery meters anywhere in the system.
+The landing asks the reader to pick something they wish they could explain to a friend. The skill map describes what the learner has shown in a conversation, including work done with help. Use the ink studies as illustrations. Reserve claims about the learner for their own work in the app.
 
 **Key Characteristics:**
 
@@ -93,7 +93,7 @@ The visual language encodes the product's epistemic stance: solid verdigris mark
 - Hairline rules and ledger structure instead of boxes and shadows.
 - Folio-deck sections with a single upward curtain seam between sheets.
 - Monospace reserved for instrument labels; serif reserved for display.
-- Solid ink means durable; dashed and muted means passive or fading.
+- Solid ink marks an observed result. Dashed ink can mark an open question.
 
 ## Colors
 
@@ -136,7 +136,7 @@ Two defined reserves (`--ui-3`, `--accent-deep` in `src/app/globals.css`) exist 
 
 - **Display** (400, clamp(2.5rem, 4vw, 4rem), 1.06, −0.025em): hero and section titles in Newsreader. The hero card sets it slightly smaller (clamp(2.15rem, 3.2vw, 2.75rem), 1.08); phones drop to clamp(2rem, 8.5vw, 2.5rem).
 - **Headline** (400, 2rem → 3rem across sm/lg, 1.08): section headings as a two-voice pair — a plain Inter line at −0.03em stacked over a Newsreader line at −0.01em. A compact variant sets 1.5rem → 1.75rem at 1.15.
-- **Title** (serif, 400–500, 2xl → 4xl, tight): standalone serif section titles ("How a session works", "Why studying without notes sticks under pressure") and specimen targets (serif medium, snug, 1.25–1.85rem for questions and dossiers).
+- **Title** (serif, 400–500, 2xl → 4xl, tight): standalone serif section titles and specimen targets (serif medium, snug, 1.25–1.85rem for questions and dossiers).
 - **Body** (400, 1rem/1.6, −0.01em): reading text in Inter, held to narrow measures (hero 42ch, ledger 54ch, dossier 65ch). Detail text steps down to 0.875rem; captions, trust lines, and quiet notes to 0.75rem.
 - **Label** (400, 0.75rem, 0.18em, uppercase): eyebrows and kickers in tracked-out sans — graphite at rest, semibold Verdigris in the hero card. Footer kickers shrink to 0.62rem at 0.14em.
 - **Instrument mono** (0.62–0.75rem monospace): day tags, diagnostic kickers, window titles, legends, chart annotations, and citation footers. Uppercase with wide tracking for tags; plain for data.
@@ -220,7 +220,7 @@ Refined and restrained: controls answer every press in 180ms with a 0.96 scale s
 
 - **Tile:** linen-mix fill, 6% border, 0.875rem radius — the base for orbit pills and format tags.
 - **Selection badge:** full-pill Verdigris tint (30% border, 10% fill, accent text, 0.75rem medium) for states like "Active Selection".
-- **Neutral chips:** small rounded rectangles (paper-2 fill, 15% border, graphite text) for condition badges ("Free response", "No multiple choice").
+- **Neutral chips:** small rounded rectangles (paper-2 fill, 15% border, graphite text) for condition badges ("With help", "On your own").
 - **Mono tags:** uppercase tracked monospace kickers ("Diagnostic prompt", "Target curriculum") that head specimens and panels.
 
 ### Folio sheets
@@ -246,7 +246,7 @@ Do not restore step numerals, orbit dials, retention charts, memory columns, or 
 - **Do** build borders and dividers from ink `color-mix` hairlines (5–20%); let tonal steps and the grain carry depth before reaching for shadow.
 - **Do** give every motion decision a reduced-motion branch that leaves content fully readable — static chart, frozen dial, instant swaps, no auto-advance.
 - **Do** hold 44px touch minimums and the 2px Verdigris focus treatment on everything interactive.
-- **Do** use dashed strokes and muted ink to mean provisional or fading, and solid Verdigris to mean durable and confirmed.
+- **Do** use dashed strokes and muted ink for open questions and solid Verdigris for observed results.
 - **Do** keep body measures narrow (40–65ch) and let sections breathe at near-viewport height.
 
 ### Don't:
